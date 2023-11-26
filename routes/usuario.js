@@ -68,13 +68,17 @@ usuarioRouter.post('/create_account', async (req, res) => {
 })
 
 usuarioRouter.put('/updateUser/:uid', async (req, res) => {
-    var user = req.body.user
+    var user = req.body
     const update = await userController.updateUser(user.name, user.last_name, user.gender, user.email, req.params.uid)
     if (update === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: update 
+        });
     }
 })
 
