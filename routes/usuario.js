@@ -4,18 +4,17 @@ const usuarioRouter = express.Router();
 
 const userController = require('../controller/usuario');
 
-usuarioRouter.get('/services', async (req, res) => {
-    const services = await userController.getServices()
-    if (services === undefined) {
+usuarioRouter.get('/user/:uid', async (req, res) => {
+    const user= await userController.getUser(req.params.uid)
+    if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
 
-
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: services
+            result: user
         });
     }
 })
