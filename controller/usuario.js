@@ -11,6 +11,16 @@ const getUser = (uid) => { //getByEmail
     });
 };
 
+const getUserDetail = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT uid , name, last_name, gender, email FROM user_detail  WHERE uid= ?",[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -20,6 +30,17 @@ const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
             });
     });
 };
+
+const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE user_detail SET name= ?, last_name=?, gender=?, email=? WHERE uid=?",[name, last_name, gender,email,uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 
 const register=(uid, name, email, pass, date_created, id_type) =>{
     return new Promise((resolve, reject) => {
@@ -43,5 +64,7 @@ module.exports = {
     register,
     getUser,
     insertUserDetail,
-    updateLogin
+    updateLogin,
+    updateUser,
+    getUserDetail
 }

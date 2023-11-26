@@ -53,7 +53,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
             }
         }
     } else {
-        const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt,userDetail.lastSignInTime, user.uid)
+        const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
         if (usDetUpdate === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
@@ -64,6 +64,32 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 result: usDetUpdate
             });
         }
+    }
+})
+
+usuarioRouter.put('/updateUser/:uid', async (req, res) => {
+    var user = req.body.user
+    const update = await userController.updateUser(user.name, user.last_name, user.gender, user.email, req.params.uid)
+    if (update === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+    }
+})
+
+usuarioRouter.get('/userDetail/:uid', async (req, res) => {
+    const user = await userController.getUserDetail(req.params.uid)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
     }
 })
 
