@@ -21,22 +21,32 @@ usuarioRouter.get('/services', async (req, res) => {
 })
 
 usuarioRouter.post('/create_account', async (req, res) => {
-    const register = await userController.register(req.body.uid, req.body.name, req.body.email, req.body.pass, req.body.date_created, req.body.id_type)
+    var user = req.body.user;
+    var userDetail = req.body.userDetail;
+    const register = await userController.register(user.uid, user.name, user.email, user.pass, user.date_created, user.id_type)
     if (register === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
-        const user = await userController.getUser(req.body.uid)
+        const user = await userController.getUser(user.uid)
         if (user === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            return res.status(200).send({
-                msg: 'SUCCESSFULLY',
-                result: user
-            });
+            userDetail.idUser = user.id;
+            const usDet = await userController.insertUserDetail(userDetail)
+            if (usDet === undefined) {
+                res.json({
+                    error: 'Error, Datos no encontrados'
+                })
+            } else {
+                return res.status(200).send({
+                    msg: 'SUCCESSFULLY',
+                    result: usDet
+                });
+            }
         }
     }
 })
