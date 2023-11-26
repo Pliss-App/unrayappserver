@@ -30,6 +30,5 @@ const register=(uid, name, email, pass, date_created, id_type) =>{
 }
 
 module.exports = {
-    getServices,
     register
 }
