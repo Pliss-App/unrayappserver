@@ -23,30 +23,46 @@ usuarioRouter.get('/services', async (req, res) => {
 usuarioRouter.post('/create_account', async (req, res) => {
     var user = req.body.user;
     var userDetail = req.body.userDetail;
-    const register = await userController.register(user.uid, user.name, user.email, user.pass, user.date_created, user.id_type)
-    if (register === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados'
-        })
-    } else {
-        const getUser = await userController.getUser(user.uid)
-        if (getUser === undefined) {
+    const getUser = await userController.getUser(user.uid)
+    if (getUser === undefined) {
+
+        const register = await userController.register(user.uid, user.name, user.email, user.pass, user.date_created, user.id_type)
+        if (register === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            userDetail.idUser = getUser.id;
-            const usDet = await userController.insertUserDetail(userDetail)
-            if (usDet === undefined) {
+            const getUser = await userController.getUser(user.uid)
+            if (getUser === undefined) {
                 res.json({
                     error: 'Error, Datos no encontrados'
                 })
             } else {
-                return res.status(200).send({
-                    msg: 'SUCCESSFULLY',
-                    result: usDet
-                });
+                userDetail.idUser = getUser.id;
+                const usDet = await userController.insertUserDetail(userDetail)
+                if (usDet === undefined) {
+                    res.json({
+                        error: 'Error, Datos no encontrados'
+                    })
+                } else {
+                    return res.status(200).send({
+                        msg: 'SUCCESSFULLY',
+                        result: usDet
+                    });
+                }
             }
+        }
+    } else {
+        const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt,userDetail.lastSignInTime, user.uid)
+        if (usDetUpdate === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: usDetUpdate
+            });
         }
     }
 })
