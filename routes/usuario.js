@@ -18,8 +18,18 @@ usuarioRouter.get('/services', async (req, res) => {
     }
 })  
 
-usuarioRouter.get('/carga/:id', (req, res) => {
-    return res.status(200).send({ message:  `Mensaje de respuesta User ${req.params.id}` })
+usuarioRouter.post('/create_account', async (req, res) => {
+    const register = await userController.register(req.body.uid, req.body.name, req.body.email, req.body.pass, req.body.date_created, req.body.id_type)
+    if (register === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: register
+        });
+    }
 })  
 
 module.exports = usuarioRouter;
