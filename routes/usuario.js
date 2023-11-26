@@ -29,13 +29,13 @@ usuarioRouter.post('/create_account', async (req, res) => {
             error: 'Error, Datos no encontrados'
         })
     } else {
-        const users = await userController.getUser(user.uid)
-        if (users === undefined) {
+        const getUser = await userController.getUser(user.uid)
+        if (getUser === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            userDetail.idUser = users.id;
+            userDetail.idUser = getUser.id;
             const usDet = await userController.insertUserDetail(userDetail)
             if (usDet === undefined) {
                 res.json({
