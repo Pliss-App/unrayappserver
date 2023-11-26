@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const getUser = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM user  WHERE uid= ?",[uid],(err, rows) => {
+            "SELECT u.*, ud.photoURL, ud.idphotoURL FROM user u INNER JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?",[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
