@@ -41,6 +41,16 @@ const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
     });
 };
 
+const updatePhotoUser = (photoURL ,idphotoURL, uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE user_detail SET photoURL=? ,idphotoURL=? WHERE uid= ?",[photoURL ,idphotoURL,uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 const updateTableUser = ( uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -77,5 +87,6 @@ module.exports = {
     updateLogin,
     updateUser,
     updateTableUser,
-    getUserDetail
+    getUserDetail,
+    updatePhotoUser
 }

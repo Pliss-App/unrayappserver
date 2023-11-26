@@ -90,6 +90,21 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
     }
 })
 
+usuarioRouter.put('/updatePhotoUser/:uid', async (req, res) => {
+    var user = req.body
+    const update = await userController.updatePhotoUser(user.photoURL, user.idphotoURL, req.params.uid)
+    if (update === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: update
+        });
+    }
+})
+
 usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     const user = await userController.getUserDetail(req.params.uid)
     if (user === undefined) {
