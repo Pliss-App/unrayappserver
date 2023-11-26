@@ -14,7 +14,7 @@ const getUser = (uid) => { //getByEmail
 const getUserDetail = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT uid , name, last_name, gender, email FROM user_detail  WHERE uid= ?",[uid],(err, rows) => {
+            "SELECT uid , name, last_name, phoneNumber, gender, email FROM user_detail  WHERE uid= ?",[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
