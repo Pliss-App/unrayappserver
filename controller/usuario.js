@@ -34,7 +34,17 @@ const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
 const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE user_detail SET name= ?, last_name=?, gender=?, email=? WHERE uid=?",[name, last_name, gender,email,uid],(err, rows) => {
+            "UPDATE user_detail SET name= ?, last_name=?, gender=?, email=? WHERE uid=? ;",[name, last_name, gender,email,uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+const updateTableUser = ( uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE user, user_detail SET user.name=  CONCAT(user_detail.name, ' ', user_detail.last_name), user.email = user_detail.email WHERE user_detail.uid = ?;",[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
@@ -66,5 +76,6 @@ module.exports = {
     insertUserDetail,
     updateLogin,
     updateUser,
+    updateTableUser,
     getUserDetail
 }

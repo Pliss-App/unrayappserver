@@ -75,10 +75,19 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
             error: 'Error, Datos no encontrados'
         })
     } else {
-        return res.status(200).send({
-            msg: 'SUCCESSFULLY',
-            result: update 
-        });
+        var tableUser = await userController.updateTableUser(req.params.uid)
+
+        if (tableUser === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: update
+            });
+        }
+
     }
 })
 
