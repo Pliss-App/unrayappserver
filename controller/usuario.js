@@ -1,25 +1,15 @@
 const connection = require('../mysql');
 const bcrypt = require('bcrypt');
 
-const getServices = () => { //getByEmail
+const getUser = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM Servicios WHERE 1", (err, rows) => {
+            "SELECT id FROM user  WHERE uid= ?",[uid],(err, rows) => {
                 if (err) reject(err)
-                resolve(rows)
+                resolve(rows[0])
             });
     });
 };
-
-const insertComercio = (_code, _nombre, _id_tipcomercio) => { //
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO Comercio(code, nombre, id_tipcomercio) VALUES (${connection.escape(_code)}, ${connection.escape(_nombre)}, ${connection.escape(_id_tipcomercio)})`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
-    });
-}
-
 const register=(uid, name, email, pass, date_created, id_type) =>{
     return new Promise((resolve, reject) => {
         connection.query(`INSERT INTO user(uid, name, email, pass, date_created, id_type) VALUES (${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(email)}, ${connection.escape(pass)}, ${connection.escape(date_created)}, ${connection.escape(id_type)})`, (err, result) => {
@@ -29,6 +19,17 @@ const register=(uid, name, email, pass, date_created, id_type) =>{
     });
 }
 
+const insertUserDetail=(body) =>{
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO user_detail SET ?`,[body], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 module.exports = {
-    register
+    register,
+    getUser,
+    insertUserDetail
 }
