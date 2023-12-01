@@ -19,6 +19,21 @@ usuarioRouter.get('/user/:uid', async (req, res) => {
     }
 })
 
+usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
+    var user = req.body.address;
+    const insert = await userController.insertAddressFavorite(user);
+    if (insert === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: insert
+        });
+    }
+})
+
 usuarioRouter.post('/create_account', async (req, res) => {
     var user = req.body.user;
     var userDetail = req.body.userDetail;

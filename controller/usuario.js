@@ -80,6 +80,16 @@ const insertUserDetail=(body) =>{
     });
 }
 
+
+const insertAddressFavorite=(body) =>{
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO addressFavorite SET ?`,[body], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 module.exports = {
     register,
     getUser,
@@ -88,5 +98,6 @@ module.exports = {
     updateUser,
     updateTableUser,
     getUserDetail,
-    updatePhotoUser
+    updatePhotoUser,
+    insertAddressFavorite
 }
