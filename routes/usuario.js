@@ -21,7 +21,7 @@ usuarioRouter.get('/user/:uid', async (req, res) => {
 
 usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
 
-    const insert = await userController.insertAddressFavorite(req.body.idUser,  req.body.address, req.body.lat, req.body.lng, req.body.idtAddres );
+    const insert = await userController.insertAddressFavorite(req.body.idUser,req.body.uid,  req.body.address, req.body.lat, req.body.lng, req.body.idtAddres );
     if (insert === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'

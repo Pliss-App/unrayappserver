@@ -81,9 +81,9 @@ const insertUserDetail=(body) =>{
 }
 
 
-const insertAddressFavorite=(_idUser, _address, _lat, _lng, _idtAddres) =>{
+const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO addressFavorite(idUser, address, lat, lng, idtAddres) VALUES (${connection.escape(_idUser)},${connection.escape(_address)}, ${connection.escape(_lat)}, ${connection.escape(lng)}, ${connection.escape(_idtAddres)})`, (err, result) => {
+        connection.query(`INSERT INTO addressFavorite(idUser, uid, address, lat, lng, idtAddres) VALUES (${connection.escape(_idUser)},${connection.escape(_uid)}, ${connection.escape(_address)}, ${connection.escape(_lat)}, ${connection.escape(lng)}, ${connection.escape(_idtAddres)})`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
