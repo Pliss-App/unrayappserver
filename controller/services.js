@@ -10,10 +10,10 @@ const getServices = () => { //getByEmail
     });
 };
 
-const getCosSerKm = () => { //getByEmail
+const getCosSerKm = (km) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM preciobasekm WHERE 1", (err, rows) => {
+            `SELECT precio FROM preciobasekm WHERE ${km} BETWEEN minkm AND maxkm;`, (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
