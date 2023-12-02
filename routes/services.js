@@ -19,7 +19,7 @@ servicesRouter.get('/list', async (req, res) => {
 })  
 
 servicesRouter.get('/costokm', async (req, res) => {
-    const services = await servController.getCosSerKm
+    const services = await servController.getCosSerKm()
     if (services === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
