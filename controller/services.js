@@ -15,7 +15,7 @@ const getCosSerKm = (km) => { //getByEmail
         connection.query(
             `SELECT precio FROM preciobasekm WHERE ${km} BETWEEN minkm AND maxkm;`, (err, rows) => {
                 if (err) reject(err)
-                resolve(rows)
+                resolve(rows[0])
             });
     });
 };
