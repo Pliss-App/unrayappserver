@@ -71,9 +71,9 @@ const register=(uid, name, email, pass, date_created, id_type) =>{
     });
 }
 
-const insertUserDetail=( idUser, uid, name, last_name, gender, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) =>{
+const insertUserDetail=(body) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO user_detail ( idUser, uid, name, last_name, gender, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) VALUES (${connection.escape(idUser)}, ${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(last_name)}, ${connection.escape(gender)}, ${connection.escape(photoURL)}, ${connection.escape(idphotoURL)}, ${connection.escape(phoneNumber)}, ${connection.escape(email)}, ${connection.escape(emailVerified)}, ${connection.escape(providerId)}, ${connection.escape(createdAt)}, ${connection.escape(creationTime)}, ${connection.escape(lastLoginAt)}, ${connection.escape(lastSignInTime)})`, (err, result) => {
+        connection.query(`INSERT INTO user_detail SET ?`,[body], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
