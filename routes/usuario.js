@@ -46,46 +46,48 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            const getUser = await userController.getUser(user.uid)
-            if (getUser === undefined) {
-                res.json({
-                    error: 'Error, Datos no encontrados'
-                })
-            } else {
-
-                return res.status(200).send({
-                    msg: 'SUCCESSFULLY',
-                    result: getUser
-                });
-                /*var detail = {
-                    idUser:  getUser.id,
-                    uid:  userDetail.uid, 
-                    name: userDetail.name, 
-                    last_name: userDetail.last_name, 
-                    gender: userDetail.gender, 
-                    photoURL: userDetail.userDetail.photoURL, 
-                    idphotoURL: userDetail.idphotoURL, 
-                    phoneNumber: userDetail.phoneNumber, 
-                    email: userDetail.email, 
-                    emailVerified: userDetail.emailVerified , 
-                    providerId: userDetail.providerId, 
-                    createdAt:  userDetail.createdAt, 
-                    creationTime:  userDetail.creationTime, 
-                    lastLoginAt: userDetail.lastLoginAt, 
-                    lastSignInTime: userDetail.lastSignInTime, 
-                }
-                const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
-                if (usDet === undefined) {
+            setTimeout(async ()=>{
+                const getUser = await userController.getUser(user.uid)
+                if (getUser === undefined) {
                     res.json({
                         error: 'Error, Datos no encontrados'
                     })
                 } else {
                     return res.status(200).send({
                         msg: 'SUCCESSFULLY',
-                        result: usDet
+                        result: getUser
                     });
-                }*/
-            }
+                    /*var detail = {
+                        idUser:  getUser.id,
+                        uid:  userDetail.uid, 
+                        name: userDetail.name, 
+                        last_name: userDetail.last_name, 
+                        gender: userDetail.gender, 
+                        photoURL: userDetail.userDetail.photoURL, 
+                        idphotoURL: userDetail.idphotoURL, 
+                        phoneNumber: userDetail.phoneNumber, 
+                        email: userDetail.email, 
+                        emailVerified: userDetail.emailVerified , 
+                        providerId: userDetail.providerId, 
+                        createdAt:  userDetail.createdAt, 
+                        creationTime:  userDetail.creationTime, 
+                        lastLoginAt: userDetail.lastLoginAt, 
+                        lastSignInTime: userDetail.lastSignInTime, 
+                    }
+                    const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
+                    if (usDet === undefined) {
+                        res.json({
+                            error: 'Error, Datos no encontrados'
+                        })
+                    } else {
+                        return res.status(200).send({
+                            msg: 'SUCCESSFULLY',
+                            result: usDet
+                        });
+                    }*/
+                }
+            },5000)
+
         }
     } else {
         const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
@@ -103,7 +105,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
 })
 
 usuarioRouter.post('/addDetailUser', async (req, res) => {
-    var userDetail = req.body.userDetail;
+    var detail = req.body;
     const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
     if (usDet === undefined) {
         res.json({
