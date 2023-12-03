@@ -53,7 +53,24 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 })
             } else {
                 userDetail.idUser = getUser.id;
-                const usDet = await userController.insertUserDetail(userDetail)
+                var detail = {
+                    idUser:  getUser.id,
+                    uid:  userDetail.uid, 
+                    name: userDetail.name, 
+                    last_name: userDetail.last_name, 
+                    gender: userDetail.gender, 
+                    photoURL: userDetail.userDetail.photoURL, 
+                    idphotoURL: userDetail.idphotoURL, 
+                    phoneNumber: userDetail.phoneNumber, 
+                    email: userDetail.email, 
+                    emailVerified: userDetail.emailVerified , 
+                    providerId: userDetail.providerId, 
+                    createdAt:  userDetail.createdAt, 
+                    creationTime:  userDetail.creationTime, 
+                    lastLoginAt: userDetail.lastLoginAt, 
+                    lastSignInTime: userDetail.lastSignInTime, 
+                }
+                const usDet = await userController.insertUserDetail(detail)
                 if (usDet === undefined) {
                     res.json({
                         error: 'Error, Datos no encontrados'
