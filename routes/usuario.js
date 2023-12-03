@@ -52,7 +52,6 @@ usuarioRouter.post('/create_account', async (req, res) => {
                     error: 'Error, Datos no encontrados'
                 })
             } else {
-                userDetail.idUser = getUser.id;
                 var detail = {
                     idUser:  getUser.id,
                     uid:  userDetail.uid, 
@@ -70,7 +69,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
                     lastLoginAt: userDetail.lastLoginAt, 
                     lastSignInTime: userDetail.lastSignInTime, 
                 }
-                const usDet = await userController.insertUserDetail(detail)
+                const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
                 if (usDet === undefined) {
                     res.json({
                         error: 'Error, Datos no encontrados'
