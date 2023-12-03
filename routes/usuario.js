@@ -75,7 +75,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
         } else {
             return res.status(200).send({
                 msg: 'SUCCESSFULLY',
-                result: usDetUpdate
+                result: 'Existente'
             });
         }
     }
