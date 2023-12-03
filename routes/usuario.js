@@ -46,18 +46,9 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            setTimeout(async ()=>{
                 const getUser = await userController.getUser(user.uid)
                 if (getUser === undefined) {
-                    res.json({
-                        error: 'Error, Datos no encontrados'
-                    })
-                } else {
-                    return res.status(200).send({
-                        msg: 'SUCCESSFULLY',
-                        result: getUser
-                    });
-                    /*var detail = {
+                    var detail = {
                         idUser:  getUser.id,
                         uid:  userDetail.uid, 
                         name: userDetail.name, 
@@ -84,10 +75,14 @@ usuarioRouter.post('/create_account', async (req, res) => {
                             msg: 'SUCCESSFULLY',
                             result: usDet
                         });
-                    }*/
+                    }
+                } else {
+                    return res.status(200).send({
+                        msg: 'SUCCESSFULLY',
+                        result:'Existe'
+                    });
+                    /**/
                 }
-            },5000)
-
         }
     } else {
         const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
