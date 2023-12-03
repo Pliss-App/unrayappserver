@@ -52,11 +52,8 @@ usuarioRouter.post('/create_account', async (req, res) => {
                         error: 'Error, Datos no encontrados'
                     })
                 } else {
-                    return res.status(200).send({
-                        msg: 'SUCCESSFULLY',
-                        result: getUserby.id
-                    });
-                   /* var detail = {
+
+                   var detail = {
                         idUser: getUserby.id,
                         uid: userDetail.uid,
                         name: userDetail.name,
@@ -83,7 +80,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
                             msg: 'SUCCESSFULLY',
                             result: usDet
                         });
-                    }*/
+                    }
                 }
         }
     } else {
