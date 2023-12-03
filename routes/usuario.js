@@ -49,8 +49,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 const getUserby = await userController.getUserBy(user.uid)
                 if (getUserby === undefined) {
                     res.json({
-                        error: 'Error, Datos no encontrados',
-                        result: getUser
+                        error: 'Error, Datos no encontrados'
                     })
                 } else {
                     return res.status(200).send({
