@@ -52,7 +52,12 @@ usuarioRouter.post('/create_account', async (req, res) => {
                     error: 'Error, Datos no encontrados'
                 })
             } else {
-                var detail = {
+
+                return res.status(200).send({
+                    msg: 'SUCCESSFULLY',
+                    result: getUser
+                });
+                /*var detail = {
                     idUser:  getUser.id,
                     uid:  userDetail.uid, 
                     name: userDetail.name, 
@@ -79,7 +84,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
                         msg: 'SUCCESSFULLY',
                         result: usDet
                     });
-                }
+                }*/
             }
         }
     } else {
@@ -94,6 +99,21 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 result: 'Existente'
             });
         }
+    }
+})
+
+usuarioRouter.post('/addDetailUser', async (req, res) => {
+    var userDetail = req.body.userDetail;
+    const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
+    if (usDet === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: usDet
+        });
     }
 })
 
