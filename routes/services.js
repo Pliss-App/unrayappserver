@@ -27,7 +27,7 @@ servicesRouter.get('/costokm/:km', async (req, res) => {
     } else {
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: services
+            result: services.precio
         });
     }
 })  
