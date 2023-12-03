@@ -46,9 +46,6 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 error: 'Error, Datos no encontrados'
             })
         } else {
-            const getUser = await userController.getUser(user.uid)
-            if (getUser === undefined) {
-
                 const getUserby = await userController.getUserBy(user.uid)
                 if (getUserby === undefined) {
                     res.json({
@@ -56,7 +53,11 @@ usuarioRouter.post('/create_account', async (req, res) => {
                         result: getUser
                     })
                 } else {
-                    var detail = {
+                    return res.status(200).send({
+                        msg: 'SUCCESSFULLY',
+                        result: getUserby
+                    });
+                   /* var detail = {
                         idUser: getUserby.id,
                         uid: userDetail.uid,
                         name: userDetail.name,
@@ -83,14 +84,8 @@ usuarioRouter.post('/create_account', async (req, res) => {
                             msg: 'SUCCESSFULLY',
                             result: usDet
                         });
-                    }
+                    }*/
                 }
-            } else {
-                return res.status(200).send({
-                    msg: 'SUCCESSFULLY',
-                    result: 'Existe'
-                });
-            }
         }
     } else {
         const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
