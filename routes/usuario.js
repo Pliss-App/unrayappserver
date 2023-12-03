@@ -102,9 +102,8 @@ usuarioRouter.post('/create_account', async (req, res) => {
 })
 
 usuarioRouter.post('/addDetailUser', async (req, res) => {
-    var detail = req.body;
-   // const usDet = await userController.insertUserDetail(detail.idUser, detail.uid, detail.name, detail.last_name, detail.gender, detail.photoURL, detail.idphotoURL, detail.phoneNumber, detail.email, detail.emailVerified, detail.providerId, detail.createdAt, detail.creationTime, detail.lastLoginAt, detail.lastSignInTime)
-  /*  if (usDet === undefined) {
+   // const usDet = await userController.insertUserDetail(req.body.idUser, req.body.uid,  req.body.name,  req.body.last_name,  req.body.gender,  req.body.photoURL,  req.body.idphotoURL,  req.body.phoneNumber,  req.body.email,  req.body.emailVerified,  req.body.providerId,  req.body.createdAt,  req.body.creationTime,  req.body.lastLoginAt,  req.body.lastSignInTime)
+    if (usDet === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
@@ -113,12 +112,7 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
             msg: 'SUCCESSFULLY',
             result: usDet
         });
-    }*/
-
-    return res.status(200).send({
-        msg: 'SUCCESSFULLY',
-        result: req.body
-    });
+    }
 })
 
 usuarioRouter.put('/updateUser/:uid', async (req, res) => {
