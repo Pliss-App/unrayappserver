@@ -11,6 +11,16 @@ const getUser = (uid) => { //getByEmail
     });
 };
 
+const getUserBy = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT id FROM user WHERE uid=?",[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const getUserDetail = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -99,5 +109,6 @@ module.exports = {
     updateTableUser,
     getUserDetail,
     updatePhotoUser,
-    insertAddressFavorite
+    insertAddressFavorite,
+    getUserBy
 }

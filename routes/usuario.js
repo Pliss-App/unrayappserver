@@ -5,7 +5,7 @@ const usuarioRouter = express.Router();
 const userController = require('../controller/usuario');
 
 usuarioRouter.get('/user/:uid', async (req, res) => {
-    const user= await userController.getUser(req.params.uid)
+    const user = await userController.getUser(req.params.uid)
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -21,7 +21,7 @@ usuarioRouter.get('/user/:uid', async (req, res) => {
 
 usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
 
-    const insert = await userController.insertAddressFavorite(req.body.idUser,req.body.uid,  req.body.address, req.body.lat, req.body.lng, req.body.idtAddres );
+    const insert = await userController.insertAddressFavorite(req.body.idUser, req.body.uid, req.body.address, req.body.lat, req.body.lng, req.body.idtAddres);
     if (insert === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -46,31 +46,34 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 error: 'Error, Datos no encontrados'
             })
         } else {
-                const getUser = await userController.getUser(user.uid)
-                if (getUser === undefined) {
+            const getUser = await userController.getUser(user.uid)
+            if (getUser === undefined) {
 
+                const getUserby = await userController.getUserBy(user.uid)
+                if (getUserby === undefined) {
                     res.json({
                         error: 'Error, Datos no encontrados',
-                        result: getUser 
+                        result: getUser
                     })
-                   /* var detail = {
-                        idUser:  getUser.id,
-                        uid:  userDetail.uid, 
-                        name: userDetail.name, 
-                        last_name: userDetail.last_name, 
-                        gender: userDetail.gender, 
-                        photoURL: userDetail.userDetail.photoURL, 
-                        idphotoURL: userDetail.idphotoURL, 
-                        phoneNumber: userDetail.phoneNumber, 
-                        email: userDetail.email, 
-                        emailVerified: userDetail.emailVerified , 
-                        providerId: userDetail.providerId, 
-                        createdAt:  userDetail.createdAt, 
-                        creationTime:  userDetail.creationTime, 
-                        lastLoginAt: userDetail.lastLoginAt, 
-                        lastSignInTime: userDetail.lastSignInTime, 
+                } else {
+                    var detail = {
+                        idUser: getUserby.id,
+                        uid: userDetail.uid,
+                        name: userDetail.name,
+                        last_name: userDetail.last_name,
+                        gender: userDetail.gender,
+                        photoURL: userDetail.userDetail.photoURL,
+                        idphotoURL: userDetail.idphotoURL,
+                        phoneNumber: userDetail.phoneNumber,
+                        email: userDetail.email,
+                        emailVerified: userDetail.emailVerified,
+                        providerId: userDetail.providerId,
+                        createdAt: userDetail.createdAt,
+                        creationTime: userDetail.creationTime,
+                        lastLoginAt: userDetail.lastLoginAt,
+                        lastSignInTime: userDetail.lastSignInTime,
                     }
-                    const usDet = await userController.insertUserDetail(detail )
+                    const usDet = await userController.insertUserDetail(detail)
                     if (usDet === undefined) {
                         res.json({
                             error: 'Error, Datos no encontrados'
@@ -80,14 +83,14 @@ usuarioRouter.post('/create_account', async (req, res) => {
                             msg: 'SUCCESSFULLY',
                             result: usDet
                         });
-                    }*/
-                } else {
-                    return res.status(200).send({
-                        msg: 'SUCCESSFULLY',
-                        result:'Existe'
-                    });
-                    /**/
+                    }
                 }
+            } else {
+                return res.status(200).send({
+                    msg: 'SUCCESSFULLY',
+                    result: 'Existe'
+                });
+            }
         }
     } else {
         const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
