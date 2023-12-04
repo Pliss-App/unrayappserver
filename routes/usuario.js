@@ -102,12 +102,12 @@ usuarioRouter.post('/create_account', async (req, res) => {
 })
 
 usuarioRouter.post('/addDetailUser', async (req, res) => {
-
+var user = req.body.user
     /*return res.status(200).send({
         msg: 'SUCCESSFULLY',
         result: req.body.user
     });*/
-    const usDet = await userController.insertUserDetail(req.body.user)
+    const usDet = await userController.insertUserDetail(user)
     if (usDet === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
