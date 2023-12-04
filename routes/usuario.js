@@ -123,7 +123,7 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
             error: 'Error, Datos no encontrados'
         })
     } else {
-        var tableUser = await userController.updateTableUser(req.params.uid)
+        var tableUser = await userController.updateTableUser(user.name, user.last_name, user.email, req.params.uid)
 
         if (tableUser === undefined) {
             res.json({
