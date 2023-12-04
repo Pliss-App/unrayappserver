@@ -103,11 +103,11 @@ usuarioRouter.post('/create_account', async (req, res) => {
 
 usuarioRouter.post('/addDetailUser', async (req, res) => {
 
-    return res.status(200).send({
+    /*return res.status(200).send({
         msg: 'SUCCESSFULLY',
         result: req.body.user
-    });
-   /* const usDet = await userController.insertUserDetail(req.body.user)
+    });*/
+    const usDet = await userController.insertUserDetail(req.body.user)
     if (usDet === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -117,7 +117,7 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
             msg: 'SUCCESSFULLY',
             result: usDet
         });
-    }*/
+    }
 })
 
 usuarioRouter.put('/updateUser/:uid', async (req, res) => {
