@@ -64,7 +64,7 @@ const updatePhotoUser = (photoURL ,idphotoURL, uid) => { //getByEmail
 const updateTableUser = ( uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE user, user_detail SET user.name=  CONCAT(user_detail.name, ' ', user_detail.last_name), user.email = user_detail.email WHERE user_detail.uid = ?;",[uid],(err, rows) => {
+            "UPDATE user, user_detail SET user.name=  CONCAT(user_detail.name, ' ', user_detail.last_name), user.email = user_detail.email WHERE user.uid = ?;",[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
