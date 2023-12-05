@@ -160,7 +160,8 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     const user = await userController.getUserDetail(req.params.uid)
     if (user === undefined) {
         res.json({
-            error: 'Error, Datos no encontrados'
+            error: 'Error, Datos no encontrados',
+            result:'editar'
         })
     } else {
 
