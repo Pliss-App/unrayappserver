@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const getUser = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT u.*, ud.photoURL, ud.idphotoURL FROM user u INNER JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?",[uid],(err, rows) => {
+            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
@@ -24,7 +24,7 @@ const getUserBy = (uid) => { //getByEmail
 const getUserDetail = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT uid , name, last_name, phoneNumber, gender, email FROM user_detail  WHERE uid= ?",[uid],(err, rows) => {
+            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL, ud.uid, ud.name, ud.last_name, ud.phoneNumber, ud.gender, ud.email  FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
