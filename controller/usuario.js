@@ -24,7 +24,7 @@ const getUserBy = (uid) => { //getByEmail
 const getUserDetail = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL, ud.uid, ud.name, ud.last_name, ud.phoneNumber, ud.gender, ud.email  FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
+            `SELECT u.id, u.uid, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL, ud.uid, ud.name, ud.last_name, ud.phoneNumber, ud.gender, ud.email  FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
