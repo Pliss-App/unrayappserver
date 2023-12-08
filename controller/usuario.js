@@ -11,6 +11,16 @@ const getUser = (uid) => { //getByEmail
     });
 };
 
+const getUserDet = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser,ud.name, ud.last_name, ud.phoneNumber, ud.photoURL,ud.gender, ud.email, ud.idphotoURL FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const getUserBy = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -108,6 +118,7 @@ module.exports = {
     updateUser,
     updateTableUser,
     getUserDetail,
+    getUserDet,
     updatePhotoUser,
     insertAddressFavorite,
     getUserBy

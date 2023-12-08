@@ -20,6 +20,22 @@ usuarioRouter.get('/user/:uid', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/userDetailBy/:uid', async (req, res) => {
+    const user = await userController.getUserDet(req.params.uid)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result:'/edit'
+        })
+    } else {
+
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
+})
+
 usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
 
     const insert = await userController.insertAddressFavorite(req.body.idUser, req.body.uid, req.body.address, req.body.lat, req.body.lng, req.body.idtAddres);
