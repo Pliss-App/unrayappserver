@@ -10,6 +10,16 @@ const getServices = () => { //getByEmail
     });
 };
 
+const getDriver = () => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT u.id, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel FROM user u INNER JOIN location lo on u.uid = lo.uid where u.id_type= 2 and u.id_status=1 and u.idStatus_travel= 0", (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 const getCosSerKm = (km) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -22,5 +32,6 @@ const getCosSerKm = (km) => { //getByEmail
 
 module.exports = {
     getServices,
-    getCosSerKm
+    getCosSerKm,
+    getDriver
 }
