@@ -33,15 +33,15 @@ servicesRouter.get('/costokm/:km', async (req, res) => {
 })  
 
 servicesRouter.get('/getDriverActive', async (req, res) => {
-    const services = await servController.getDriver()
-    if (services === undefined) {
+    const driver = await servController.getDriver()
+    if (driver === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: services.precio
+            result: driver
         });
     }
 }) 
