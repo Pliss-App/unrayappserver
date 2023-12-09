@@ -9,7 +9,7 @@ usuarioRouter.get('/user/:uid', async (req, res) => {
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados',
-            result:'/edit'
+            result: '/edit'
         })
     } else {
 
@@ -25,7 +25,7 @@ usuarioRouter.get('/userDetailBy/:uid', async (req, res) => {
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados',
-            result:'/edit'
+            result: '/edit'
         })
     } else {
 
@@ -52,17 +52,31 @@ usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
 })
 
 usuarioRouter.post('/insert_location', async (req, res) => {
-
-    const insert = await userController.registerLocation(req.body);
-    if (insert === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados'
-        })
+    const getIn = await userController.getLocationUser(req.body.uid);
+    if (getIn === undefined) {
+        const insert = await userController.registerLocation(req.body);
+        if (insert === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: insert
+            });
+        }
     } else {
-        return res.status(200).send({
-            msg: 'SUCCESSFULLY',
-            result: insert
-        });
+        const upd = await userController.updateLocation(req.body.uid, req.body.lat, req.body.lng);
+        if (upd === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: upd
+            });
+        }
     }
 })
 
@@ -78,45 +92,45 @@ usuarioRouter.post('/create_account', async (req, res) => {
                 error: 'Error, Datos no encontrados'
             })
         } else {
-                const getUserby = await userController.getUserBy(user.uid)
-                if (getUserby === undefined) {
-                    res.json({
-                        error: 'Error, Datos no encontrados'
-                    })
-                } else {
-                    return res.status(200).send({
-                        msg: 'SUCCESSFULLY',
-                        result: getUserby.id
-                    });
-                 /*  var detail = {
-                        idUser: getUserby.id,
-                        uid: userDetail.uid,
-                        name: userDetail.name,
-                        last_name: userDetail.last_name,
-                        gender: userDetail.gender,
-                        photoURL: userDetail.userDetail.photoURL,
-                        idphotoURL: userDetail.idphotoURL,
-                        phoneNumber: userDetail.phoneNumber,
-                        email: userDetail.email,
-                        emailVerified: userDetail.emailVerified,
-                        providerId: userDetail.providerId,
-                        createdAt: userDetail.createdAt,
-                        creationTime: userDetail.creationTime,
-                        lastLoginAt: userDetail.lastLoginAt,
-                        lastSignInTime: userDetail.lastSignInTime,
-                    }
-                    const usDet = await userController.insertUserDetail(detail)
-                    if (usDet === undefined) {
-                        res.json({
-                            error: 'Error, Datos no encontrados'
-                        })
-                    } else {
-                        return res.status(200).send({
-                            msg: 'SUCCESSFULLY',
-                            result: usDet
-                        });
-                    }*/
-                }
+            const getUserby = await userController.getUserBy(user.uid)
+            if (getUserby === undefined) {
+                res.json({
+                    error: 'Error, Datos no encontrados'
+                })
+            } else {
+                return res.status(200).send({
+                    msg: 'SUCCESSFULLY',
+                    result: getUserby.id
+                });
+                /*  var detail = {
+                       idUser: getUserby.id,
+                       uid: userDetail.uid,
+                       name: userDetail.name,
+                       last_name: userDetail.last_name,
+                       gender: userDetail.gender,
+                       photoURL: userDetail.userDetail.photoURL,
+                       idphotoURL: userDetail.idphotoURL,
+                       phoneNumber: userDetail.phoneNumber,
+                       email: userDetail.email,
+                       emailVerified: userDetail.emailVerified,
+                       providerId: userDetail.providerId,
+                       createdAt: userDetail.createdAt,
+                       creationTime: userDetail.creationTime,
+                       lastLoginAt: userDetail.lastLoginAt,
+                       lastSignInTime: userDetail.lastSignInTime,
+                   }
+                   const usDet = await userController.insertUserDetail(detail)
+                   if (usDet === undefined) {
+                       res.json({
+                           error: 'Error, Datos no encontrados'
+                       })
+                   } else {
+                       return res.status(200).send({
+                           msg: 'SUCCESSFULLY',
+                           result: usDet
+                       });
+                   }*/
+            }
         }
     } else {
         const usDetUpdate = await userController.updateLogin(userDetail.lastLoginAt, userDetail.lastSignInTime, user.uid)
@@ -134,7 +148,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
 })
 
 
-usuarioRouter.get('/userId/:id' , async (req, res) => {
+usuarioRouter.get('/userId/:id', async (req, res) => {
     const getUserby = await userController.getUserBy(user.uid)
     if (getUserby === undefined) {
         res.json({
@@ -207,7 +221,7 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados',
-            result:'editar'
+            result: 'editar'
         })
     } else {
 

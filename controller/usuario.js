@@ -92,6 +92,27 @@ const register=(uid, name, email, pass, date_created, id_type) =>{
 }
 
 
+const getLocationUser = (uid) => { 
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT idUser FROM location WHERE uid=?`,[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
+const updateLocation = (uid, lat, lng) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `UPDATE location SET lat=?, lng=? WHERE uid=?`, [lat, lng, uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
 const registerLocation=(data) =>{
     return new Promise((resolve, reject) => {
         connection.query(`INSERT INTO location SET ?`,[data], (err, result) => {
@@ -132,5 +153,7 @@ module.exports = {
     updatePhotoUser,
     insertAddressFavorite,
     getUserBy,
-    registerLocation
+    registerLocation,
+    getLocationUser,
+    updateLocation
 }
