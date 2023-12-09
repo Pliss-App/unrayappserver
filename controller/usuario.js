@@ -82,9 +82,9 @@ const updateTableUser = (name, last_name, email, uid) => { //getByEmail
 };
 
 
-const register=(uid, name, email, pass, date_created, id_type) =>{
+const register=(uid, name, email, pass, id_status, idStatus_travel, date_created, id_type, idService) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO user(uid, name, email, pass, date_created, id_type) VALUES (${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(email)}, ${connection.escape(pass)}, ${connection.escape(date_created)}, ${connection.escape(id_type)})`, (err, result) => {
+        connection.query(`INSERT INTO user(uid, name, email, pass, id_status, idStatus_travel, date_created, id_type, idService) VALUES (${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(email)}, ${connection.escape(pass)}, ${connection.escape(id_status)}, ${connection.escape(idStatus_travel)}, ${connection.escape(date_created)}, ${connection.escape(id_type)}, ${connection.escape(idService)})`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })

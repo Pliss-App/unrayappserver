@@ -86,7 +86,7 @@ usuarioRouter.post('/create_account', async (req, res) => {
     const getUser = await userController.getUser(user.uid)
     if (getUser === undefined) {
 
-        const register = await userController.register(user.uid, user.name, user.email, user.pass, user.date_created, user.id_type)
+        const register = await userController.register(user.uid, user.name, user.email, user.pass, user.id_status, user.idStatus_travel, user.date_created, user.id_type. user.idService)
         if (register === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
