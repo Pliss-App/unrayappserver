@@ -34,7 +34,7 @@ servicesRouter.get('/costokm/:km', async (req, res) => {
 
 servicesRouter.get('/getDriverActive', async (req, res) => {
 
-    setTimeout(async () => {
+    setInterval(async () => {
 
         const driver = await servController.getDriver()
         if (driver === undefined) {
