@@ -237,7 +237,7 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 
 usuarioRouter.post('/base64', async (req, res) => {
 
-    const user  = userController.toBase64(req.body.photo)
+    const user  = userController.toBase64('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png')
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados',
