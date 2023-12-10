@@ -142,10 +142,22 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
     });
 }
 
-const toBase64 = (filePath) => {
-    const img = fs.readFileSync(filePath);
-
-    return Buffer.from(img).toString('base64');
+const toBase64 = async (filePath) => {
+    try {
+        const response = await fetch(url);
+    
+        const blob = await response.arrayBuffer();
+    
+        const contentType = response.headers.get('content-type');
+    
+        const base64String = `data:${contentType};base64,${Buffer.from(
+          blob,
+        ).toString('base64')}`;
+    
+        return base64String;
+      } catch (err) {
+        console.log(err);
+      }
 }
 
 
