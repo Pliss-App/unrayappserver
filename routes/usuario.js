@@ -164,6 +164,20 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/getPhotoPin/:uid', async (req, res) => {
+    const getPhoto = await userController.getPhotoProfile(req.params.uid)
+    if (getPhoto === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: getPhoto.base64photo
+        });
+    }
+})
+
 usuarioRouter.post('/addDetailUser', async (req, res) => {
     const usDet = await userController.insertUserDetail(req.body.idUser, req.body.uid, req.body.name, req.body.last_name, req.body.gender, req.body.base64photo, req.body.photoURL, req.body.idphotoURL, req.body.phoneNumber, req.body.email, req.body.emailVerified, req.body.providerId, req.body.createdAt, req.body.creationTime, req.body.lastLoginAt, req.body.lastSignInTime)
     if (usDet === undefined) {

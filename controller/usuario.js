@@ -104,6 +104,16 @@ const getLocationUser = (uid) => {
     });
 };
 
+const getPhotoProfile = (uid) => { 
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT base64photo FROM user_detail WHERE  uid= ?`,[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const updateLocation = (uid, lat, lng) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -162,6 +172,8 @@ module.exports = {
     getUserBy,
     registerLocation,
     getLocationUser,
-    updateLocation
+    updateLocation,
+    getPhotoProfile
+
 
 }
