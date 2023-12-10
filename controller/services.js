@@ -23,7 +23,7 @@ const getDriver = () => { //getByEmail
 const getDriverService = (id, lat, lng) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-           `SELECT @punto := 'POINT(${connection.escape(lat)} ${connection.escape(lng)})'; SELECT  u.id,  u.idService, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel, (6371 * acos (cos ( radians(X(POINTFROMTEXT(@punto))) ) * cos( radians( X(lo.location) ) ) * cos( radians( Y(lo.location) ) - radians(Y(POINTFROMTEXT(@punto))) ) + sin ( radians(X(POINTFROMTEXT(@punto))) ) * sin( radians( X(lo.location) ) ))) AS distance_km FROM user u INNER JOIN location lo ON u.uid = lo.uid where u.id_type= 2 AND u.id_status=1 AND u.idStatus_travel= 0 AND u.idService=${connection.escape(id)}} HAVING distance_km < 10 ORDER BY distance_km;`, (err, rows) => {
+           `SELECT @punto := 'POINT(',${connection.escape(lat)},' ', ${connection.escape(lng)},')'; SELECT  u.id,  u.idService, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel, (6371 * acos (cos ( radians(X(POINTFROMTEXT(@punto))) ) * cos( radians( X(lo.location) ) ) * cos( radians( Y(lo.location) ) - radians(Y(POINTFROMTEXT(@punto))) ) + sin ( radians(X(POINTFROMTEXT(@punto))) ) * sin( radians( X(lo.location) ) ))) AS distance_km FROM user u INNER JOIN location lo ON u.uid = lo.uid where u.id_type= 2 AND u.id_status=1 AND u.idStatus_travel= 0 AND u.idService=${connection.escape(id)}} HAVING distance_km < 10 ORDER BY distance_km;`, (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
