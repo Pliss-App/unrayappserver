@@ -234,9 +234,9 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 })
 
 
-usuarioRouter.get('/base64', async (req, res) => {
+usuarioRouter.get('/base64/:photo', async (req, res) => {
 
-   userController.toBase64(req.body, function (result) {
+   userController.toBase64(req.params.photo, function (result) {
         res.json(result);
       })
 })
