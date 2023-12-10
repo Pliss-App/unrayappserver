@@ -177,5 +177,6 @@ module.exports = {
     registerLocation,
     getLocationUser,
     updateLocation,
-    toBase64
+    toBase64,
+
 }
