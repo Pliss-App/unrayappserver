@@ -1,4 +1,5 @@
 const connection = require('../mysql');
+const fs = require('fs')
 const bcrypt = require('bcrypt');
 
 const getUser = (uid) => { //getByEmail
@@ -141,6 +142,14 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
     });
 }
 
+const toBase64 = (filePath) => {
+    const img = fs.readFileSync(filePath);
+
+    return Buffer.from(img).toString('base64');
+}
+
+
+
 module.exports = {
     register,
     getUser,
@@ -155,5 +164,6 @@ module.exports = {
     getUserBy,
     registerLocation,
     getLocationUser,
-    updateLocation
+    updateLocation,
+    toBase64
 }

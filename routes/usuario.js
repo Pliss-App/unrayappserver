@@ -4,6 +4,7 @@ const usuarioRouter = express.Router();
 
 const userController = require('../controller/usuario');
 
+
 usuarioRouter.get('/user/:uid', async (req, res) => {
     const user = await userController.getUser(req.params.uid)
     if (user === undefined) {
@@ -230,6 +231,14 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
             result: user
         });
     }
+})
+
+
+usuarioRouter.get('/base64', async (req, res) => {
+
+   userController.toBase64(req.body, function (result) {
+        res.json(result);
+      })
 })
 
 module.exports = usuarioRouter;
