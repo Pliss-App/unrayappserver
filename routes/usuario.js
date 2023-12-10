@@ -56,7 +56,7 @@ usuarioRouter.post('/insert_addressFavorite', async (req, res) => {
 usuarioRouter.post('/insert_location', async (req, res) => {
     const getIn = await userController.getLocationUser(req.body.uid);
     if (getIn === undefined) {
-        const insert = await userController.registerLocation(req.body);
+        const insert = await userController.registerLocation(req.body.idUser, req.body.uid, req.body.lat, req.body.lng);
         if (insert === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'

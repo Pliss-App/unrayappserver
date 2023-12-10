@@ -117,7 +117,7 @@ const getPhotoProfile = (uid) => {
 const updateLocation = (uid, lat, lng) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `UPDATE location SET lat=?, lng=? WHERE uid=?`, [lat, lng, uid],(err, rows) => {
+            `UPDATE location SET lat=?, lng=?, location =POINTFROMTEXT('POINT(${connection.escape(lat)} ${connection.escape(lng)})') WHERE uid=?`, [lat, lng, uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
@@ -125,9 +125,9 @@ const updateLocation = (uid, lat, lng) => { //getByEmail
 };
 
 
-const registerLocation=(data) =>{
+const registerLocation=(idUser, uid, lat, lng) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO location SET ?`,[data], (err, result) => {
+        connection.query(`INSERT INTO location (idUser, uid, lat, lng, location) VALUES (${connection.escape(idUser)},${connection.escape(uid)},${connection.escape(lat)},${connection.escape(lng)},POINTFROMTEXT('POINT(${connection.escape(lat)} ${connection.escape(lng)})'))`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
