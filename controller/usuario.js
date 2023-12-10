@@ -147,15 +147,8 @@ const toBase64 = async (url) => {
 
     return new Promise((resolve, reject) => {
     try {
-        const response =  fetch('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png');
     
-        const blob =  response.arrayBuffer();
-    
-        const contentType = response.headers.get('content-type');
-    
-        const base64String = `data:${contentType};base64,${Buffer.from(
-          blob,
-        ).toString('base64')}`;
+        const base64String =  Buffer.from('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png').toString('base64')
     
         resolve(base64String)
       } catch (err) {
