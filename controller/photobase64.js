@@ -1,4 +1,5 @@
-import axios from 'axios';
+
+const axios = require('axios')
 
 const toBase64 = (url) => {
     return new Promise(async (resolve, reject) => {
