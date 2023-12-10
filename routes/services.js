@@ -57,7 +57,9 @@ servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
         })
     } else {
 
-        const getDri =  await servController.getDriverService(req.params.id, getPoint.punto)
+        var punto = `'POINT(${req.params.lat} ${req.params.lng})'`
+
+        const getDri =  await servController.getDriverService(req.params.id, punto)
         if (getDri === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
