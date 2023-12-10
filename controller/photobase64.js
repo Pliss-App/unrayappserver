@@ -1,9 +1,25 @@
-const fs = require('fs')
+import axios from 'axios';
 
-const toBase64 = (filePath) => {
-    const img = fs.readFileSync(filePath);
-
-    return Buffer.from(img).toString('base64');
+const toBase64 = (url) => {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const response = await axios.get(url, {
+                responseType: 'arraybuffer',
+              });
+          
+              const contentType = response.headers['content-type'];
+          
+              const base64String = `data:${contentType};base64,${Buffer.from(
+                response.data,
+              ).toString('base64')}`;
+          
+              return base64String;
+        
+            resolve(base64String)
+          } catch (err) {
+            console.log(err);
+          }
+        })
 }
 
 module.exports = {
