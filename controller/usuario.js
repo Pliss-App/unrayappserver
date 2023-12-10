@@ -147,7 +147,7 @@ const toBase64 = async (url) => {
 
     return new Promise((resolve, reject) => {
     try {
-        const response =  fetch(url);
+        const response =  fetch('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png');
     
         const blob =  response.arrayBuffer();
     
