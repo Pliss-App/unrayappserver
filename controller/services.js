@@ -23,7 +23,7 @@ const getDriver = () => { //getByEmail
 const getDriverService = (lat, lng, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-           ` SELECT @punto := 'POINT(? ?)';
+           ` SELECT @punto := 'POINT(${lat} ${lng})';
 
            SELECT  u.id,  u.idService, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel,     (
                  6371 * acos (
@@ -34,10 +34,10 @@ const getDriverService = (lat, lng, id) => { //getByEmail
                  * sin( radians( X(lo.location) ) )
                )
            ) AS distance_km FROM user u INNER JOIN location lo ON u.uid = lo.uid
-           where u.id_type= 2 AND u.id_status=1 AND u.idStatus_travel= 0 AND u.idService=?
+           where u.id_type= 2 AND u.id_status=1 AND u.idStatus_travel= 0 AND u.idService=${id}
             
            HAVING distance_km < 10
-           ORDER BY distance_km`,[lat, lng, id], (err, rows) => {
+           ORDER BY distance_km`, (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
