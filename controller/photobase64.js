@@ -13,7 +13,6 @@ const toBase64 = (url) => {
                 response.data,
               ).toString('base64')}`;
           
-              return base64String;
         
             resolve(base64String)
           } catch (err) {
