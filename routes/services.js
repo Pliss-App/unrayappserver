@@ -16,7 +16,7 @@ servicesRouter.get('/list', async (req, res) => {
             result: services
         });
     }
-})  
+})
 
 servicesRouter.get('/costokm/:km', async (req, res) => {
     const services = await servController.getCosSerKm(req.params.km)
@@ -30,24 +30,28 @@ servicesRouter.get('/costokm/:km', async (req, res) => {
             result: services.precio
         });
     }
-})  
+})
 
 servicesRouter.get('/getDriverActive', async (req, res) => {
-    const driver = await servController.getDriver()
-    if (driver === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados'
-        })
-    } else {
-        return res.status(200).send({
-            msg: 'SUCCESSFULLY',
-            result: driver
-        });
-    }
-}) 
+
+    setTimeout(async () => {
+
+        const driver = await servController.getDriver()
+        if (driver === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: driver
+            });
+        }
+    }, 6000)
+})
 
 servicesRouter.get('/api/carga/:id', (req, res) => {
-    return res.status(200).send({ message:  `Mensaje de respuesta User ${req.params.id}` })
-})  
+    return res.status(200).send({ message: `Mensaje de respuesta User ${req.params.id}` })
+})
 
 module.exports = servicesRouter;
