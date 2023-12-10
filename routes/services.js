@@ -47,6 +47,22 @@ servicesRouter.get('/getDriverActive', async (req, res) => {
         }
 })
 
+
+servicesRouter.get('/getDriverService/:id', async (req, res) => {
+
+    const driver = await servController.getDriverService(req.params.id)
+    if (driver === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: driver
+        });
+    }
+})
+
 servicesRouter.get('/api/carga/:id', (req, res) => {
     return res.status(200).send({ message: `Mensaje de respuesta User ${req.params.id}` })
 })
