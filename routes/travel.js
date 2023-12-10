@@ -2,7 +2,7 @@ const express = require('express');
 
 const travelRouter = express.Router();
 
-const travelController = require('../controller//travel');
+const travelController = require('../controller/travel');
 
 
 travelRouter.post('/create_travel', async (req, res) => {
