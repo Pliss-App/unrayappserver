@@ -66,7 +66,7 @@ const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
 const updatePhotoUser = (base64photo, photoURL ,idphotoURL, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE user_detail SET base64photo= ? photoURL=? ,idphotoURL=? WHERE uid= ?",[base64photo, photoURL ,idphotoURL,uid],(err, rows) => {
+            "UPDATE user_detail SET base64photo= ?, photoURL=? ,idphotoURL=? WHERE uid= ?",[base64photo, photoURL ,idphotoURL,uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
