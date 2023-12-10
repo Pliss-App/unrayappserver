@@ -50,7 +50,18 @@ servicesRouter.get('/getDriverActive', async (req, res) => {
 
 servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
 
-    const driver = await servController.getDriverService(req.params.id, req.params.lat, req.params.lng)
+    const getPoint = await servController.getPoint(req.params.lat, req.params.lng)
+    if (getPoint === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: getPoint
+        });
+    }
+  /*  const driver = await servController.getDriverService(req.params.id, req.params.lat, req.params.lng)
     if (driver === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -60,7 +71,7 @@ servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
             msg: 'SUCCESSFULLY',
             result: driver
         });
-    }
+    }*/
 })
 
 servicesRouter.get('/api/carga/:id', (req, res) => {

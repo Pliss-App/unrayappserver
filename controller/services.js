@@ -20,6 +20,16 @@ const getDriver = () => { //getByEmail
     });
 };
 
+const getPoint = (lat, lng) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+           `SELECT @punto := 'POINT(',${lat},' ',${lng},')';`, (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 const getDriverService = (id, lat, lng) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -44,5 +54,6 @@ module.exports = {
     getServices,
     getCosSerKm,
     getDriver,
-    getDriverService
+    getDriverService,
+    getPoint
 }
