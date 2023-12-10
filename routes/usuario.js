@@ -5,8 +5,6 @@ const usuarioRouter = express.Router();
 const userController = require('../controller/usuario');
 
 
-const baseController = require('../controller/photobase64');
-
 
 usuarioRouter.get('/user/:uid', async (req, res) => {
     const user = await userController.getUser(req.params.uid)
@@ -239,7 +237,7 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 
 usuarioRouter.post('/base64', async (req, res) => {
 
-    const user  = baseController.toBase64(req.body.photo)
+    const user  = userController.toBase64(req.body.photo)
     if (user === undefined) {
         res.json({
             error: 'Error, Datos no encontrados',
