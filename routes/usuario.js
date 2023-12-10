@@ -237,7 +237,14 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 usuarioRouter.post('/base64', async (req, res) => {
 
 userController.toBase64(req.body.photo).then((base64String) =>{
-    res.json(base64String);
+    var data = {
+        photoo: req.body.photo,
+        res : base64String
+    }
+    return res.status(200).send({
+        msg: 'SUCCESSFULLY',
+        result: data
+    });
 })
 
 
