@@ -50,7 +50,7 @@ servicesRouter.get('/getDriverActive', async (req, res) => {
 
 servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
 
-    const driver = await servController.getDriverService(req.params.lat, req.params.lng, req.params.id)
+    const driver = await servController.getDriverService(req.params.id, req.params.lat, req.params.lng)
     if (driver === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
