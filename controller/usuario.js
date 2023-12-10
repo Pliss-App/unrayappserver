@@ -1,6 +1,6 @@
 const connection = require('../mysql');
 const fs = require('fs')
-const axios = require('axios')
+
 const bcrypt = require('bcrypt');
 
 const getUser = (uid) => { //getByEmail
@@ -147,16 +147,15 @@ const toBase64 = async (url) => {
 
     return new Promise((resolve, reject) => {
     try {
-        const response =  axios.get(url, {
-            responseType: 'arraybuffer',
-          });
-      
-          const contentType = response.headers['content-type'];
-      
-          const base64String = `data:${contentType};base64,${Buffer.from(
-            response.data,
-          ).toString('base64')}`;
-      
+        const response =  fetch(url);
+    
+        const blob =  response.arrayBuffer();
+    
+        const contentType = response.headers.get('content-type');
+    
+        const base64String = `data:${contentType};base64,${Buffer.from(
+          blob,
+        ).toString('base64')}`;
     
         resolve(base64String)
       } catch (err) {
