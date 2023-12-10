@@ -236,17 +236,19 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 
 usuarioRouter.post('/base64', async (req, res) => {
 
-userController.toBase64(req.body.photo).then((base64String) =>{
-    var data = {
-        photoo: req.body.photo,
-        res : base64String
-    }
-    return res.status(200).send({
-        msg: 'SUCCESSFULLY',
-        result: data
-    });
-})
+    const user  = userController.toBase64(req.body.photo)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: 'editar'
+        })
+    } else {
 
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
 
 })
 

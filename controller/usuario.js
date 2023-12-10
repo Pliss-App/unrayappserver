@@ -143,10 +143,12 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
 }
 
 const toBase64 = async (url) => {
+
+    return new Promise((resolve, reject) => {
     try {
-        const response = await fetch(url);
+        const response =  fetch(url);
     
-        const blob = await response.arrayBuffer();
+        const blob =  response.arrayBuffer();
     
         const contentType = response.headers.get('content-type');
     
@@ -154,10 +156,11 @@ const toBase64 = async (url) => {
           blob,
         ).toString('base64')}`;
     
-        return base64String;
+        resolve(base64String)
       } catch (err) {
         console.log(err);
       }
+    })
 }
 
 
