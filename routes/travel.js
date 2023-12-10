@@ -7,7 +7,7 @@ const travelController = require('../controller//travel');
 
 travelRouter.post('/create_travel', async (req, res) => {
 
-    const create = await travelController.createTravel(req.body);
+    const create = await travelController.createTravel(req.body.travel);
     if (create === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
