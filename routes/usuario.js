@@ -236,7 +236,7 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 })
 
 
-usuarioRouter.get('/base64', async (req, res) => {
+usuarioRouter.get('/base64/:id', async (req, res) => {
 
     const data = await fetch("https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png");
 
