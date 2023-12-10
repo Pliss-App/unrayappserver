@@ -239,7 +239,12 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 usuarioRouter.get('/base64', async (req, res) => {
 
     const data = await fetch("https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png");
-    res.send(Buffer.from(await data.arrayBuffer()));
+
+    
+    return res.status(200).send({
+        msg: 'SUCCESSFULLY',
+        result: Buffer.from(await data.arrayBuffer())
+    });
 
 })
 
