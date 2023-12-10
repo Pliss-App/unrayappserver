@@ -142,7 +142,7 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
     });
 }
 
-const toBase64 = async (filePath) => {
+const toBase64 = async (url) => {
     try {
         const response = await fetch(url);
     
