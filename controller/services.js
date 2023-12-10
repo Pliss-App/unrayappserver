@@ -23,7 +23,7 @@ const getDriver = () => { //getByEmail
 const getPoint = (lat, lng) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-           `SELECT 'POINT(${lat} ${lng})'`, (err, rows) => {
+           `SELECT 'POINT(${lat} ${lng})' as punto`, (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
