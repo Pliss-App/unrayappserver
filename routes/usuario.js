@@ -1,4 +1,5 @@
 const express = require('express');
+var base64Img = require('base64-img');
 
 const usuarioRouter = express.Router();
 
@@ -237,19 +238,15 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 
 usuarioRouter.post('/base64', async (req, res) => {
 
-    const user  = userController.toBase64('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png')
-    if (user === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados',
-            result: 'editar'
-        })
-    } else {
-
+    base64Img.requestBase64(req.body.photo, function (err, res, body) {
+        if (err) console.log(err)
+        else {
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: user
+            result: {res,body}
         });
-    }
+        }
+    });
 
 })
 
