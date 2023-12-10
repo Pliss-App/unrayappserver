@@ -1,5 +1,4 @@
 const express = require('express');
-var base64Img = require('base64-img');
 
 const usuarioRouter = express.Router();
 
@@ -166,7 +165,7 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
 })
 
 usuarioRouter.post('/addDetailUser', async (req, res) => {
-    const usDet = await userController.insertUserDetail(req.body.idUser, req.body.uid, req.body.name, req.body.last_name, req.body.gender, req.body.photoURL, req.body.idphotoURL, req.body.phoneNumber, req.body.email, req.body.emailVerified, req.body.providerId, req.body.createdAt, req.body.creationTime, req.body.lastLoginAt, req.body.lastSignInTime)
+    const usDet = await userController.insertUserDetail(req.body.idUser, req.body.uid, req.body.name, req.body.last_name, req.body.gender, req.body.base64photo, req.body.photoURL, req.body.idphotoURL, req.body.phoneNumber, req.body.email, req.body.emailVerified, req.body.providerId, req.body.createdAt, req.body.creationTime, req.body.lastLoginAt, req.body.lastSignInTime)
     if (usDet === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -206,7 +205,7 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
 
 usuarioRouter.put('/updatePhotoUser/:uid', async (req, res) => {
     var user = req.body
-    const update = await userController.updatePhotoUser(user.photoURL, user.idphotoURL, req.params.uid)
+    const update = await userController.updatePhotoUser(user.base64photo, user.photoURL, user.idphotoURL, req.params.uid)
     if (update === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
@@ -235,17 +234,5 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     }
 })
 
-
-usuarioRouter.get('/base64/:id', async (req, res) => {
-
-    const data = await fetch("https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png");
-
-    
-    return res.status(200).send({
-        msg: 'SUCCESSFULLY',
-        result: Buffer.from(await data.arrayBuffer())
-    });
-
-})
 
 module.exports = usuarioRouter;

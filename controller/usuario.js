@@ -1,5 +1,4 @@
 const connection = require('../mysql');
-const fs = require('fs')
 
 
 const bcrypt = require('bcrypt');
@@ -64,10 +63,10 @@ const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
     });
 };
 
-const updatePhotoUser = (photoURL ,idphotoURL, uid) => { //getByEmail
+const updatePhotoUser = (base64photo, photoURL ,idphotoURL, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE user_detail SET photoURL=? ,idphotoURL=? WHERE uid= ?",[photoURL ,idphotoURL,uid],(err, rows) => {
+            "UPDATE user_detail SET base64photo= ? photoURL=? ,idphotoURL=? WHERE uid= ?",[base64photo, photoURL ,idphotoURL,uid],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
@@ -125,9 +124,9 @@ const registerLocation=(data) =>{
     });
 }
 
-const insertUserDetail=(idUser, uid, name, last_name, gender, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) =>{
+const insertUserDetail=(idUser, uid, name, last_name, gender, base64photo, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO user_detail(idUser, uid, name, last_name, gender, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) VALUES (${connection.escape(idUser)}, ${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(last_name)}, ${connection.escape(gender)}, ${connection.escape(photoURL)}, ${connection.escape(idphotoURL)}, ${connection.escape(phoneNumber)}, ${connection.escape(email)}, ${connection.escape(emailVerified)}, ${connection.escape(providerId)}, ${connection.escape(createdAt)}, ${connection.escape(creationTime)}, ${connection.escape(lastLoginAt)}, ${connection.escape(lastSignInTime)})`,(err, result) => {
+        connection.query(`INSERT INTO user_detail(idUser, uid, name, last_name, gender, base64photo, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) VALUES (${connection.escape(idUser)}, ${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(last_name)}, ${connection.escape(gender)}, ${connection.escape(base64photo)}, ${connection.escape(photoURL)}, ${connection.escape(idphotoURL)}, ${connection.escape(phoneNumber)}, ${connection.escape(email)}, ${connection.escape(emailVerified)}, ${connection.escape(providerId)}, ${connection.escape(createdAt)}, ${connection.escape(creationTime)}, ${connection.escape(lastLoginAt)}, ${connection.escape(lastSignInTime)})`,(err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -144,19 +143,6 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
     });
 }
 
-const toBase64 = async (url) => {
-
-    return new Promise((resolve, reject) => {
-    try {
-    
-        const base64String =  Buffer.from('https://www.copahost.com/blog/wp-content/uploads/2019/07/imgsize2.png').toString('base64')
-    
-        resolve(base64String)
-      } catch (err) {
-        console.log(err);
-      }
-    })
-}
 
 
 
@@ -176,7 +162,6 @@ module.exports = {
     getUserBy,
     registerLocation,
     getLocationUser,
-    updateLocation,
-    toBase64,
+    updateLocation
 
 }
