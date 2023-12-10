@@ -249,4 +249,6 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 })
 
 
+
+
 module.exports = usuarioRouter;
