@@ -4,7 +4,21 @@ const usuarioRouter = express.Router();
 
 const userController = require('../controller/usuario');
 
+usuarioRouter.get('/userRol/:uid', async (req, res) => {
+    const user = await userController.getUserRol(req.params.uid)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: '/edit'
+        })
+    } else {
 
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
+})
 
 usuarioRouter.get('/user/:uid', async (req, res) => {
     const user = await userController.getUser(req.params.uid)

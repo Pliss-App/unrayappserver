@@ -154,6 +154,17 @@ const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>
 }
 
 
+const getUserRol = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT tu.id idSer,  u.uid,  tu.ref FROM user as u INNER JOIN type_user as tu on u.id_type = tu.id WHERE u.uid=?`,[uid],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
+
 
 
 
@@ -173,7 +184,8 @@ module.exports = {
     registerLocation,
     getLocationUser,
     updateLocation,
-    getPhotoProfile
+    getPhotoProfile,
+    getUserRol
 
 
 }
