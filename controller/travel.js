@@ -1,30 +1,40 @@
-const connection = require('../mysql');
-const bcrypt = require('bcrypt');
+const express = require('express');
 
-const createTravel=(id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) =>{
-    return new Promise((resolve, reject) => {
+const travelRouter = express.Router();
 
-        //id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel
-       //INSERT INTO travel( id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) VALUES (${connection.escape(id_user_driver)}, ${connection.escape(id_user_passenger)}, ${connection.escape(id_service)}, ${connection.escape(descripcion)}, ${connection.escape(ayudante)}, ${connection.escape(tipo_vehiculo)}, ${connection.escape(address_initial)}, ${connection.escape(address_final)}, ${connection.escape(lat_initial)}, ${connection.escape(lng_initial)}, ${connection.escape(lat_final)}, ${connection.escape(lng_final)}, ${connection.escape(date_init)}, ${connection.escape(date_final)}, ${connection.escape(distance)}, ${connection.escape(total)}, ${connection.escape(status)}, ${connection.escape(status_travel)})
-       
-        connection.query(`INSERT INTO travel( id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) VALUES (${connection.escape(id_user_driver)}, ${connection.escape(id_user_passenger)}, ${connection.escape(id_service)}, ${connection.escape(descripcion)}, ${connection.escape(ayudante)}, ${connection.escape(tipo_vehiculo)}, ${connection.escape(address_initial)}, ${connection.escape(address_final)}, ${connection.escape(lat_initial)}, ${connection.escape(lng_initial)}, ${connection.escape(lat_final)}, ${connection.escape(lng_final)}, ${connection.escape(date_init)}, ${connection.escape(date_final)}, ${connection.escape(distance)}, ${connection.escape(total)}, ${connection.escape(status)}, ${connection.escape(status_travel)})`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+const travelController = require('../models/travel');
+
+
+travelRouter.post('/create_travel', async (req, res) => {
+
+ const create = await travelController.createTravel(req.body.id_user_driver, req.body.id_user_passenger, req.body.id_service, req.body.descripcion, req.body.ayudante, req.body.tipo_vehiculo, req.body.address_initial, req.body.address_final, req.body.lat_initial, req.body.lng_initial, req.body.lat_final, req.body.lng_final, req.body.date_init, req.body.date_final, req.body.distance, req.body.total, req.body.status, req.body.status_travel
+    );
+    if (create === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: create
+        });
+    }
+})
 
-const createTravelDetail=(data) =>{
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO travel_detail SET ? `,[data], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+
+travelRouter.post('/create_travelDetail', async (req, res) => {
+
+    const create = await travelController.createTravelDetail(req.body);
+    if (create === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: create
+        });
+    }
+})
 
-
-module.exports = {
-    createTravel,
-    createTravelDetail
-}
+module.exports = travelRouter;

@@ -1,48 +1,70 @@
-const connection = require('../mysql');
+const express = require('express');
 
-const getServices = () => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT * FROM service WHERE 1", (err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
+const servicesRouter = express.Router();
+
+const servController = require('../models/services');
+
+servicesRouter.get('/list', async (req, res) => {
+    const services = await servController.getServices()
+    if (services === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: services
+        });
+    }
+})
+
+servicesRouter.get('/costokm/:km', async (req, res) => {
+    const services = await servController.getCosSerKm(req.params.km)
+    if (services === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: services.precio
+        });
+    }
+})
+
+servicesRouter.get('/getDriverActive', async (req, res) => {
+
+        const driver = await servController.getDriver()
+        if (driver === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: driver
             });
-    });
-};
+        }
+})
 
-const getDriver = () => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT  u.id,  u.idService, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel FROM user u INNER JOIN location lo on u.uid = lo.uid where u.id_type= 2 and u.id_status=1 and u.idStatus_travel= 0", (err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
+
+servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
+        var punto = `'POINT(${req.params.lat} ${req.params.lng})'`
+        const getDri =  await servController.getDriverService(req.params.id, punto)
+        if (getDri === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: getDri
             });
-    });
-};
+        }
+})
 
-const getDriverService = (id, punto) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-           `SELECT u.id,  u.idService, u.uid, u.name, lo.lat, lo.lng, u.id_status, u.idStatus_travel, (6371 * acos(cos (radians(X(POINTFROMTEXT(${punto}))) ) * cos( radians( X(lo.location) ) ) * cos( radians( Y(lo.location) ) -radians(Y(POINTFROMTEXT(${punto}))) )+ sin ( radians(X(POINTFROMTEXT(${punto}))) )* sin( radians( X(lo.location) ) ))) AS distance_km FROM user u INNER JOIN location lo ON u.uid = lo.uid where u.id_type= 2 AND u.id_status=1 AND u.idStatus_travel= 0 AND u.idService=${id} HAVING distance_km < 10 ORDER BY distance_km`, (err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
+servicesRouter.get('/api/carga/:id', (req, res) => {
+    return res.status(200).send({ message: `Mensaje de respuesta User ${req.params.id}` })
+})
 
-const getCosSerKm = (km) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT precio FROM preciobasekm WHERE ${km} BETWEEN minkm AND maxkm;`, (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
-    });
-};
-
-module.exports = {
-    getServices,
-    getCosSerKm,
-    getDriver,
-    getDriverService,
-}
+module.exports = servicesRouter;

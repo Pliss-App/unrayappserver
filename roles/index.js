@@ -1,9 +1,9 @@
 const express = require('express');
-const indexRouter = require('../routes/index');
-const usuarioRouter = require('../routes/usuario');
-const travelRouter = require('../routes/travel');
-const comercioRouter = require('../routes/comercio');
-const servicesRouter = require('../routes/services');
+const indexRouter = require('../controller/index');
+const usuarioRouter = require('../controller/usuario');
+const travelRouter = require('../controller/travel');
+const comercioRouter = require('../controller/comercio');
+const servicesRouter = require('../controller/services');
 
 const apiRouter = express.Router();
 

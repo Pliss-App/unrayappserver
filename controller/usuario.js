@@ -1,191 +1,271 @@
-const connection = require('../mysql');
+const express = require('express');
+const { v4: uuidv4 } = require('uuid');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const usuarioRouter = express.Router();
+
+const userController = require('../models/usuario');
+const connection = require('../config/conexion');
 
 
-const bcrypt = require('bcrypt');
+usuarioRouter.post('/registro', async (req, res) => {
 
-const getUser = (uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser,  ud.photoURL, ud.idphotoURL, tu.ref FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser INNER JOIN type_user tu ON u.id_type = tu.id  WHERE u.uid=?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
+    try {
+        const { nombre, apellido, telefono, correo, password } = req.body;
+
+        const results = await userController.getUserTelfonoEmail(telefono);
+        if (results === undefined) {
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+
+            const result = await userController.createUser({
+                nombre, apellido, telefono, correo,
+                password: hashedPassword
             });
-    });
-};
 
-const getUserDet = (uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT u.*, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser,ud.name, ud.last_name, ud.phoneNumber, ud.photoURL,ud.gender, ud.email, ud.idphotoURL FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
+            const permission = await userController.agregarRol(result.insertId);
+            return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
+        } else {
+            return res.status(200).json({
+                msg: 'Teléfono o correo, vinculados a otra cuenta existente.',
             });
-    });
-};
+        }
 
-const getUserBy = (uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT id FROM user WHERE uid=?",[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
-    });
-};
+    } catch (error) {
+        console.error('Error durante el registro:', error);  // Verificamos el código de error
+        switch (error.code) {
+            case 'ER_NO_SUCH_TABLE':
 
-const getUserDetail = (uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT u.id, u.uid, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL, ud.uid, ud.name, ud.last_name, ud.phoneNumber, ud.gender, ud.email  FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
-    });
-};
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+            case 'ER_DUP_ENTRY':
+                // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
+                console.error('Correo o teléfono ya existe.');
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
 
-const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "UPDATE user_detail SET lastLoginAt=?, lastSignInTime= ? WHERE uid=?",[lastLoginAt,lastSignInTime,uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
+            case 'ER_BAD_FIELD_ERROR':
+                // Error de campo incorrecto (cuando un campo de la consulta no existe en la base de datos)
+                console.error('Campo no válido en la consulta.');
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
 
-const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "UPDATE user_detail SET name= ?, last_name=?, gender=?, email=? WHERE uid=? ;",[name, last_name, gender,email,uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
+            case 'ER_NO_REFERENCED_ROW':
+            case 'ER_ROW_IS_REFERENCED':
+                // Error de violación de llave foránea (cuando estás eliminando o insertando un valor que tiene dependencias)
+                console.error('Violación de llave foránea.');
+                return res.status(409).json({
+                    error: error.sqlMessage
+                });
 
-const updatePhotoUser = (base64photo, photoURL ,idphotoURL, uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "UPDATE user_detail SET base64photo= ?, photoURL=? ,idphotoURL=? WHERE uid= ?",[base64photo, photoURL ,idphotoURL,uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
+            case 'ER_DATA_TOO_LONG':
+                // Error de longitud de dato (cuando intentas insertar un valor que excede la longitud permitida)
+                console.error('Dato demasiado largo para uno de los campos.');
+                return res.status(400).json({
+                    error: 'Uno de los campos supera la longitud permitida.'
+                });
 
-const updateTableUser = (name, last_name, email, uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `UPDATE user SET name=  CONCAT(?, ' ', ?), email = ? WHERE uid = ?;`, [name, last_name, email, uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
+            default:
+                // Cualquier otro error no manejado específicamente
+                console.error('Error inesperado:', error);
+                return res.status(500).json({
+                    error: 'Ocurrió un error inesperado al crear tu cuenta.'
+                });
+        }
+    } 
+})
+
+usuarioRouter.post('/login', async (req, res) => {
+    try {
+        if (!req.timedout) {
+            const { user, password } = req.body;
+
+            const existingUser = await userController.getLogin(user);
+
+            if (existingUser === undefined) {
+                res.json('Error, Correo o telefono no registrados.')
+            } else {
 
 
-const register=(uid, name, email, pass, id_status, idStatus_travel, date_created, id_type, idService) =>{
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO user(uid, name, email, pass, id_status, idStatus_travel, date_created, id_type, idService) VALUES (${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(email)}, ${connection.escape(pass)}, ${connection.escape(id_status)}, ${connection.escape(idStatus_travel)}, ${connection.escape(date_created)}, ${connection.escape(id_type)}, ${connection.escape(idService)})`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+                const equals = bcrypt.compareSync(password, existingUser.password);
+                if (equals) {
+                    var _user = {
+                        foto:existingUser.foto ,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                    }
+
+                    const token = jwt.sign({
+                      foto:existingUser.foto,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                    },
+                        process.env.JWT_SECRET, {
+                        expiresIn: '5h'
+                    }
+                    );
+                    return res.status(200).send({
+                        msg: 'Logged in!',
+                        token,
+                        result: true,
+                        user: _user
+                    });
+                } else {
+                    res.json('Error, Contrasenia Incorrecta')
+                }
+            }
+        } else {
+            res.status(503).json({ error: 'La solicitud ha caducado' });
+        }
+    } catch (error) {
+        console.error('Error durante el logeo:', error);  // Verificamos el código de error
+
+        // Manejo de errores según el código
+        switch (error.code) {
+            case 'ER_NO_SUCH_TABLE':
+
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+            case 'ER_DUP_ENTRY':
+                // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
+                console.error('DPI o correo electrónico ya existe.');
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+
+            case 'ER_BAD_FIELD_ERROR':
+                // Error de campo incorrecto (cuando un campo de la consulta no existe en la base de datos)
+                console.error('Campo no válido en la consulta.');
+                return res.status(400).json({
+                    error: 'Error en la solicitud: el campo proporcionado no es válido.'
+                });
+
+            case 'ER_NO_REFERENCED_ROW':
+            case 'ER_ROW_IS_REFERENCED':
+                // Error de violación de llave foránea (cuando estás eliminando o insertando un valor que tiene dependencias)
+                console.error('Violación de llave foránea.');
+                return res.status(409).json({
+                    error: 'No puedes realizar esta acción porque hay registros relacionados en otra tabla.'
+                });
+
+            case 'ER_DATA_TOO_LONG':
+                // Error de longitud de dato (cuando intentas insertar un valor que excede la longitud permitida)
+                console.error('Dato demasiado largo para uno de los campos.');
+                return res.status(400).json({
+                    error: 'Uno de los campos supera la longitud permitida.'
+                });
+
+            default:
+                // Cualquier otro error no manejado específicamente
+                console.error('Error inesperado:', error);
+                return res.status(500).json({
+                    error: 'Ocurrió un error inesperado al actualizar la cuenta.'
+                });
+        }
+    }
+})
+
+
+usuarioRouter.get('/userId/:id', async (req, res) => {
+    const getUserby = await userController.getUserBy(user.uid)
+    if (getUserby === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: getUserby.id
+        });
+    }
+})
 
-
-const getLocationUser = (uid) => { 
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT idUser FROM location WHERE uid=?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
-    });
-};
-
-const getPhotoProfile = (uid) => { 
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT base64photo FROM user_detail WHERE  uid= ?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
-    });
-};
-
-const updateLocation = (uid, lat, lng) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `UPDATE location SET lat=?, lng=?, location =POINTFROMTEXT('POINT(${connection.escape(lat)} ${connection.escape(lng)})') WHERE uid=?`, [lat, lng, uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows)
-            });
-    });
-};
-
-
-const registerLocation=(idUser, uid, lat, lng) =>{
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO location (idUser, uid, lat, lng, location) VALUES (${connection.escape(idUser)},${connection.escape(uid)},${connection.escape(lat)},${connection.escape(lng)},POINTFROMTEXT('POINT(${connection.escape(lat)} ${connection.escape(lng)})'))`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+usuarioRouter.get('/getPhotoPin/:uid', async (req, res) => {
+    const getPhoto = await userController.getPhotoProfile(req.params.uid)
+    if (getPhoto === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: getPhoto.base64photo
+        });
+    }
+})
 
-const insertUserDetail=(idUser, uid, name, last_name, gender, base64photo, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) =>{
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO user_detail(idUser, uid, name, last_name, gender, base64photo, photoURL, idphotoURL, phoneNumber, email, emailVerified, providerId, createdAt, creationTime, lastLoginAt, lastSignInTime) VALUES (${connection.escape(idUser)}, ${connection.escape(uid)}, ${connection.escape(name)}, ${connection.escape(last_name)}, ${connection.escape(gender)}, ${connection.escape(base64photo)}, ${connection.escape(photoURL)}, ${connection.escape(idphotoURL)}, ${connection.escape(phoneNumber)}, ${connection.escape(email)}, ${connection.escape(emailVerified)}, ${connection.escape(providerId)}, ${connection.escape(createdAt)}, ${connection.escape(creationTime)}, ${connection.escape(lastLoginAt)}, ${connection.escape(lastSignInTime)})`,(err, result) => {
-            if (err) reject(err)
-            resolve(result)
+usuarioRouter.post('/addDetailUser', async (req, res) => {
+    const usDet = await userController.insertUserDetail(req.body.idUser, req.body.uid, req.body.name, req.body.last_name, req.body.gender, req.body.base64photo, req.body.photoURL, req.body.idphotoURL, req.body.phoneNumber, req.body.email, req.body.emailVerified, req.body.providerId, req.body.createdAt, req.body.creationTime, req.body.lastLoginAt, req.body.lastSignInTime)
+    if (usDet === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: usDet
+        });
+    }
+})
 
-
-const insertAddressFavorite=(_idUser, _uid, _address, _lat, _lng, _idtAddres) =>{
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO addressFavorite(idUser, uid, address, lat, lng, idtAddres) VALUES (${connection.escape(_idUser)},${connection.escape(_uid)}, ${connection.escape(_address)}, ${connection.escape(_lat)}, ${connection.escape(_lng)}, ${connection.escape(_idtAddres)})`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
+//
+usuarioRouter.put('/updateUser/:uid', async (req, res) => {
+    var user = req.body
+    const update = await userController.updateUser(user.name, user.last_name, user.gender, user.email, req.params.uid)
+    if (update === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
         })
-    });
-}
+    } else {
+        var tableUser = await userController.updateTableUser(user.name, user.last_name, user.email, req.params.uid)
 
-
-const getUserRol = (uid) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT tu.id idSer,  u.uid,  tu.ref FROM user as u INNER JOIN type_user as tu on u.id_type = tu.id WHERE u.uid=?`,[uid],(err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
+        if (tableUser === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: update
             });
-    });
-};
+        }
+
+    }
+})
+
+usuarioRouter.put('/updatePhotoUser/:uid', async (req, res) => {
+    var user = req.body
+    const update = await userController.updatePhotoUser(user.base64photo, user.photoURL, user.idphotoURL, req.params.uid)
+    if (update === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: update
+        });
+    }
+})
+
+usuarioRouter.get('/userDetail/:uid', async (req, res) => {
+    const user = await userController.getUserDetail(req.params.uid)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: 'editar'
+        })
+    } else {
+
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
+})
 
 
 
 
-
-
-module.exports = {
-    register,
-    getUser,
-    insertUserDetail,
-    updateLogin,
-    updateUser,
-    updateTableUser,
-    getUserDetail,
-    getUserDet,
-    updatePhotoUser,
-    insertAddressFavorite,
-    getUserBy,
-    registerLocation,
-    getLocationUser,
-    updateLocation,
-    getPhotoProfile,
-    getUserRol
-
-
-}
+module.exports = usuarioRouter;

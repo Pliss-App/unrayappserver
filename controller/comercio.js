@@ -1,26 +1,67 @@
-const connection = require('../mysql');
+const express = require('express');
+const multer = require('multer');
+const { uploadImage } = require('../firebase');
 
+const comercioRouter = express.Router();
 
-const comparaCode = (code) => { //getByEmail
-    return new Promise((resolve, reject) => {
-        connection.query(
-            "SELECT code FROM Comercio WHERE code=?",[code], (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
+const upload = multer({
+    dest: './upload'
+})
+
+const mul = multer({
+    storage: multer.memoryStorage(),
+    limits: 1024 * 1024
+})
+
+const comercioController = require('../models/comercio');
+
+//AREA DE CARGA DE IMAGENES
+comercioRouter.post('/upload_profile', mul.single('image'), uploadImage, async (req, res) => {
+    const url = {
+        url: req.file.firebaseUrl,
+        id_photo: req.body.id_photo
+    }
+
+    res.status(200).json({
+        message: 'IMAGE UPLOADED SUCCESSFULLY',
+        result: url
+    })
+})
+
+comercioRouter.post('/add', async (req, res, ) => {
+    var comercio =  req.body.comercio;
+    const comerCode = await comercioController.comparaCode(comercio.code)
+    if (comerCode === undefined) {
+        const addComer = await comercioController.insertComercio( comercio.code, comercio.nombre, comercio.categoria)
+        if (addComer === undefined) {
+            res.json({
+                error: 'Error,en le guardado'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                user: addComer
             });
-    });
-};
+        }
+    } else {
+        let result = '';
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdeghijklmnopqrstuvwxyz0123456789'
+        for (let i = 0; i < 6; i++) {
+          result += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        const addComer = await comercioController.insertComercio( result, comercio.nombre, comercio.categoria)
+        if (addComer === undefined) {
+            res.json({
+                error: 'Error, en la busqueda'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                user: addComer
+            });
+        }
+    }
+})
 
-const insertComercio = (_code, _nombre, _id_tipcomercio) => { //
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO Comercio(code, nombre, id_tipcomercio) VALUES (${connection.escape(_code)}, ${connection.escape(_nombre)}, ${connection.escape(_id_tipcomercio)})`, (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
-    });
-}
 
-module.exports = {
-    comparaCode,
-    insertComercio
-}
+module.exports = comercioRouter;

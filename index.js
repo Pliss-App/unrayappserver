@@ -23,7 +23,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const apiRoutes = require('./startup/routes');
+const apiRoutes = require('./roles/index');
 
 app.use('/api', apiRoutes);
 
