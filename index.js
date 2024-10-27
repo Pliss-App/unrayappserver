@@ -8,7 +8,7 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { uploadImage, uploadProduct, uploadPagos, uploadChatSoporte } = require('./firebase');
+//const { uploadImage, uploadProduct, uploadPagos, uploadChatSoporte } = require('./firebase');
 //-----------------------------------------------------------------------
 const app = express()
 // Middlewares

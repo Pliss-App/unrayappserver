@@ -1,4 +1,4 @@
-require('dotenv').config();
+/*require('dotenv').config();
 const admin = require("firebase-admin");
 const BUCKET = 'storage-imge.appspot.com'  //gs://storage-imge.appspot.com
 admin.initializeApp({
@@ -165,4 +165,4 @@ module.exports = {
     uploadImageToStorage,
     uploadChatSoporte,
     administrador
-};
+};*/
