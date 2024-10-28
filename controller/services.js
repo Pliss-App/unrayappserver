@@ -4,7 +4,7 @@ const servicesRouter = express.Router();
 
 const servController = require('../models/services');
 
-servicesRouter.get('/list', async (req, res) => {
+servicesRouter.get('/todos', async (req, res) => {
     const services = await servController.getServices()
     if (services === undefined) {
         res.json({

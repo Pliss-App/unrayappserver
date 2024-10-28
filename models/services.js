@@ -3,7 +3,7 @@ const connection = require('../config/conexion');
 const getServices = () => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM service WHERE 1", (err, rows) => {
+            "SELECT * FROM servicios WHERE 1", (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });

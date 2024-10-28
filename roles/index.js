@@ -11,6 +11,6 @@ apiRouter.use('/init', indexRouter);
 apiRouter.use('/user', usuarioRouter);
 apiRouter.use('/travel', travelRouter);
 //apiRouter.use('/comercio', comercioRouter);
-apiRouter.use('/services', servicesRouter);
+apiRouter.use('/servicios', servicesRouter);
 
 module.exports = apiRouter;
