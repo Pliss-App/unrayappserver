@@ -47,6 +47,20 @@ servicesRouter.get('/getDriverActive', async (req, res) => {
         }
 })
 
+servicesRouter.get('/costos/:id', async (req, res) => {
+
+    const driver = await servController.getCostoServices(req.params.id);
+    if (driver === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: driver
+        });
+    }
+})
 
 servicesRouter.get('/getDriverService/:id/:lat/:lng', async (req, res) => {
         var punto = `'POINT(${req.params.lat} ${req.params.lng})'`

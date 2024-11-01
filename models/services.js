@@ -10,6 +10,16 @@ const getServices = () => { //getByEmail
     });
 };
 
+const getCostoServices = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM costo_viaje WHERE idservicio= ?",[id], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 const getDriver = () => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -42,6 +52,7 @@ const getCosSerKm = (km) => { //getByEmail
 
 module.exports = {
     getServices,
+    getCostoServices,
     getCosSerKm,
     getDriver,
     getDriverService,
