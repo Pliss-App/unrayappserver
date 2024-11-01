@@ -107,6 +107,17 @@ const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
     });
 };
 
+const updateFoto = (id, foto) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE usuario SET foto= ? WHERE id=?",[foto, id],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
 const updateUser = (name, last_name, gender,email, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -227,6 +238,7 @@ module.exports = {
     getUserTelfonoEmail,
     createUser,
     agregarRol,
+    updateFoto,
     getLogin,
     getUser,
     insertUserDetail,

@@ -234,9 +234,9 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
     }
 })
 
-usuarioRouter.put('/updatePhotoUser/:uid', async (req, res) => {
+usuarioRouter.put('/updateFoto', async (req, res) => {
     var user = req.body
-    const update = await userController.updatePhotoUser(user.base64photo, user.photoURL, user.idphotoURL, req.params.uid)
+    const update = await userController.updateFoto(user.id, user.foto)
     if (update === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
