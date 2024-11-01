@@ -97,6 +97,16 @@ const getUserDetail = (uid) => { //getByEmail
     });
 };
 
+const getFoto = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT foto FROM usuario WHERE id=?`,[id],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const updateLogin = (lastLoginAt,lastSignInTime, uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -254,7 +264,8 @@ module.exports = {
     getLocationUser,
     updateLocation,
     getPhotoProfile,
-    getUserRol
+    getUserRol,
+    getFoto
 
 
 }
