@@ -12,7 +12,11 @@ const jwt = require('jsonwebtoken');
 //-----------------------------------------------------------------------
 const app = express()
 // Middlewares
-app.use(express.json())
+//app.use(express.json())
+
+app.use(express.json({limit: '950mb'}));
+app.use(express.urlencoded({limit: '950mb', extended: true, parameterLimit: 950000}));
+
 
 var corsOptions = {
     origin: '*',
