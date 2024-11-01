@@ -260,7 +260,7 @@ usuarioRouter.get('/foto/:id', async (req, res) => {
 
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: user.foto
+            result: user
         });
     }
 })
