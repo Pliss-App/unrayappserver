@@ -235,7 +235,8 @@ usuarioRouter.put('/updateUser/:uid', async (req, res) => {
 })
 
 usuarioRouter.put('/updateFoto', async (req, res) => {
-    var user = req.body
+    var user = req.body;
+    console.log("UDSER ", req.body);
     const update = await userController.updateFoto(user.id, user.foto)
     if (update === undefined) {
         res.json({
