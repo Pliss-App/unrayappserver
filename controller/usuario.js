@@ -85,18 +85,19 @@ usuarioRouter.post('/login', async (req, res) => {
             const { user, password } = req.body;
 
             const existingUser = await userController.getLogin(user);
-
+        
             if (existingUser === undefined) {
                 res.json('Error, Correo o telefono no registrados.')
             } else {
 
 
                 const equals = bcrypt.compareSync(password, existingUser.password);
+         
                 if (equals) {
                     var _user = {
                         foto:existingUser.foto ,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     }
-
+                
                     const token = jwt.sign({
                       foto:existingUser.foto,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     },
