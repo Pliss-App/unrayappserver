@@ -33,7 +33,7 @@ const createUser = (userData) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario (nombre, apellido, telefono, correo, foto, password, reset_token, reset_token_expiration)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, null], (err, rows) => {
+               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, null /*correo.toUpperCase()*/, null, password, null, null], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -47,7 +47,7 @@ const agregarRol = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario_rol (iduser, idrol)
-               VALUES (?, ?)`, [idUser, 2], (err, rows) => {
+               VALUES (?, ?)`, [idUser, 1], (err, rows) => {
             if (err) {
                 console.error('Error al guardar registro:', err); // Registro del error en el servidor
                 return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
