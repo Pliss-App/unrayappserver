@@ -76,7 +76,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                     error: 'Ocurrió un error inesperado al crear tu cuenta.'
                 });
         }
-    } 
+    }
 })
 
 usuarioRouter.post('/login', async (req, res) => {
@@ -85,21 +85,21 @@ usuarioRouter.post('/login', async (req, res) => {
             const { user, password } = req.body;
 
             const existingUser = await userController.getLogin(user);
-        
+
             if (existingUser === undefined) {
                 res.json('Error, Correo o telefono no registrados.')
             } else {
 
 
                 const equals = bcrypt.compareSync(password, existingUser.password);
-         
+
                 if (equals) {
                     var _user = {
-                        foto:existingUser.foto ,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     }
-                
+
                     const token = jwt.sign({
-                      foto:existingUser.foto,  idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     },
                         process.env.JWT_SECRET, {
                         expiresIn: '5h'
@@ -211,27 +211,21 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
 })
 
 //
-usuarioRouter.put('/updateUser/:uid', async (req, res) => {
-    var user = req.body
-    const update = await userController.updateUser(user.name, user.last_name, user.gender, user.email, req.params.uid)
-    if (update === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados'
-        })
-    } else {
-        var tableUser = await userController.updateTableUser(user.name, user.last_name, user.email, req.params.uid)
-
-        if (tableUser === undefined) {
+usuarioRouter.put('/updateUser/:id', async (req, res) => {
+    try {
+        var user = req.body
+        const update = await userController.updateUser(user.nombre, user.apellido, user.telefono, user.correo, req.params.id)
+        if (update === undefined) {
             res.json({
-                error: 'Error, Datos no encontrados'
+                error: 'Error, Usuario no encontrado'
             })
         } else {
-            return res.status(200).send({
-                msg: 'SUCCESSFULLY',
-                result: update
-            });
+                return res.status(200).send({
+                    msg: 'SUCCESSFULLY'
+                });
         }
-
+    } catch (error) {
+        console.error(error)
     }
 })
 
