@@ -220,9 +220,25 @@ usuarioRouter.put('/updateUser/:id', async (req, res) => {
                 error: 'Error, Usuario no encontrado'
             })
         } else {
-                return res.status(200).send({
-                    msg: 'SUCCESSFULLY'
-                });
+
+            const existingUser = await userController.refreshLogin(req.params.id);
+            var _user = {
+                foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            }
+
+            const token = jwt.sign({
+                foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            },
+                process.env.JWT_SECRET, {
+            }
+            );
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                token,
+                result: true,
+                user: _user
+            });
+
         }
     } catch (error) {
         console.error(error)
@@ -238,9 +254,22 @@ usuarioRouter.put('/updateFoto', async (req, res) => {
             error: 'Error, Datos no encontrados'
         })
     } else {
+        const existingUser = await userController.refreshLogin(user.id);
+        var _user = {
+            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+        }
+
+        const token = jwt.sign({
+            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+        },
+            process.env.JWT_SECRET, {
+        }
+        );
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: update
+            result: update,
+            token,
+            user: _user
         });
     }
 })

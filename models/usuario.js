@@ -27,6 +27,19 @@ const getLogin = (_valor) => { //getByEmail
 };
 
 
+const refreshLogin = (_valor) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT u.id as idUser, r.id as idRol, u.foto, r.nombre as rol, u.nombre, u.apellido, u.password, u.correo, u.telefono, u.created_at FROM usuario u INNER JOIN usuario_rol ur ON u.id = ur.iduser INNER JOIN roles r  ON ur.idrol = r.id WHERE u.id =  ?", [_valor], (err, rows) => {
+            if (err) {
+                console.error('Error getting record:', err); // Registro del error en el servidor
+                return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+            }
+            resolve(rows[0]);
+        });
+    });
+};
+
 const createUser = (userData) => { //getByEmail
     const {nombre, apellido, telefono, correo, password } = userData;
 
@@ -265,7 +278,8 @@ module.exports = {
     updateLocation,
     getPhotoProfile,
     getUserRol,
-    getFoto
+    getFoto,
+    refreshLogin
 
 
 }
