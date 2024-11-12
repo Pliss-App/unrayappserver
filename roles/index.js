@@ -11,7 +11,7 @@ const apiRouter = express.Router();
 apiRouter.use('/init', indexRouter);
 apiRouter.use('/user', usuarioRouter);
 apiRouter.use('/travel', travelRouter);
-apiRouter.use('/carousel', travelRouter);
+apiRouter.use('/carousel', carouselRouter);
 //apiRouter.use('/comercio', comercioRouter);
 apiRouter.use('/servicios', servicesRouter);
 
