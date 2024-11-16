@@ -1,10 +1,10 @@
 module.exports = {
     hostname: 'myhostname',
     database: {
-        host: process.env.DB_HOST || "srv1616.hstgr.io", //traido desde hostinger. para establecer la conexión remota.
-        user: process.env.DB_USER || "u420603702_adminray",
-        password: process.env.DB_PASSWORD || "Bq3]&Xy!V/9F",
-        database: process.env.DB_DATABASE || "u420603702_unray",
+        host: process.env.DB_HOST || "srv1543.hstgr.io", //traido desde hostinger. para establecer la conexión remota.
+        user: process.env.DB_USER || "u889064612_adminray",
+        password: process.env.DB_PASSWORD || "Ov5zTInX?",
+        database: process.env.DB_DATABASE || "u889064612_unray",
     }
       /*  hostname: 'localhost',
         database: {
