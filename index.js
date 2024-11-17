@@ -48,7 +48,7 @@ const keepServerAlive = () => {
       } catch (error) {
         console.error('Error en el ping:',PORT ," ---- ", error.message);
       }
-    }, 1 * 60 * 1000); // Cada 5 minutos
+    }, 50 * 1000); // Cada 5 minutos
   };
 
 // Arrancar Servidor
