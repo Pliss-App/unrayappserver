@@ -36,7 +36,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
             const permission = await isUserController.agregarRol(result.insertId,idService);
 
             const transporter = nodemailer.createTransport({
-                service: 'smtp.hostinger.com ',
+                service: 'smtp.hostinger.com',
                 port: 465, // Puerto seguro (SSL)
                 secure: true, // Usar SSL
                 auth: {
