@@ -62,7 +62,7 @@ const createUserDriver = (userData) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario (nombre, apellido, telefono, correo, foto, password, reset_token, estado, reset_token_expiration)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, false, null], (err, rows) => {
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, false, null], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -72,11 +72,11 @@ const createUserDriver = (userData) => { //getByEmail
     });
 };
 
-const agregarRol = (idUser) => {
+const agregarRol = (idUser, idservice) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO usuario_rol (iduser, idrol)
-               VALUES (?, ?)`, [idUser, 2], (err, rows) => {
+            `INSERT INTO usuario_rol (iduser, idrol, idservice)
+               VALUES (?, ?, ?)`, [idUser, 2, idservice], (err, rows) => {
             if (err) {
                 console.error('Error al guardar registro:', err); // Registro del error en el servidor
                 return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado

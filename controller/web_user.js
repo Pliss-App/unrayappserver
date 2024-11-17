@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const isRouter = express.Router();
-
+const nodemailer = require('nodemailer');
 const isController = require('../models/web_user');
 const isUserController = require('../models/usuario');
 
@@ -20,6 +20,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
         const { nombre, apellido, telefono, correo } = req.body;
+        const idService = 1;
 
         const results = await isUserController.getUserTelfonoEmail(telefono);
         if (results === undefined) {
@@ -32,7 +33,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 password: hashedPassword
             });
 
-            const permission = await isUserController.agregarRol(result.insertId);
+            const permission = await isUserController.agregarRol(result.insertId,idService);
 
             const transporter = nodemailer.createTransport({
                 service: 'smtp.hostinger.com ',
@@ -51,7 +52,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
        // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
         const mailOptions = {
           from: process.env.GMAIL_USER,
-          to: email,
+          to: correo,
           subject: 'Credenciales de Usuario',
           html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
             <ul>
