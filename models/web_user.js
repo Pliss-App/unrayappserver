@@ -12,10 +12,10 @@ const beneficios = (modulo) => {
 
 const requisitos = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`
-SELECT 
+        connection.query(`SELECT 
     s.nombre AS servicio,
-    GROUP_CONCAT(r.titulo ORDER BY r.titulo SEPARATOR '/ ') AS requisitos
+    GROUP_CONCAT(r.titulo ORDER BY r.titulo SEPARATOR '/ ') AS requisitos,
+       s.foto AS url
 FROM 
     servicios s
 right JOIN 
