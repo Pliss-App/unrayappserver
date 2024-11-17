@@ -16,6 +16,42 @@ const generateTemporaryPassword = () => {
     return password;
 };
 
+isRouter.post('/pruebas', async (req, res) => {
+
+    const transporter = nodemailer.createTransport({
+        host: 'smtp.hostinger.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: process.env.GMAIL_USER, // Tu correo
+            pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+        },
+    });
+
+    const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: 'perezlib49@gmail.com',
+        subject: 'Credenciales de Usuario',
+        html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
+    <ul>
+     <li>Contraseña Temporal: 123232323</li>
+    </ul>`,
+    };
+
+    await transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+            console.log("EERO ", error)
+            return res.status(500).send(error.toString());
+        }
+
+        res.status(200).send('Correo enviado: ' + info.response);
+    });
+
+    // return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
+
+}
+)
+
 isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
@@ -42,9 +78,6 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 auth: {
                     user: process.env.GMAIL_USER, // Tu correo
                     pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
-
-                  /*   user: 'conductor@unraylatinoamerica.com',
-                     pass: 'Ub!3!8!kkPgp',*/
                 },
             });
 
