@@ -1,5 +1,5 @@
 const express = require('express');
-
+const bcrypt = require('bcryptjs');
 const isRouter = express.Router();
 
 const isController = require('../models/web_user');
@@ -16,7 +16,7 @@ const generateTemporaryPassword = () => {
     return password;
 };
 
-isRouter.post('/registro-conductor', async (req, res) => {
+isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
         const { nombre, apellido, telefono, correo, password } = req.body;
