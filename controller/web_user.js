@@ -33,12 +33,13 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 password: hashedPassword
             });
 
-            const permission = await isUserController.agregarRol(result.insertId,idService);
+            const permission = await isUserController.agregarRol(result.insertId, idService);
 
             const transporter = nodemailer.createTransport({
                 service: 'smtp.hostinger.com',
-                port: 465, // Puerto seguro (SSL)
-                secure: true, // Usar SSL
+                port: 587,
+                secure: false, // No SSL, pero se usará STARTTLS
+
                 auth: {
                     user: process.env.GMAIL_USER, // Tu correo
                     pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
@@ -48,26 +49,26 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 },
             });
 
-              // Enviar el correo con el enlace de restablecimiento
-       // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
-        const mailOptions = {
-          from: process.env.GMAIL_USER,
-          to: correo,
-          subject: 'Credenciales de Usuario',
-          html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
+            // Enviar el correo con el enlace de restablecimiento
+            // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
+            const mailOptions = {
+                from: process.env.GMAIL_USER,
+                to: correo,
+                subject: 'Credenciales de Usuario',
+                html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
             <ul>
              <li>Contraseña Temporal: ${temporaryPassword} </li>
             </ul>`,
-        };
+            };
 
-        await transporter.sendMail(mailOptions, (error, info) => {
-          if (error) {
-            console.log("EERO ", error)
-            return res.status(500).send(error.toString());
-          }
+            await transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log("EERO ", error)
+                    return res.status(500).send(error.toString());
+                }
 
-          res.status(200).send('Correo enviado: ' + info.response);
-        });
+                res.status(200).send('Correo enviado: ' + info.response);
+            });
 
             return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
         } else {
