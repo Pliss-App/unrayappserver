@@ -46,7 +46,7 @@ const createUser = (userData) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario (nombre, apellido, telefono, correo, foto, password, reset_token, estado, reset_token_expiration)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, null /*correo.toUpperCase()*/, null, password, null, true, null], (err, rows) => {
+               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, true, null], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -62,7 +62,7 @@ const createUserDriver = (userData) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario (nombre, apellido, telefono, correo, foto, password, reset_token, estado, reset_token_expiration)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, null /*correo.toUpperCase()*/, null, password, null, false, null], (err, rows) => {
+               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, false, null], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado

@@ -19,7 +19,7 @@ const generateTemporaryPassword = () => {
 isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
-        const { nombre, apellido, telefono, correo, password } = req.body;
+        const { nombre, apellido, telefono, correo } = req.body;
 
         const results = await isUserController.getUserTelfonoEmail(telefono);
         if (results === undefined) {
