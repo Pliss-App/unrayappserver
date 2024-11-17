@@ -40,11 +40,11 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 port: 465,
                 secure: true,
                 auth: {
-                   // user: process.env.GMAIL_USER, // Tu correo
-                  //  pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+                    user: process.env.GMAIL_USER, // Tu correo
+                    pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
 
-                     user: 'conductor@unraylatinoamerica.com',
-                     pass: 'Ub!3!8!kkPgp',
+                  /*   user: 'conductor@unraylatinoamerica.com',
+                     pass: 'Ub!3!8!kkPgp',*/
                 },
             });
 
