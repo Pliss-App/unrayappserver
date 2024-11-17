@@ -36,8 +36,8 @@ isRouter.post('/registro_conductor', async (req, res) => {
             const permission = await isUserController.agregarRol(result.insertId, idService);
 
             const transporter = nodemailer.createTransport({
-                service: 'imap.hostinger.com',
-                port:993,
+                host: 'smtp.gmail.com',
+                port: 465,
                 secure: true,
                 auth: {
                     user: process.env.GMAIL_USER, // Tu correo
