@@ -10,6 +10,15 @@ const beneficios = (modulo) => {
     });
 }
 
+const nosotros = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM nosotros`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 const requisitos = () => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT 
@@ -31,5 +40,6 @@ const requisitos = () => {
 
 module.exports = {
     beneficios,
-    requisitos
+    requisitos,
+    nosotros
 }

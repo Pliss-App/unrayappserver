@@ -89,8 +89,10 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 subject: 'Credenciales de Usuario',
                 html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
             <ul>
-             <li>Contraseña Temporal: ${temporaryPassword} </li>
-            </ul>`,
+             <li>Contraseña Temporal: <b> ${temporaryPassword} </b> </li>
+            </ul>
+            <p></p>
+            `,
             };
 
             await transporter.sendMail(mailOptions, (error, info) => {
@@ -171,6 +173,20 @@ isRouter.get('/beneficios/:modulo', async (req, res) => {
     }
 })
 
+isRouter.get('/nosotros', async (req, res) => {
+
+    const result = await isController.nosotros();
+    if (result === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
 
 isRouter.get('/requisitos', async (req, res) => {
 
