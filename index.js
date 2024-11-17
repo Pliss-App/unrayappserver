@@ -2,6 +2,8 @@
 require('dotenv').config();
 const express = require("express");
 //const connection = require('./mysql');
+const axios = require('axios'); // Para realizar peticiones HTTP
+
 const multer = require('multer')
 const fs = require('fs')
 const bodyParser = require('body-parser');
@@ -26,14 +28,33 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
 const apiRoutes = require('./roles/index');
 
 app.use('/api', apiRoutes);
 
+
+app.get('/', (req, res) => {
+    res.send('Servidor activo');
+  });
+
+const PORT = process.env.PORT || 3000;
+
+const keepServerAlive = () => {
+    setInterval(async () => {
+      try {
+    
+        const response = await axios.get('http://localhost:' + PORT);
+        console.log('Ping exitoso:', PORT ," ---- ", response.status);
+      } catch (error) {
+        console.error('Error en el ping:',PORT ," ---- ", error.message);
+      }
+    }, 1 * 60 * 1000); // Cada 5 minutos
+  };
+
 // Arrancar Servidor
 // set port, listen for requests
-const PORT = process.env.PORT || 3000;
+//const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}.`);
+    keepServerAlive();
 });
