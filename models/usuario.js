@@ -76,7 +76,7 @@ const agregarRol = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO usuario_rol (iduser, idrol)
-               VALUES (?, ?)`, [idUser, 1], (err, rows) => {
+               VALUES (?, ?)`, [idUser, 2], (err, rows) => {
             if (err) {
                 console.error('Error al guardar registro:', err); // Registro del error en el servidor
                 return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
