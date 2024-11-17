@@ -21,17 +21,17 @@ isRouter.get('/beneficios/:modulo', async (req, res) => {
 })
 
 
-isRouter.post('/create_travelDetail', async (req, res) => {
+isRouter.get('/requisitos', async (req, res) => {
 
-    const create = await isController.createTravelDetail(req.body);
-    if (create === undefined) {
+    const result = await isController.requisitos();
+    if ( result === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: create
+            result:  result
         });
     }
 })
