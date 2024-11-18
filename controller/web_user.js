@@ -55,7 +55,7 @@ isRouter.post('/pruebas', async (req, res) => {
 isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
-        const { nombre, apellido, telefono, correo } = req.body;
+        const { idservicio, nombre, apellido, telefono, correo } = req.body;
         const idService = 1;
 
         const results = await isUserController.getUserTelfonoEmail(telefono);
@@ -69,7 +69,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 password: hashedPassword
             });
 
-            const permission = await isUserController.agregarRol(result.insertId, idService);
+            const permission = await isUserController.agregarRol(result.insertId, idservicio);
 
             const transporter = nodemailer.createTransport({
                 host: 'smtp.hostinger.com',
