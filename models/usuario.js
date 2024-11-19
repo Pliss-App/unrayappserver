@@ -197,6 +197,16 @@ const register=(uid, name, email, pass, id_status, idStatus_travel, date_created
     });
 }
 
+const getDocumentacionUser = (id) => { 
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT * FROM documentacion WHERE iduser=?`,[id],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 
 const getLocationUser = (uid) => { 
     return new Promise((resolve, reject) => {
@@ -296,7 +306,8 @@ module.exports = {
     getUserRol,
     getFoto,
     refreshLogin,
-    createUserDriver
+    createUserDriver,
+    getDocumentacionUser
 
 
 }

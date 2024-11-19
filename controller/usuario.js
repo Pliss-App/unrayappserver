@@ -182,6 +182,34 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/documentacion/:id', async (req, res) => {
+    try {
+        const getUserby = await userController.getDocumentacionUser(req.params.id);
+
+        if (!getUserby || getUserby.length === 0) { // Verifica si el resultado está vacío
+            return res.status(404).json({
+                success: false,
+                msg: 'Error, Datos no encontrados',
+                result: false
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: true,
+            data: getUserby
+        });
+    } catch (error) {
+        console.error('Error en el servidor:', error);
+        return res.status(500).json({
+            success: false,
+            msg: 'Error en el servidor',
+            result: false
+        });
+    }
+})
+
 usuarioRouter.get('/getPhotoPin/:uid', async (req, res) => {
     const getPhoto = await userController.getPhotoProfile(req.params.uid)
     if (getPhoto === undefined) {
