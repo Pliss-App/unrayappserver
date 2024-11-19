@@ -185,20 +185,22 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
 usuarioRouter.get('/documentacion/:id', async (req, res) => {
     try {
         const getUserby = await userController.getDocumentacionUser(req.params.id);
-
-        if (!getUserby || getUserby.length === 0) { // Verifica si el resultado está vacío
+        
+        // Verificar si se encontraron registros
+        if (!getUserby || getUserby.length === 0) {
             return res.status(200).json({
                 success: false,
-                msg: 'SUCCESSFULLY',
-                result: false
+                result: false,
+                msg: 'No se encontraron registros'
             });
         }
-
+        
+        // Si se encontraron registros
         return res.status(200).json({
             success: true,
-            msg: 'SUCCESSFULLY',
             result: true,
-            data: getUserby
+            data: getUserby,
+            msg: 'Registros encontrados'
         });
     } catch (error) {
         console.error('Error en el servidor:', error);
