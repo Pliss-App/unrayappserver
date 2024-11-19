@@ -187,9 +187,9 @@ usuarioRouter.get('/documentacion/:id', async (req, res) => {
         const getUserby = await userController.getDocumentacionUser(req.params.id);
 
         if (!getUserby || getUserby.length === 0) { // Verifica si el resultado está vacío
-            return res.status(404).json({
+            return res.status(200).json({
                 success: false,
-                msg: 'Error, Datos no encontrados',
+                msg: 'SUCCESSFULLY',
                 result: false
             });
         }
