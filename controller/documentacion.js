@@ -184,7 +184,7 @@ isRouter.post('/insert', async (req, res) => {
             tarjeta_frontal,
             tarjeta_inverso,
             policiales,} = req.body;
-        console.log(" data ", dpi_frontal)
+        console.log(" data ", dpi_frontal, req.body)
        /* const result = await isController.insert(userData);
         if (result === undefined) {
             res.json({
