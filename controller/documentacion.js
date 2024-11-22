@@ -175,7 +175,7 @@ isRouter.get('/requisitos', async (req, res) => {
 
 isRouter.post('/insert', async (req, res) => {
     try {
-
+        console.log(" data ", req.body)
         const { userData } = req.body;
         console.log(" data ", userData)
        /* const result = await isController.insert(userData);
