@@ -16,7 +16,7 @@ const getUserTelfonoEmail = (_valor) => { //getByEmail
 const getLogin = (_valor) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT u.id as idUser, r.id as idRol, u.foto, r.nombre as rol, u.nombre, u.apellido, u.password, u.correo, u.telefono, u.created_at FROM usuario u INNER JOIN usuario_rol ur ON u.id = ur.iduser INNER JOIN roles r  ON ur.idrol = r.id WHERE LOWER(u.correo) = LOWER(?)OR u.telefono = ?", [_valor, _valor], (err, rows) => {
+            "SELECT u.id as idUser, r.id as idRol, u.foto, u.estado, r.nombre as rol, u.nombre, u.apellido, u.password, u.correo, u.telefono, u.created_at FROM usuario u INNER JOIN usuario_rol ur ON u.id = ur.iduser INNER JOIN roles r  ON ur.idrol = r.id WHERE LOWER(u.correo) = LOWER(?)OR u.telefono = ?", [_valor, _valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
