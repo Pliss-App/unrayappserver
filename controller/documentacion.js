@@ -177,7 +177,8 @@ isRouter.post('/insert', async (req, res) => {
     try {
 
         const { userData } = req.body;
-        const result = await isController.insert(userData);
+        console.log(" data ", userData)
+       /* const result = await isController.insert(userData);
         if (result === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
@@ -187,7 +188,7 @@ isRouter.post('/insert', async (req, res) => {
                 msg: 'SUCCESSFULLY',
                 result: result
             });
-        }
+        }*/
 
     } catch (error) {
         console.error(error)
