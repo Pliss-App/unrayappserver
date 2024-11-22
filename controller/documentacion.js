@@ -173,6 +173,27 @@ isRouter.get('/requisitos', async (req, res) => {
     }
 })
 
+isRouter.post('/insert', async (req, res) => {
+    try {
+
+        const { userData } = req.body;
+        const result = await isController.insert(userData);
+        if (result === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 isRouter.get('/nosotros', async (req, res) => {
 
     const result = await isController.nosotros();

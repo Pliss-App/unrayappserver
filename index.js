@@ -16,8 +16,8 @@ const app = express()
 // Middlewares
 //app.use(express.json())
 
-app.use(express.json({limit: '950mb'}));
-app.use(express.urlencoded({limit: '950mb', extended: true, parameterLimit: 950000}));
+app.use(express.json({limit: '990mb'}));
+app.use(express.urlencoded({limit: '990mb', extended: true, parameterLimit: 900000}));
 
 
 var corsOptions = {

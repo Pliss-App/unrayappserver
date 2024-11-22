@@ -10,9 +10,9 @@ const documentacion = () => {
     });
 }
 
-const nosotros = () => {
+const insert = (userData) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM nosotros`, (err, result) => {
+        connection.query(`insert requisitos_documentacion (data) VALUES (?)`,[JSON.stringify(userData)],  (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -41,5 +41,5 @@ const requisitos = () => {
 module.exports = {
     documentacion,
     requisitos,
-    nosotros
+    insert
 }
