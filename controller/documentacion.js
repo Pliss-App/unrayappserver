@@ -158,7 +158,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
     }
 })
 
-isRouter.get('/documentacion', async (req, res) => {
+isRouter.get('/requisitos', async (req, res) => {
 
     const result = await isController.documentacion();
     if (result === undefined) {
@@ -188,6 +188,7 @@ isRouter.get('/nosotros', async (req, res) => {
     }
 })
 
+/*
 isRouter.get('/requisitos', async (req, res) => {
 
     const result = await isController.requisitos();
@@ -201,6 +202,6 @@ isRouter.get('/requisitos', async (req, res) => {
             result: result
         });
     }
-})
+}) */
 
 module.exports = isRouter;
