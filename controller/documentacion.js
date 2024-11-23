@@ -177,7 +177,7 @@ isRouter.post('/insert', async (req, res) => {
     try {
         //
         const userData = req.body;
-        const { idUser} = userData.idUser;
+        const { idUser} = userData;
         const { dpi_frontal,
             dpi_inverso,
             permiso_conducir,
