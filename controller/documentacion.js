@@ -175,6 +175,7 @@ isRouter.get('/requisitos', async (req, res) => {
 
 isRouter.post('/insert', async (req, res) => {
     try {
+        console.log("DA ", req.body)
         const userData = req.body;
         const { iduser } = userData.idUser;
         const { dpi_frontal,
