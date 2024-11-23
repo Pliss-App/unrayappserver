@@ -175,9 +175,9 @@ isRouter.get('/requisitos', async (req, res) => {
 
 isRouter.post('/insert', async (req, res) => {
     try {
-        console.log("DA ", req.body)
+        //
         const userData = req.body;
-        const { iduser } = userData.idUser;
+        const { idUser} = userData.idUser;
         const { dpi_frontal,
             dpi_inverso,
             permiso_conducir,
@@ -186,8 +186,9 @@ isRouter.post('/insert', async (req, res) => {
             tarjeta_frontal,
             tarjeta_inverso,
             policiales } = userData.documentacion;
+            console.log("DA ", idUser)
         //console.log(" data ", dpi_frontal, req.body)
-        const result = await isController.insert(iduser, dpi_frontal,
+        const result = await isController.insert(idUser, dpi_frontal,
             dpi_inverso,
             permiso_conducir,
             licencia_frontal,
