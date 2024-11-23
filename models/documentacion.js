@@ -19,17 +19,19 @@ const insert = (iduser, dpi_frontal,
     tarjeta_inverso,
     policiales) => {
     return new Promise((resolve, reject) => {
-        connection.query(`insert documentacion (iduser, dpi_frontal, dpi_inverso, permiso_conducir, licencia_frontal, licencia_inverso, tarjeta_frontal, tarjeta_inverso,  policiales) VALUES ?`, [iduser, dpi_frontal,
-            dpi_inverso,
-            permiso_conducir,
-            licencia_frontal,
-            licencia_inverso,
-            tarjeta_frontal,
-            tarjeta_inverso,
-            policiales], (err, result) => {
-                if (err) reject(err)
-                resolve(result)
-            })
+        connection.query(`insert documentacion (iduser, dpi_frontal, dpi_inverso, permiso_conducir, licencia_frontal, licencia_inverso, tarjeta_frontal, tarjeta_inverso,  policiales) VALUES ?`,
+               [iduser, 
+                dpi_frontal,
+                dpi_inverso,
+                permiso_conducir,
+                licencia_frontal,
+                licencia_inverso,
+                tarjeta_frontal,
+                tarjeta_inverso,
+                policiales], (err, result) => {
+                    if (err) reject(err)
+                    resolve(result)
+                })
     });
 }
 
