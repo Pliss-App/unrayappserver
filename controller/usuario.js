@@ -95,11 +95,11 @@ usuarioRouter.post('/login', async (req, res) => {
 
                 if (equals) {
                     var _user = {
-                        estado: existingUser.estado, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        estado: existingUser.estado, marker: existingUser.marker, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     }
 
                     const token = jwt.sign({
-                        estado: existingUser.estado, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        estado: existingUser.estado, marker: existingUser.marker, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     },
                         process.env.JWT_SECRET, {
                         expiresIn: '5h'
@@ -293,11 +293,11 @@ usuarioRouter.put('/updateUser/:id', async (req, res) => {
 
             const existingUser = await userController.refreshLogin(req.params.id);
             var _user = {
-                foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
             }
 
             const token = jwt.sign({
-                foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
             },
                 process.env.JWT_SECRET, {
             }
@@ -325,11 +325,11 @@ usuarioRouter.put('/updateFoto', async (req, res) => {
     } else {
         const existingUser = await userController.refreshLogin(user.id);
         var _user = {
-            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
         }
 
         const token = jwt.sign({
-            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
         },
             process.env.JWT_SECRET, {
         }
