@@ -73,7 +73,7 @@ const updateLocationConductor = (userData) => {
     const {iduser, lat, lon} = userData;
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE location SET lat=?, lon= ? WHERE id=?",[lat, lon, iduser],(err, rows) => {
+            "UPDATE location SET lat=?, lon= ? WHERE iduser=?",[lat, lon, iduser],(err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
