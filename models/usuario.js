@@ -56,6 +56,33 @@ const createUser = (userData) => { //getByEmail
     });
 };
 
+const insertLocation = (userData) => { 
+    const {iduser, lat, lon} = userData;
+
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO location(iduser, lat, lon) VALUES (?, ?, ?)`, [iduser, lat, lon], (err, rows) => {
+            if (err) {
+                console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+            }
+            resolve(rows)
+        });
+    });
+};
+
+const updateLocationConductor = (userData) => { 
+    const {iduser, lat, lon} = userData;
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE location SET lat=?, lon= ? WHERE id=?",[lat, lon, iduser],(err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
 const createUserDriver = (userData) => { //getByEmail
     const {nombre, apellido, telefono, correo, password } = userData;
 
@@ -307,7 +334,8 @@ module.exports = {
     getFoto,
     refreshLogin,
     createUserDriver,
-    getDocumentacionUser
-
+    getDocumentacionUser,
+    insertLocation,
+    updateLocationConductor 
 
 }

@@ -95,7 +95,7 @@ usuarioRouter.post('/login', async (req, res) => {
 
                 if (equals) {
                     var _user = {
-                      estado: existingUser.estado,  foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        estado: existingUser.estado, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
                     }
 
                     const token = jwt.sign({
@@ -185,7 +185,7 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
 usuarioRouter.get('/documentacion/:id', async (req, res) => {
     try {
         const getUserby = await userController.getDocumentacionUser(req.params.id);
-        
+
         // Verificar si se encontraron registros
         if (!getUserby || getUserby.length === 0) {
             return res.status(200).json({
@@ -194,7 +194,7 @@ usuarioRouter.get('/documentacion/:id', async (req, res) => {
                 msg: 'No se encontraron registros'
             });
         }
-        
+
         // Si se encontraron registros
         return res.status(200).json({
             success: true,
@@ -237,6 +237,46 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
             msg: 'SUCCESSFULLY',
             result: usDet
         });
+    }
+})
+
+
+usuarioRouter.post('/update-location', async (req, res) => {
+    try {
+        const data = req.body;
+        const usDet = await userController.updateLocation(data)
+        if (usDet === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: usDet
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+usuarioRouter.post('/insert-location', async (req, res) => {
+    try {
+        const data = req.body;
+        const usDet = await userController.insertLocation(data)
+        if (usDet === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: usDet
+            });
+        }
+    } catch (error) {
+        console.error(error)
     }
 })
 
