@@ -70,6 +70,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
             });
 
             const permission = await isUserController.agregarRol(result.insertId, idservicio);
+            const usDet = await isUserController.insertLocation(result.insertId);
 
             const transporter = nodemailer.createTransport({
                 host: 'smtp.hostinger.com',

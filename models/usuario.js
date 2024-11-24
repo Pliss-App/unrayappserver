@@ -56,12 +56,10 @@ const createUser = (userData) => { //getByEmail
     });
 };
 
-const insertLocation = (userData) => { 
-    const {iduser, lat, lon} = userData;
-
+const insertLocation = (idUser) => { 
     return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO location(iduser, lat, lon) VALUES (?, ?, ?)`, [iduser, lat, lon], (err, rows) => {
+            `INSERT INTO location(iduser, lat, lon) VALUES (?, ?, ?)`, [idUser, 0,0], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
