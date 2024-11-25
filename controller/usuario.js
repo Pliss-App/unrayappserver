@@ -376,6 +376,51 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 })
 
 
+usuarioRouter.post('/recover', async (req, res) => {
+    const { user } = req.body;
+    try {
+
+        const results = await userController.getUserTelfonoEmail(user);
+        if (results === undefined) {
+            return res.status(404).send('Usuario no encontrado');
+        } else {
+      // Generar token único
+      const token = crypto.randomBytes(20).toString('hex');
+      const expiration = new Date();
+      expiration.setHours(expiration.getHours() + 1); // 1 hora de validez
+  
+      // Guardar token en la base de datos
+      userController.updateUsuarioPass(token, expiration, user)
+  
+      // Configurar transporte de nodemailer
+      const transporter = nodemailer.createTransport({
+        host: 'smtp.hostinger.com',
+        port: 465,
+        secure: true,
+        auth: {
+            user: process.env.GMAIL_USER, // Tu correo
+            pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+        },
+    });
+  
+      // Enviar correo
+      const resetUrl = `https://unraylatinoamerica.com/reset-password?token=${token}`;
+      const mailOptions = {
+        from: process.env.GMAIL_USER,
+        to: correo,
+        subject: 'Recuperación de Contraseña',
+        text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
+      };
+  
+      await transporter.sendMail(mailOptions);
+      res.send('Correo de recuperación enviado');
+    }
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error interno del servidor');
+    }
+  });
+
 
 
 module.exports = usuarioRouter;
