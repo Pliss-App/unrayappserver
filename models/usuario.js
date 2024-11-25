@@ -17,7 +17,7 @@ const getUserTelfonoEmail = (_valor) => { //getByEmail
 const updateUsuarioPass = (token, expiration, _id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE usuario SET reset_token = ?, reset_expiration = ? WHERE correo = ? OR telefono = ?", [token, expiration, _id, _id], (err, rows) => {
+            "UPDATE usuario SET reset_token = ?, reset_token_expiration = ? WHERE correo = ? OR telefono = ?", [token, expiration, _id, _id], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
