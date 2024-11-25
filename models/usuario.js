@@ -31,7 +31,7 @@ const updateUsuarioPass = (token, expiration, _id) => { //getByEmail
 const getPassword = (token) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM usuario WHERE reset_token = ? AND reset_expiration > NOW()", [token], (err, rows) => {
+            "SELECT * FROM usuario WHERE reset_token = ? AND reset_token_expiration > NOW()", [token], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -44,7 +44,7 @@ const getPassword = (token) => { //getByEmail
 const updatePasswordNew  = (password, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE usuario SET password = ?, reset_token = NULL, reset_expiration = NULL WHERE id = ?", [password, id], (err, rows) => {
+            "UPDATE usuario SET password = ?, reset_token = NULL, reset_token_expiration = NULL WHERE id = ?", [password, id], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
