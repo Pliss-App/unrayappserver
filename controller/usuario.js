@@ -426,6 +426,32 @@ usuarioRouter.post('/recover', async (req, res) => {
     }
   });
 
+  usuarioRouter.post('/reset-password', async (req, res) => {
+    const { token, password } = req.body;
+  
+    try {
+      const user = await userController.getPassword(token);
+  
+      if (user === undefined) {
+        return res.status(400).send('Token inválido o expirado');
+      }
+  
+      // Hashear la nueva contraseña
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      // Actualizar la contraseña en la base de datos
+      const result = await userController.updatePasswordNew(hashedPassword , user.id);
+      return res.status(200).send({
+        msg: 'SUCCESSFULLY',
+        result: 'Contraseña actualizada correctamente'
+    });
+     // res.send('Contraseña actualizada correctamente');
+    } catch (err) {
+      console.error(err);
+      res.status(500).send('Error interno del servidor');
+    }
+  });
+
 
 
 module.exports = usuarioRouter;
