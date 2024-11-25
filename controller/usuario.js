@@ -414,7 +414,11 @@ usuarioRouter.post('/recover', async (req, res) => {
       };
   
       await transporter.sendMail(mailOptions);
-      res.send('Correo de recuperación enviado');
+      //res.send('Correo de recuperación enviado');
+      return res.status(200).send({
+        msg: 'SUCCESSFULLY',
+        result: 'Correo de recuperación enviado'
+    });
     }
     } catch (err) {
       console.error(err);
