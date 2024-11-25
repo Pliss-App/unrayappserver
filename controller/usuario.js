@@ -408,7 +408,7 @@ usuarioRouter.post('/recover', async (req, res) => {
       const resetUrl = `https://unraylatinoamerica.com/reset-password?token=${token}`;
       const mailOptions = {
         from: process.env.GMAIL_USER,
-        to: correo,
+        to: user,
         subject: 'Recuperación de Contraseña',
         text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
       };
