@@ -44,7 +44,7 @@ isRouter.get('/saldo-billetera/:id', async (req, res) => {
         const user = await isController.saldoBilletera(req.params.id);
 
         // Verificar si se encontró el usuario o devolver saldo 0
-        if (!user) {
+        if (!user || Object.keys(user).length === 0) {
             return res.status(200).send({
                 msg: 'SUCCESSFULLY',
                 result: { saldo: 0 } // Devolver saldo 0 si no hay registro
