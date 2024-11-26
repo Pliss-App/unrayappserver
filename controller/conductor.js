@@ -38,12 +38,10 @@ isRouter.post('/create_travelDetail', async (req, res) => {
 })
 
 
-isRouter.get('/saldo-billetera', async (req, res) => {
+isRouter.get('/saldo-billetera/:id', async (req, res) => {
     try {
-        const { iduser } = req.body;
-
         // Llamar al controlador para obtener los datos de la billetera
-        const user = await isController.saldoBilletera(iduser);
+        const user = await isController.saldoBilletera(req.params.id);
 
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!user) {
