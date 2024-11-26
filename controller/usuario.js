@@ -96,11 +96,19 @@ usuarioRouter.post('/login', async (req, res) => {
 
                 if (equals) {
                     var _user = {
-                        estado: existingUser.estado, marker: existingUser.marker, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        estado: existingUser.estado, marker: existingUser.marker, 
+                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, 
+                        rol: existingUser.rol, nombre: existingUser.nombre, 
+                        apellido: existingUser.apellido, correo: existingUser.correo, 
+                        telefono: existingUser.telefono
                     }
 
                     const token = jwt.sign({
-                        estado: existingUser.estado, marker: existingUser.marker, foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                        estado: existingUser.estado, marker: existingUser.marker, 
+                        foto: existingUser.foto, idUser: existingUser.idUser, 
+                        idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, 
+                        apellido: existingUser.apellido, correo: existingUser.correo, 
+                        telefono: existingUser.telefono
                     },
                         process.env.JWT_SECRET, {
                         expiresIn: '5h'

@@ -82,18 +82,36 @@ const iconMarker = (_id) => { //getByEmail
 const getLogin = (_valor) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT u.id as idUser, r.id as idRol, u.foto, u.estado, 
-    r.nombre as rol, u.nombre, u.apellido, u.password, 
-    u.correo, u.telefono,  CASE 
+            `   SELECT 
+    u.id AS idUser, 
+    r.id AS idRol, 
+    u.foto, 
+    u.estado, 
+    r.nombre AS rol, 
+    u.nombre, 
+    u.apellido, 
+    u.password, 
+    u.correo, 
+    u.telefono,  
+    CASE 
         WHEN s.nombre = 'moto ray' THEN 'moto.png'
         WHEN s.nombre IN ('Un ray', 'Plus ray') THEN 'carro.png'
         ELSE s.nombre 
-    END AS marker,  u.created_at 
-    FROM usuario u 
-    INNER JOIN usuario_rol ur ON u.id = ur.iduser 
-    INNER JOIN roles r  ON ur.idrol = r.id 
-    INNER JOIN servicios s
-    ON  ur.idservice = s.id  WHERE LOWER(u.correo) = LOWER(?)OR u.telefono = ?`, [_valor, _valor], (err, rows) => {
+    END AS marker,  
+    u.created_at,
+    -- Determinar tipo de usuario
+    CASE 
+        WHEN r.nombre = 'conductor' AND s.id IS NOT NULL THEN 'conductor'
+        ELSE 'usuario normal'
+    END AS tipo_usuario
+FROM usuario u 
+INNER JOIN usuario_rol ur 
+    ON u.id = ur.iduser 
+INNER JOIN roles r  
+    ON ur.idrol = r.id 
+LEFT JOIN servicios s 
+    ON ur.idservice = s.id  
+WHERE LOWER(u.correo) = LOWER(?)OR u.telefono = ?`, [_valor, _valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
