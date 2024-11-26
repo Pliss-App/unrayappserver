@@ -7,7 +7,7 @@ const saldoBilletera = (id) => { //getByEmail
         connection.query(
             "SELECT * FROM billetera WHERE iduser = ?",[id], (err, rows) => {
                 if (err) reject(err)
-                resolve(rows[0])
+                resolve(rows)
             });
     });
 };
@@ -37,5 +37,6 @@ const createTravelDetail=(data) =>{
 
 module.exports = {
     createTravel,
-    createTravelDetail
+    createTravelDetail,
+    saldoBilletera
 }
