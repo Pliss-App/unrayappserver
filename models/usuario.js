@@ -94,8 +94,8 @@ const getLogin = (_valor) => { //getByEmail
     u.correo, 
     u.telefono,  
     CASE 
-        WHEN s.nombre = 'moto ray' THEN 'moto.png'
-        WHEN s.nombre IN ('Un ray', 'Plus ray') THEN 'carro.png'
+        WHEN s.nombre = 'moto ray' THEN 'moto'
+        WHEN s.nombre IN ('Un ray', 'Plus ray') THEN 'carro'
         ELSE s.nombre 
     END AS marker,  
     u.created_at,
