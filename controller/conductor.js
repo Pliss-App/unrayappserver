@@ -38,6 +38,25 @@ isRouter.post('/create_travelDetail', async (req, res) => {
 })
 
 
+isRouter.post('/recargar-billetera', async (req, res) => {
+    try {
+        const { id_user, boleta, monto, url } = req.body;
+        const create = await isController.recargarBilletera(id_user, boleta, monto, url);
+        if (create === undefined) {
+            res.json({
+                error: 'Error, Datos no encontrados'
+            })
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: create
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 isRouter.get('/saldo-billetera/:id', async (req, res) => {
     try {
         // Llamar al controlador para obtener los datos de la billetera
