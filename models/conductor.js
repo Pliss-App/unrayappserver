@@ -14,7 +14,7 @@ const saldoBilletera = (id) => { //getByEmail
 
 const recargarBilletera=(id_user, boleta, monto, url) =>{
     return new Promise((resolve, reject) => {
-        connection.query(`CALL recargar_billetera(?, ?, ?, ?, ?);`, [id_user, boleta, monto, url,'NOW()'], (err, result) => {
+        connection.query(`CALL recargar_billetera(?, ?, ?, ?, NOW());`, [id_user, boleta, monto, url], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
