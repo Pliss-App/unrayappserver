@@ -40,8 +40,8 @@ isRouter.post('/create_travelDetail', async (req, res) => {
 
 isRouter.post('/recargar-billetera', async (req, res) => {
     try {
-        const { id_user, boleta, monto, url } = req.body;
-        const create = await isController.recargarBilletera(id_user, boleta, monto, url);
+        const { iduser, boleta, monto, url } = req.body;
+        const create = await isController.recargarBilletera(iduser, boleta, monto, url);
         if (create === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
