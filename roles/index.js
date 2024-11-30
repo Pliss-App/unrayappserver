@@ -6,6 +6,7 @@ const travelRouter = require('../controller/travel');
 const carouselRouter = require('../controller/carousel');
 const docRouter = require('../controller/documentacion');
 const condRouter = require('../controller/conductor');
+const soliRouter = require('../controller/solicitud');
 //const comercioRouter = require('../controller/comercio');
 const servicesRouter = require('../controller/services');
 
@@ -18,6 +19,7 @@ apiRouter.use('/travel', travelRouter);
 apiRouter.use('/carousel', carouselRouter);
 apiRouter.use('/conductor', condRouter);
 apiRouter.use('/documentacion', docRouter);
+apiRouter.use('/viaje', soliRouter);
 //apiRouter.use('/comercio', comercioRouter);
 apiRouter.use('/servicios', servicesRouter);
 
