@@ -31,7 +31,7 @@ const createSolicitud = (
     end_lng,
     end_direction,
     distance,
-    distance_unit,
+    distace_unit,
     duration_unit,
     duration,
     costo,
@@ -58,9 +58,18 @@ const createSolicitud = (
     });
 }
 
-const updateEstadoUser = (id) => {
+const obtenerEstadoConductor= (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE usuario SET estado_usuario = 'ocupado' WHERE id = ?`, [id], (err, result) => {
+        connection.query(`SELECT estado_usuario FROM usuario WHERE id = ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
+const updateEstadoUser = (id, estado) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE usuario SET estado_usuario = ? WHERE id = ?`, [estado, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -69,15 +78,19 @@ const updateEstadoUser = (id) => {
 
 const conductores = (idService) => {
     return new Promise((resolve, reject) => {
-        connection.query(`       SELECT * FROM usuario u 
+        connection.query(`SELECT u.id, u.nombre, u.apellido, 
+       u.telefono, u.foto, r.nombre as rol, u.estado,
+       u.estado_usuario, l.lat, l.lon FROM usuario u 
        inner join usuario_rol  ur
        on u.id = ur.iduser
        inner join roles r
        ON r.id = ur.idrol
        INNER JOIN location l
        ON u.id = l.iduser
-       WHERE estado_usuario = 'libre' AND idservice =? `, [idService], (err, result) => {
+       WHERE estado_usuario = 'libre' AND idservice = ? `, [idService], (err, result) => {
             if (err) reject(err)
+
+           
             resolve(result)
         })
     });
@@ -87,5 +100,6 @@ const conductores = (idService) => {
 module.exports = {
     conductores,
     createSolicitud,
-    updateEstadoUser 
+    updateEstadoUser,
+    obtenerEstadoConductor
 }
