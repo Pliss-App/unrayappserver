@@ -35,7 +35,7 @@ const apiRoutes = require('./roles/index');
 app.use('/api', apiRoutes);
 
 
-app.get('/', (req, res) => {
+app.get('/api/socket/', (req, res) => {
   res.send('Servidor activo');
 });
 
