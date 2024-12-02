@@ -1,21 +1,50 @@
-// socket.js
-const socketIo = require('socket.io');
+const { Server } = require('socket.io');
+
 let io;
 
-module.exports = {
-  init: (server) => {
-    io = socketIo(server, {
-      cors: {
-        origin: '*', // Ajustar según sea necesario
-        methods: ['GET', 'POST']
-      }
+const initializeSocket = (server) => {
+    io = new Server(server, {
+        cors: {
+            origin: '*', 
+            methods: ['GET', 'POST'],
+        },
+        path: '/api/socket/', 
     });
-    return io;
-  },
-  getIo: () => {
-    if (!io) {
-      throw new Error('Socket.io no ha sido inicializado.');
-    }
-    return io;
-  }
+
+    io.on('connection', (socket) => {
+        console.log(`Nuevo conductor conectado: ${socket.id}`);
+
+        // Escuchar solicitudes activas
+        socket.on('solicitud_pendiente', async (data) => {
+            console.log(`Solicitud pendiente para el conductor ${data.idConductor}`);
+
+            // Buscar la solicitud activa
+            const solicitudActiva = await getSolicitudActiva(data.idConductor);
+            
+            if (solicitudActiva) {
+                // Emitir evento al cliente con la solicitud activa
+                socket.emit('solicitud_activa', solicitudActiva);
+            } else {
+                socket.emit('solicitud_activa', null); // Si no hay solicitud activa
+            }
+        });
+
+        socket.on('disconnect', () => {
+            console.log(`Conductor desconectado: ${socket.id}`);
+        });
+    });
 };
+
+const getSolicitudActiva = async (idConductor) => {
+    // Lógica para obtener la solicitud activa del conductor
+    const query = 'SELECT * FROM solicitudes WHERE idConductor = ? AND estado = "activa" LIMIT 1';
+    
+    return new Promise((resolve, reject) => {
+        connection.query(query, [idConductor], (err, result) => {
+            if (err) return reject(err);
+            resolve(result[0]); // Devolvemos la primera solicitud activa
+        });
+    });
+};
+
+module.exports = { initializeSocket, getIo: () => io };

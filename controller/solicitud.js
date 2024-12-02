@@ -1,7 +1,6 @@
 const express = require('express');
-const { getIo } = require('../socket');
 const haversine = require('haversine-distance'); // Para calcular distancias entre coordenadas.
-const app = express()
+const { getIo } = require('../socket');
 //const io = socketIo(server);
 const isRouter = express.Router();
 
@@ -27,7 +26,7 @@ isRouter.post('/solicitudes', async (req, res) => {
 
     try {
         // Obtener el objeto `io` desde `app`
-        const io = req.app.get('socketio');
+        const io = getIo(); // Obtén la instancia de Socket.IO
         // Paso 1: Obtener conductores disponibles
         const conductores = await isController.conductores(idService);
 
@@ -82,10 +81,9 @@ isRouter.post('/solicitudes', async (req, res) => {
                     fecha_hora
                 );
 
-                // Cambiar estado del conductor a ocupado
-                await isController.updateEstadoUser(conductorActual.id, 'ocupado');
+               await isController.updateEstadoUser(conductorActual.id, 'ocupado');
 
-                io.emit('solicitud_pendiente', {
+                io.to(conductorActual.id).emit('solicitud_pendiente',  {
                     conductorId: conductorActual.id,
                     solicitudId: solicitud.insertId,
                     start_lat,
@@ -95,8 +93,6 @@ isRouter.post('/solicitudes', async (req, res) => {
                     end_lng,
                     end_direction
                 });
-
-                
 
                 // Notificación al conductor (aquí se debe usar WebSocket o push notifications)
                 console.log(`Notificando a conductor ${conductorActual.nombre}...`);

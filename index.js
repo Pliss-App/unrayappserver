@@ -5,16 +5,14 @@ const bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
+const { initializeSocket } = require('./socket'); // Importa el inicializador de Socket.IO
+
 const app = express();
 
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
-const io = socketIo(server, {
-  cors: {
-    origin: '*', // Permite conexiones desde cualquier origen
-    methods: ['GET', 'POST'], // Métodos permitidos
-  },
-  path: '/api/socket/', // Ruta personalizada para los sockets
-});
+
+// Inicializa Socket.IO con el servidor
+//initializeSocket(server);
 
 app.use(express.json({ limit: '990mb' }));
 app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900000 }));
@@ -28,38 +26,14 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Compartir `io` con otras partes de la aplicación
-
-app.set('socketio', io);
-
-// Ruta para probar el servidor
-app.get('/', (req, res) => {
-  res.send('Servidor activo');
-});
-
-// Configuración de Socket.IO
-io.on('connection', (socket) => {
-  console.log(`Cliente conectado: ${socket.id}`);
-
-  // Ejemplo: emitir un evento al cliente
-  socket.emit('mensaje_bienvenida', { mensaje: 'Bienvenido al servidor de Socket.IO' });
-
-  // Escuchar eventos del cliente
-  socket.on('evento_cliente', (data) => {
-    console.log(`Evento recibido del cliente:`, data);
-  });
-
-  // Manejar la desconexión
-  socket.on('disconnect', () => {
-    console.log(`Cliente desconectado: ${socket.id}`);
-  });
-});
-
-
 const apiRoutes = require('./roles/index');
 
 app.use('/api', apiRoutes);
 
+
+app.get('/', (req, res) => {
+  res.send('Servidor activo');
+});
 
 //module.exports = { io };
 
@@ -69,3 +43,4 @@ const ser = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
+initializeSocket(ser);
