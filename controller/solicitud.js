@@ -1,138 +1,56 @@
 const express = require('express');
 const haversine = require('haversine-distance'); // Para calcular distancias entre coordenadas.
 const { getIo } = require('../socket');
+const { findNearestDriver } = require("../utils/solicitud");
 //const io = socketIo(server);
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
+const solicitudesActivas = new Map(); // Almacena solicitudes activas con su tiempo restante
 
-isRouter.post('/solicitudes', async (req, res) => {
-    const {
-        idUser,
-        idService,
-        start_lat,
-        start_lng,
-        start_direction,
-        end_lat,
-        end_lng,
-        end_direction,
-        distance,
-        distance_unit,
-        duration_unit,
-        duration,
-        costo,
-        fecha_hora
-    } = req.body;
+isRouter.post('/solicitudes/:idConductor/accion', async (req, res) => {
+    console.log(req.body)
+    const { conductorId, solicitudId, accion } = req.body;
 
     try {
-        // Obtener el objeto `io` desde `app`
-        const io = getIo(); // Obtén la instancia de Socket.IO
-        // Paso 1: Obtener conductores disponibles
-        const conductores = await isController.conductores(idService);
-
-        if (conductores.length === 0) {
+        const conductor = await isController.obtenerEstadoConductor(conductorId);
+        console.log(conductor.estado_usuario)
+        if (!conductor || conductor.estado_usuario !== 'libre') {
             return res.status(200).json({
                 success: false,
-                message: 'No hay conductores disponibles.'
+                message: 'No puedes aceptar la solicitud porque no estás en estado ocupado.',
             });
         }
 
-        const origen = { lat: parseFloat(start_lat), lng: parseFloat(start_lng) };
-
-        // Paso 2: Ordenar conductores por cercanía
-        const conductoresOrdenados = conductores
-            .map(conductor => {
-                const destino = { lat: parseFloat(conductor.lat), lng: parseFloat(conductor.lon) };
-                const distancia = haversine(origen, destino); // Distancia en metros
-                return { ...conductor, distancia };
-            })
-            .sort((a, b) => a.distancia - b.distancia); // Ordenar por distancia ascendente
-
-        // Paso 3: Asignar solicitud en secuencia
-        let intento = 0;
-
-        const asignarConductor = async () => {
-            if (intento >= conductoresOrdenados.length) {
-                intento = 0; // Reiniciar a la primera posición si no quedan más conductores
-            }
-
-            const conductorActual = conductoresOrdenados[intento];
-            intento++;
-
-            console.log(`Intentando asignar a: ${conductorActual.nombre}`);
-
-            try {
-                // Crear solicitud en la base de datos
-                const solicitud = await isController.createSolicitud(
-                    idUser,
-                    conductorActual.id,
-                    idService,
-                    start_lat,
-                    start_lng,
-                    start_direction,
-                    end_lat,
-                    end_lng,
-                    end_direction,
-                    distance,
-                    distance_unit,
-                    duration_unit,
-                    duration,
-                    costo,
-                    fecha_hora
-                );
-
-               await isController.updateEstadoUser(conductorActual.id, 'ocupado');
-
-                io.to(conductorActual.id).emit('solicitud_pendiente',  {
-                    conductorId: conductorActual.id,
-                    solicitudId: solicitud.insertId,
-                    start_lat,
-                    start_lng,
-                    start_direction,
-                    end_lat,
-                    end_lng,
-                    end_direction
-                });
-
-                // Notificación al conductor (aquí se debe usar WebSocket o push notifications)
-                console.log(`Notificando a conductor ${conductorActual.nombre}...`);
-
-                // Paso 4: Esperar 30 segundos para respuesta del conductor
-                setTimeout(async () => {
-                    const estadoConductor = await isController.obtenerEstadoConductor(conductorActual.id);
-
-                    if (estadoConductor === 'ocupado') {
-                        // El conductor aceptó la solicitud
-                        return res.status(201).json({
-                            success: true,
-                            message: 'Solicitud aceptada.',
-                            solicitudId: solicitud.insertId,
-                            conductor: conductorActual,
-                        });
-                    } if (estadoConductor === 'cancelado') {
-                        return res.status(201).json({
-                            success: true,
-                            message: 'Solicitud cancelada.'
-                        });
-                    } else {
-                        // Conductor rechazó o tiempo excedido
-                        console.log(`Conductor ${conductorActual.nombre} rechazó o no respondió.`);
-                        await isController.updateEstadoUser(conductorActual.id, 'libre'); // Restaurar su estado
-                        asignarConductor(); // Reasignar a otro conductor
-                    }
-                }, 30000);
-            } catch (error) {
-                console.error(`Error al asignar conductor ${conductorActual.nombre}:`, error);
-                asignarConductor(); // Reintentar con otro conductor en caso de fallo
-            }
-        };
-
-        asignarConductor(); // Inicia el proceso de asignación
+        if (accion === 'Aceptado') {
+            solicitudesActivas.delete(conductorId);
+            console.log("SE ACEPTO")
+            await isController.updateEstadoSolicitud(solicitudId, 'Aceptada');
+            await isController.updateEstadoUser(conductorId, 'ocupado');
+            //   io.emit('solicitud_aceptada', { solicitudId, conductorId });
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud aceptada exitosamente.',
+            });
+        } else if (accion === 'Rechazada') {
+            await isController.updateEstadoUser(conductorId, 'libre');
+            //  io.emit('solicitud_rechazada', { solicitudId, conductorId });
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud rechazada.',
+            });
+        } else {
+            return res.status(200).json({
+                success: false,
+                message: 'Acción no válida.',
+            });
+        }
     } catch (error) {
-        console.error("Error general en la creación de solicitud:", error);
-        res.status(500).json({ success: false, message: 'Error al crear la solicitud.' });
+        console.error(`Error al procesar solicitud del conductor ${conductorId}:`, error);
+        res.status(500).json({ success: false, message: 'Error al procesar solicitud.' });
     }
 });
+
 
 isRouter.post('/create_travelDetail', async (req, res) => {
 
@@ -148,5 +66,369 @@ isRouter.post('/create_travelDetail', async (req, res) => {
         });
     }
 })
+
+
+isRouter.delete('/delete_solicitud/:id', async (req, res) => {
+    try {
+        const solicitudId = req.params.id;
+        console.log("IDID ", req.params.id)
+        if (!solicitudId) {
+            return res.status(400).json({
+                success: false,
+                message: 'ID de solicitud no proporcionado.',
+            });
+        }
+
+        const resultado = await isController.deleteSolicitud(solicitudId);
+
+        if (!resultado) {
+            return res.status(200).json({
+                success: false,
+                message: 'Solicitud no encontrada.',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Solicitud eliminada con éxito.',
+            result: resultado,
+        });
+    } catch (error) {
+        console.error('Error al eliminar la solicitud:', error);
+
+        return res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor. No se pudo eliminar la solicitud.',
+            error: error.message,
+        });
+    }
+});
+
+
+isRouter.get('/solicitudes/:idConductor', async (req, res) => {
+    const { idConductor } = req.params;
+
+    try {
+        // Buscar solicitud activa en memoria
+        if (solicitudesActivas.has(idConductor)) {
+            const solicitud = solicitudesActivas.get(idConductor);
+
+            // Verificar si el tiempo restante expiró
+            if (solicitud.tiempoRestante <= 0) {
+                solicitudesActivas.delete(idConductor); // Remover solicitud expirada
+                return res.status(200).json({
+                    success: false,
+                    message: 'La solicitud ha expirado.',
+                });
+            }
+
+            // Decrementar tiempo restante y devolver solicitud
+            solicitud.tiempoRestante -= 1;
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud obtenida con éxito.',
+                solicitud: solicitud.datos,
+                tiempoRestante: solicitud.tiempoRestante,
+            });
+        }
+
+        // Obtener nueva solicitud del controlador si no está en memoria
+        solicitudesActivas.delete(idConductor);
+        const solicitudPendiente = await isController.obtenerSolicitudesConductor(idConductor);
+
+        if (!solicitudPendiente) {
+            return res.status(200).json({
+                success: false,
+                message: 'No hay solicitudes pendientes para este conductor.',
+            });
+        }
+
+        // Agregar solicitud a la memoria con tiempo restante
+        solicitudesActivas.set(idConductor, {
+            datos: solicitudPendiente,
+            tiempoRestante: 30, // 30 segundos
+        });
+        if (solicitudPendiente.estado != 'Pendiente') {
+            console.log("SOLICIUTD ACEPTADA YA ");
+            solicitudesActivas.delete(idConductor);
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud Aceptada!.',
+            });
+            // Remover solicitud de memoria después de procesarla
+
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Solicitud obtenida con éxito.',
+            solicitud: solicitudPendiente,
+            tiempoRestante: 30,
+        });
+
+    } catch (error) {
+        console.error('Error obteniendo solicitudes:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Ocurrió un error al obtener la solicitud.',
+        });
+    }
+});
+
+// Endpoint para aceptar o rechazar solicitud
+isRouter.post('/soli/accion', async (req, res) => {
+    console.log(" - condfd", req.body)
+    //  const { idConductor } = req.params;
+
+    //const { accion, idsoli } = req.body; // 'aceptar' o 'rechazar'
+    try {
+        if (!solicitudesActivas.has(idConductor)) {
+            return res.status(200).json({
+                success: false,
+                message: 'La solicitud ya no está disponible.',
+            });
+        }
+
+        // Remover solicitud de memoria después de procesarla
+        solicitudesActivas.delete(idConductor);
+
+        // Procesar la acción (aceptar/rechazar)
+        await isController.procesarSolicitud(idsoli, idConductor, accion);
+
+        if (accion == 'Aceptado') {
+            await isController.updateEstadoUser(idConductor, 'ocupado');
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: `La solicitud fue ${accion === 'Aceptado' ? 'aceptada' : 'rechazada'} con éxito.`,
+        });
+    } catch (error) {
+        console.error('Error procesando solicitud:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Ocurrió un error al procesar la solicitud.',
+        });
+    }
+});
+
+isRouter.post('/crear_viaje', async (req, res) => {
+    const {
+        idUser,
+        idService,
+        start_lat,
+        start_lng,
+        start_direction,
+        end_lat,
+        end_lng,
+        end_direction,
+        distance,
+        distance_unit,
+        duration_unit,
+        duration,
+        costo,
+        fecha_hora,
+    } = req.body;
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: "El cuerpo de la solicitud está vacío" });
+    }
+
+    let solicitudId = null;
+    let conductoresIntentados = [];
+    let contadorTotal = 180; // Tiempo total límite de espera en segundos
+
+    while (contadorTotal > 0) {
+        // Buscar conductores disponibles que no hayan sido intentados previamente
+        const drivers = await findNearestDriver(start_lat, start_lng, idService);
+        const driver = drivers.find(d => !conductoresIntentados.includes(d.id));
+
+        if (!driver) {
+            return res.status(200).json({
+                success: false,
+                message: 'No hay conductores disponibles.',
+            });
+        }
+
+        // Marcar conductor como intentado
+        conductoresIntentados.push(driver.id);
+
+        // Crear solicitud si no existe
+        if (!solicitudId) {
+            const solicitud = await isController.createSolicitud(
+                idUser,
+                driver.id,
+                idService,
+                start_lat,
+                start_lng,
+                start_direction,
+                end_lat,
+                end_lng,
+                end_direction,
+                distance,
+                distance_unit,
+                duration_unit,
+                duration,
+                costo,
+                fecha_hora
+            );
+            solicitudId = solicitud.insertId;
+        } else {
+            await isController.updateSolicitudConductor(solicitudId, driver.id);
+        }
+
+        // Esperar respuesta del conductor
+        let contador = 30; // Tiempo para esperar respuesta del conductor actual
+        let solicitudAceptada = false;
+
+        const intervalId = setInterval(async () => {
+            contador--;
+            contadorTotal--;
+
+            try {
+                const estadoConductor = await isController.respDriver(driver.id);
+
+                if (estadoConductor.estado_usuario === 'ocupado' && estadoConductor.estado === 'Aceptada') {
+                    clearInterval(intervalId);
+                    solicitudAceptada = true;
+
+                }
+
+                if (contador <= 0) {
+                    clearInterval(intervalId);
+                    if (!solicitudAceptada) {
+                        return res.status(408).json({ // Por ejemplo, si el tiempo se agota
+                            success: false,
+                            message: 'Tiempo de espera agotado.',
+                        });
+                    }
+                }
+            } catch (error) {
+                console.error('Error al verificar el estado del conductor:', error);
+                clearInterval(intervalId);
+            }
+        }, 1000);
+
+        // Esperar a que termine el intervalo o que se acepte la solicitud
+        await new Promise(resolve => setTimeout(resolve, contador * 1000));
+
+        if (solicitudAceptada) {
+
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud Aceptada.',
+                solicitudId,
+            });
+        }
+
+        // Si se agotó el tiempo para este conductor, intentar con otro
+        if (contadorTotal <= 0) {
+            return res.status(200).json({
+                success: false,
+                message: 'No se pudo asignar un conductor en el tiempo límite.',
+            });
+        }
+    }
+});
+
+
+isRouter.get('/soli_user/:id', async (req, res) => {
+    try {
+        console.log("VIAJD ", req.params.id)
+        const id = req.params.id;
+        const viaje = await isController.obtenerSolicitudesUsuario(id);
+        if (viaje === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existe viaje activo',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Existe viaje activo',
+                result: viaje
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
+
+isRouter.get('/soli/driver/:id', async (req, res) => {
+    try {
+        console.log("VIAJD ", req.params.id)
+        const id = req.params.id;
+        const viaje = await isController.viajeDriver(id);
+        if (viaje === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No usuario',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Existe usuario',
+                result: viaje
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
+// Endpoint para enviar un mensaje desde el frontend
+isRouter.post("/send/mensajes", async (req, res) => {
+    try {
+        const { emisor_id, receptor_id, mensaje } = req.body;
+
+        if (!emisor_id || !receptor_id || !mensaje) {
+            return res.status(400).json({ error: 'Todos los campos son obligatorios' });
+        }
+
+        const mensajes = await isController.saveMessage(emisor_id, receptor_id, mensaje);
+        if (mensajes === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error enviado',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Envio Exitoso',
+                result: 'OK'
+            });
+        }
+    } catch (error) {
+
+    }
+});
+
+
+
+isRouter.get("/obtener/mensajes", async (req, res) => {
+    try {
+        const { emisor_id, receptor_id } = req.query;
+        if (!emisor_id || !receptor_id) {
+            return res.status(400).json({ error: 'emisor_id y receptor_id son obligatorios' });
+        }
+
+        const mensajes = await isController.obtMessage(emisor_id, receptor_id);
+        if (mensajes === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Sin Mensajes',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Consulta Exitosa',
+                result: mensajes
+            });
+        }
+    } catch (error) {
+
+    }
+});
 
 module.exports = isRouter;

@@ -58,6 +58,64 @@ const createSolicitud = (
     });
 }
 
+const obtenerSolicitudesConductor= (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.foto, u.nombre, u.apellido, s.* 
+            FROM solicitudes s
+            INNER JOIN usuario u
+            on s.idUser =  u.id
+            WHERE s.idConductor = ? AND s.estado = 'Pendiente'
+            ORDER BY fecha_hora ASC 
+            LIMIT 1`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
+const obtenerSolicitudesUsuario= (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.foto, u.nombre, u.apellido, s.* 
+            FROM solicitudes s
+            INNER JOIN usuario u
+            on s.idUser =  u.id
+            WHERE s.idUser = ? AND s.estado = 'Aceptada'
+            ORDER BY fecha_hora ASC 
+            LIMIT 1`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
+const respDriver= (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id as conductor, u.estado_usuario, s.estado FROM usuario u
+      INNER JOIN solicitudes s
+      on u.id =  s.idConductor
+      WHERE s.idConductor = ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
+const viajeDriver= (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`      SELECT  dv.idUser, u.nombre, u.apellido, 
+      u.telefono, u.correo, u.foto, dv.placas, 
+      dv.modelo, dv.color FROM usuario u
+      INNER JOIN detalle_vehiculo dv
+      on u.id = dv.idUser
+      INNER JOIN solicitudes s
+      on u.id =  s.idConductor
+      WHERE s.idConductor = ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
 const obtenerEstadoConductor= (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT estado_usuario FROM usuario WHERE id = ?`, [id], (err, result) => {
@@ -70,6 +128,33 @@ const obtenerEstadoConductor= (id) => {
 const updateEstadoUser = (id, estado) => {
     return new Promise((resolve, reject) => {
         connection.query(`UPDATE usuario SET estado_usuario = ? WHERE id = ?`, [estado, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const updateEstadoSolicitud = (solicitudId, estado) =>{
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE solicitudes SET estado = ? WHERE id = ?`, [estado,solicitudId], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const updateSolicitudConductor = (id, idConductor) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE solicitudes SET idConductor = ? WHERE id = ?`, [idConductor, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const deleteSolicitud = (id)=>{
+    return new Promise((resolve, reject) => {
+        connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -89,17 +174,57 @@ const conductores = (idService) => {
        ON u.id = l.iduser
        WHERE estado_usuario = 'libre' AND idservice = ? `, [idService], (err, result) => {
             if (err) reject(err)
-
-           
             resolve(result)
         })
     });
 }
+
+const procesarSolicitud = (idsoli, idConductor, accion) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE solicitudes SET estado = ? WHERE id = ? AND idConductor= ?`, [accion, idsoli, idConductor], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const saveMessage = (emisor_id, receptor_id, mensaje) => {
+    return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO mensajes (emisor_id, receptor_id, mensaje) VALUES (?, ?, ?)';
+        connection.query(query, [emisor_id, receptor_id, mensaje], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const obtMessage = (emisorId, receptorId) => {
+    return new Promise((resolve, reject) => {
+        const query =  `SELECT * FROM mensajes 
+      WHERE (emisor_id = ? AND receptor_id = ?) 
+         OR (emisor_id = ? AND receptor_id = ?) 
+      ORDER BY fecha ASC`;
+      connection.query(query, [emisorId, receptorId, receptorId, emisorId], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
 
 
 module.exports = {
     conductores,
     createSolicitud,
     updateEstadoUser,
-    obtenerEstadoConductor
+    obtenerEstadoConductor,
+    updateSolicitudConductor,
+    updateEstadoSolicitud,
+    deleteSolicitud,
+    obtenerSolicitudesConductor,
+    procesarSolicitud ,
+    respDriver,
+    viajeDriver,
+    obtenerSolicitudesUsuario,
+    saveMessage,
+    obtMessage
 }
