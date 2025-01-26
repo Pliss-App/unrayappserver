@@ -17,7 +17,7 @@ const createSolicitud = (
     duration,
     costo,
     fecha_hora
- 
+
 ) => {
     return new Promise((resolve, reject) => {
         connection.query(`INSERT INTO solicitudes(
@@ -36,29 +36,29 @@ const createSolicitud = (
     duration,
     costo,
     fecha_hora,
-     estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`,[idUser,
-        idConductor,
-        idService,
-        start_lat,
-        start_lng,
-        start_direction,
-        end_lat,
-        end_lng,
-        end_direction,
-        distance,
-        distance_unit,
-        duration_unit,
-        duration,
-        costo,
-        fecha_hora, 
-        'Pendiente'], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
+     estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [idUser,
+            idConductor,
+            idService,
+            start_lat,
+            start_lng,
+            start_direction,
+            end_lat,
+            end_lng,
+            end_direction,
+            distance,
+            distance_unit,
+            duration_unit,
+            duration,
+            costo,
+            fecha_hora,
+            'Pendiente'], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
     });
 }
 
-const obtenerSolicitudesConductor= (id) => {
+const obtenerSolicitudesConductor = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.foto, u.nombre, u.apellido, s.* 
             FROM solicitudes s
@@ -73,7 +73,7 @@ const obtenerSolicitudesConductor= (id) => {
     });
 }
 
-const obtenerSolicitudesUsuario= (id) => {
+const obtenerSolicitudesUsuario = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.foto, u.nombre, u.apellido, s.* 
             FROM solicitudes s
@@ -88,7 +88,7 @@ const obtenerSolicitudesUsuario= (id) => {
     });
 }
 
-const respDriver= (id) => {
+const respDriver = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id as conductor, u.estado_usuario, s.estado FROM usuario u
       INNER JOIN solicitudes s
@@ -100,7 +100,7 @@ const respDriver= (id) => {
     });
 }
 
-const viajeDriver= (id) => {
+const viajeDriver = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`      SELECT  dv.idUser, u.nombre, u.apellido, 
       u.telefono, u.correo, u.foto, dv.placas, 
@@ -116,7 +116,7 @@ const viajeDriver= (id) => {
     });
 }
 
-const obtenerEstadoConductor= (id) => {
+const obtenerEstadoConductor = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT estado_usuario FROM usuario WHERE id = ?`, [id], (err, result) => {
             if (err) reject(err)
@@ -134,9 +134,9 @@ const updateEstadoUser = (id, estado) => {
     });
 }
 
-const updateEstadoSolicitud = (solicitudId, estado) =>{
+const updateEstadoSolicitud = (solicitudId, estado) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE solicitudes SET estado = ? WHERE id = ?`, [estado,solicitudId], (err, result) => {
+        connection.query(`UPDATE solicitudes SET estado = ? WHERE id = ?`, [estado, solicitudId], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -152,7 +152,7 @@ const updateSolicitudConductor = (id, idConductor) => {
     });
 }
 
-const deleteSolicitud = (id)=>{
+const deleteSolicitud = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
             if (err) reject(err)
@@ -200,11 +200,33 @@ const saveMessage = (emisor_id, receptor_id, mensaje) => {
 
 const obtMessage = (emisorId, receptorId) => {
     return new Promise((resolve, reject) => {
-        const query =  `SELECT * FROM mensajes 
+        const query = `SELECT * FROM mensajes 
       WHERE (emisor_id = ? AND receptor_id = ?) 
          OR (emisor_id = ? AND receptor_id = ?) 
       ORDER BY fecha ASC`;
-      connection.query(query, [emisorId, receptorId, receptorId, emisorId], (err, result) => {
+        connection.query(query, [emisorId, receptorId, receptorId, emisorId], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const obtLocationDriver = (id) => {
+    return new Promise((resolve, reject) => {
+        const query = `select lat, lon from location
+            where iduser =?`;
+        connection.query(query, [id], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const obtEstadoViajeDriver = (id) => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT estado_viaje, estado from solicitudes
+where id =?`;
+        connection.query(query, [id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -221,10 +243,12 @@ module.exports = {
     updateEstadoSolicitud,
     deleteSolicitud,
     obtenerSolicitudesConductor,
-    procesarSolicitud ,
+    procesarSolicitud,
     respDriver,
     viajeDriver,
     obtenerSolicitudesUsuario,
     saveMessage,
-    obtMessage
+    obtMessage,
+    obtLocationDriver,
+    obtEstadoViajeDriver
 }

@@ -365,6 +365,23 @@ usuarioRouter.get('/foto/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/icon-driver/:id', async (req, res) => {
+    const user = await userController.iconMarker(req.params.id)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: 'editar'
+        })
+    } else {
+
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user.nombre
+        });
+    }
+})
+
+
 usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     const user = await userController.getUserDetail(req.params.uid)
     if (user === undefined) {

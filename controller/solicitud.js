@@ -354,6 +354,26 @@ isRouter.get('/soli_user/:id', async (req, res) => {
     }
 })
 
+isRouter.get('/location_driver/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const location = await isController.obtLocationDriver(id);
+        if (location === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No Location',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success Location',
+                result: location
+            });
+        }
+    } catch (error) {
+
+    }
+})
 
 isRouter.get('/soli/driver/:id', async (req, res) => {
     try {
@@ -430,5 +450,28 @@ isRouter.get("/obtener/mensajes", async (req, res) => {
 
     }
 });
+
+
+isRouter.get('/estado_viaje/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const estado = await isController.obtEstadoViajeDriver(id);
+        if (estado === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No Location',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success Location',
+                result: estado
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
 
 module.exports = isRouter;

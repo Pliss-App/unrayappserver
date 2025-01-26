@@ -60,8 +60,8 @@ const iconMarker = (_id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `SELECT s.id, CASE 
-            WHEN s.nombre = 'Moto Ray' THEN 'moto.png'
-            WHEN s.nombre IN ('Un Ray', 'Ray Plus') THEN 'carro.png'
+            WHEN s.nombre = 'Moto Ray' THEN 'moto'
+            WHEN s.nombre IN ('Un Ray', 'Ray Plus') THEN 'carro'
             ELSE s.nombre 
             END AS nombre FROM usuario u
             INNER JOIN usuario_rol ur
