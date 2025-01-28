@@ -474,4 +474,24 @@ isRouter.get('/estado_viaje/:id', async (req, res) => {
 })
 
 
+isRouter.get('/motivos_cancelacion', async (req, res) => {
+    try {
+        const result = await isController.obtMotCancelar();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontrarón registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
 module.exports = isRouter;

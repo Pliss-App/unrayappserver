@@ -234,6 +234,17 @@ where id =?`;
 };
 
 
+const obtMotCancelar = () => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT title, id as value from motiCancelar`;
+        connection.query(query, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+
 module.exports = {
     conductores,
     createSolicitud,
@@ -250,5 +261,6 @@ module.exports = {
     saveMessage,
     obtMessage,
     obtLocationDriver,
-    obtEstadoViajeDriver
+    obtEstadoViajeDriver,
+    obtMotCancelar
 }
