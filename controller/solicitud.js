@@ -334,10 +334,11 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
 isRouter.get('/soli_user/:id', async (req, res) => {
     try {
-        console.log("VIAJD ", req.params.id)
+       // console.log("VIAJD ", req.params.id)
         const id = req.params.id;
         const viaje = await isController.obtenerSolicitudesUsuario(id);
-        if (viaje === undefined) {
+        console.log("VIAJE data ", viaje.length)
+        if (viaje.length === 0 || viaje === undefined) {
             return res.status(200).send({
                 success: false,
                 msg: 'No existe viaje activo',
@@ -346,7 +347,7 @@ isRouter.get('/soli_user/:id', async (req, res) => {
             return res.status(200).send({
                 success: true,
                 msg: 'Existe viaje activo',
-                result: viaje
+                result: viaje[0]
             });
         }
     } catch (error) {

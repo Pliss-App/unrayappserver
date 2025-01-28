@@ -83,7 +83,7 @@ const obtenerSolicitudesUsuario = (id) => {
             ORDER BY fecha_hora ASC 
             LIMIT 1`, [id], (err, result) => {
             if (err) reject(err)
-            resolve(result[0])
+            resolve(result)
         })
     });
 }
