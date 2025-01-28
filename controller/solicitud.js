@@ -334,11 +334,10 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
 isRouter.get('/soli_user/:id', async (req, res) => {
     try {
-       // console.log("VIAJD ", req.params.id)
         const id = req.params.id;
+        const { timestamp } = req.query; // Esto es opcional, solo evita el cache.
         const viaje = await isController.obtenerSolicitudesUsuario(id);
-        console.log("VIAJE data ", viaje.length)
-        if (viaje.length === 0 || viaje === undefined) {
+        if (!viaje || viaje.length === 0) {
             return res.status(200).send({
                 success: false,
                 msg: 'No existe viaje activo',
