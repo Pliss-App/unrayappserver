@@ -494,4 +494,25 @@ isRouter.get('/motivos_cancelacion', async (req, res) => {
     }
 })
 
+
+isRouter.put('/cancelar-viaje', async (req, res) => {
+    try {
+        const {id, option}  = req.body;
+        const result = await isController.cancelarViaje(id, option);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Sin Registro',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
 module.exports = isRouter;
