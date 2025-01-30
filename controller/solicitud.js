@@ -135,8 +135,7 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
         // Obtener nueva solicitud del controlador si no está en memoria
         solicitudesActivas.delete(idConductor);
         const solicitudPendiente = await isController.obtenerSolicitudesConductor(idConductor);
-
-        if (!solicitudPendiente) {
+        if (!solicitudPendiente || solicitudPendiente.length === 0) {
             return res.status(200).json({
                 success: false,
                 message: 'No hay solicitudes pendientes para este conductor.',
@@ -375,9 +374,30 @@ isRouter.get('/location_driver/:id', async (req, res) => {
     }
 })
 
+
+isRouter.get('/soli/user/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const viaje = await isController.viajeUser(id);
+        if (viaje === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No usuario',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Existe usuario',
+                result: viaje
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
 isRouter.get('/soli/driver/:id', async (req, res) => {
     try {
-        console.log("VIAJD ", req.params.id)
         const id = req.params.id;
         const viaje = await isController.viajeDriver(id);
         if (viaje === undefined) {
@@ -515,4 +535,28 @@ isRouter.put('/cancelar-viaje', async (req, res) => {
 
     }
 })
+
+
+isRouter.put('/update-estado-viaje', async (req, res) => {
+    try {
+        const {id,  estado}  = req.body;
+        const result = await isController.updateEstadoViaje(id, estado);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Sin Registro',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
+
 module.exports = isRouter;

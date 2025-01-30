@@ -68,20 +68,30 @@ const obtenerSolicitudesConductor = (id) => {
             ORDER BY fecha_hora ASC 
             LIMIT 1`, [id], (err, result) => {
             if (err) reject(err)
-            resolve(result[0])
+            resolve(result)
         })
     });
 }
 
 const obtenerSolicitudesUsuario = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.foto, u.nombre, u.apellido, s.* 
-            FROM solicitudes s
-            INNER JOIN usuario u
-            on s.idUser =  u.id
-            WHERE s.idUser = ? AND s.estado = 'Aceptada'
-            ORDER BY fecha_hora ASC 
-            LIMIT 1`, [id], (err, result) => {
+        connection.query(`(SELECT u.foto, u.nombre, u.apellido, s.*
+                        FROM solicitudes s
+                        INNER JOIN usuario u ON s.idUser = u.id
+                        WHERE s.idUser = ${id} AND s.estado = 'Aceptada'
+                        ORDER BY s.fecha_hora ASC
+                        LIMIT 1)
+                        
+                        UNION ALL
+
+                        (SELECT u.foto, u.nombre, u.apellido, s.*
+                        FROM solicitudes s
+                        INNER JOIN usuario u ON s.idConductor = u.id
+                        WHERE s.idConductor = ${id} AND s.estado = 'Aceptada'
+                        ORDER BY s.fecha_hora ASC
+                        LIMIT 1)
+
+                        LIMIT 1;`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -112,6 +122,25 @@ const viajeDriver = (id) => {
       WHERE s.idConductor = ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result[0])
+        })
+    });
+}
+
+const viajeUser = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT nombre, apellido, telefono, foto FROM usuario
+      WHERE id=?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
+        })
+    });
+}
+
+const updateEstadoViaje = (id, estado) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE solicitudes SET estado_viaje = ? where id= ?`, [estado, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
         })
     });
 }
@@ -273,5 +302,7 @@ module.exports = {
     obtLocationDriver,
     obtEstadoViajeDriver,
     obtMotCancelar,
-    cancelarViaje
+    cancelarViaje,
+    viajeUser,
+    updateEstadoViaje 
 }
