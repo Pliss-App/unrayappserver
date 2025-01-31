@@ -284,6 +284,15 @@ const cancelarViaje = (id, option) => {
     });
 };
 
+const finalizarViaje = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`UPDATE solicitudes SET estado='Finalizado',  estado_viaje = 'Finalizado' where id= ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 module.exports = {
     conductores,
     createSolicitud,
@@ -304,5 +313,6 @@ module.exports = {
     obtMotCancelar,
     cancelarViaje,
     viajeUser,
-    updateEstadoViaje 
+    updateEstadoViaje ,
+    finalizarViaje
 }

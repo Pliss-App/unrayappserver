@@ -558,5 +558,25 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
     }
 })
 
+isRouter.put('/finalizar-viaje', async (req, res) => {
+    try {
+        const {id}  = req.body;
+        const result = await isController.finalizarViaje(id);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Sin Registro',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
 
 module.exports = isRouter;
