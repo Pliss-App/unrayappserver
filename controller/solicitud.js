@@ -2,6 +2,7 @@ const express = require('express');
 const haversine = require('haversine-distance'); // Para calcular distancias entre coordenadas.
 const { getIo } = require('../socket');
 const { findNearestDriver } = require("../utils/solicitud");
+const OneSignal = require('../models/onesignalModel')
 //const io = socketIo(server);
 const isRouter = express.Router();
 
@@ -517,7 +518,7 @@ isRouter.get('/motivos_cancelacion', async (req, res) => {
 
 isRouter.put('/cancelar-viaje', async (req, res) => {
     try {
-        const {id, option}  = req.body;
+        const { id, option } = req.body;
         const result = await isController.cancelarViaje(id, option);
         if (result === undefined) {
             return res.status(200).send({
@@ -539,7 +540,7 @@ isRouter.put('/cancelar-viaje', async (req, res) => {
 
 isRouter.put('/update-estado-viaje', async (req, res) => {
     try {
-        const {id,  estado}  = req.body;
+        const { id, estado } = req.body;
         const result = await isController.updateEstadoViaje(id, estado);
         if (result === undefined) {
             return res.status(200).send({
@@ -560,7 +561,7 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
 
 isRouter.put('/finalizar-viaje', async (req, res) => {
     try {
-        const {id}  = req.body;
+        const { id } = req.body;
         const result = await isController.finalizarViaje(id);
         if (result === undefined) {
             return res.status(200).send({
@@ -578,5 +579,71 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 
     }
 })
+
+
+// Endpoint para enviar un mensaje desde el frontend
+isRouter.post("/send-notification", async (req, res) => {
+    const { userId, sonido,title, message } = req.body;
+
+    if (!userId || !message) {
+        return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
+    }
+
+    try {
+        const result = await OneSignal.sendNotification(userId, sonido, title, message);
+        if (result.id === undefined || result.id == '') {
+            return res.status(200).json({
+                success: false,
+                message: 'Notificación Error',
+                 result
+            });
+    }else {
+        return res.status(200).json({
+            success: true,
+            message: 'Notificación enviada correctamente',
+            result
+        });
+    }
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Error enviando la notificación',
+            details: error.message,
+        });
+    }
+
+
+})
+
+
+isRouter.put('/update-onesignal', async (req, res) => {
+    try {
+        const { id, token } = req.body;
+        if (!id || !token) {
+            return res.status(400).json({ error: 'Faltan parámetros' });
+        }
+
+        const result = await OneSignal.updateOnesignalToken(id, token);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error al actualizar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Error  al actualizar',
+            details: error.message,
+        });
+    }
+})
+
+
+
 
 module.exports = isRouter;
