@@ -1,4 +1,5 @@
 const axios = require("axios");
+const connection = require('../config/conexion'); 
 
 const sendNotification = async (userId, sonido, title,  message) => {
     console.log("USER ", userId)
