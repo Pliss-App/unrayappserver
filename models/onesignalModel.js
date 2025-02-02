@@ -16,6 +16,8 @@ const sendNotification = async (userId, sonido, title,  message) => {
         headings: { en: title }, // Título de la notificación
         contents: { en: message },
         priority: 10,
+        small_icon: "ic_stat_onesignal_default", 
+        sound:"notificacion_tono", 
         // Para cambiar el ícono en Android
         android_small_icon: "ic_stat_onesignal_default", // Aquí se puede usar un ícono personalizado en tu app
         android_sound: "notificacion_tono", // Nombre del archivo de sonido de la notificación
