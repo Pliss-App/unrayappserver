@@ -640,9 +640,9 @@ isRouter.put('/update-onesignal', async (req, res) => {
     }
 })
 
-isRouter.get('/get-token', async (req, res) => {
+isRouter.get('/get-token/:id', async (req, res) => {
     try {
-        const {id} = req.body;
+        const id = req.params.id;
         const result = await OneSignal.getTokenId(id);
         if (!result|| result.length === 0) {
             return res.status(200).send({
