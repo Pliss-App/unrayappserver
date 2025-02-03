@@ -2,7 +2,6 @@ const axios = require("axios");
 const connection = require('../config/conexion'); 
 
 const sendNotification = async (userId, sonido, title,  message) => {
-    console.log("USER ", userId)
     var ONE_id = process.env.ONESIGNAL_ID || "9e1814a7-d611-4c13-b6e4-fa16fafc21e3"
     var ONE_key = process.env.ONESIGNAL_KEY || 'os_v2_app_tymbjj6wcfgbhnxe7ilpv7bb4oojw6p2hb7euxnytkmfdp2cpquannvrcnmz3gwhdweb6mja3z56ujjr6g5pi4iesfx5ahh6opym5di'
 
@@ -46,5 +45,13 @@ const updateOnesignalToken = (id, token) => {
     });
 }
 
+const getTokenId= (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT onesignal_token FROM usuario WHERE id= ?`, [ id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
-module.exports = { sendNotification, updateOnesignalToken};
+module.exports = { sendNotification, updateOnesignalToken, getTokenId};

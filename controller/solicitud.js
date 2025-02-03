@@ -603,15 +603,12 @@ isRouter.post("/send-notification", async (req, res) => {
             message: 'Notificación enviada correctamente',
             result
         });
-    }
-    } catch (error) {
+    } } catch (error) {
         return res.status(500).json({
             error: 'Error enviando la notificación',
             details: error.message,
         });
     }
-
-
 })
 
 
@@ -643,7 +640,25 @@ isRouter.put('/update-onesignal', async (req, res) => {
     }
 })
 
+isRouter.get('/get-token', async (req, res) => {
+    try {
+        const {id} = req.body;
+        const result = await OneSignal.getTokenId(id);
+        if (!result|| result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontrarón registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result[0]
+            });
+        }
+    } catch (error) {
 
-
+    }
+})
 
 module.exports = isRouter;
