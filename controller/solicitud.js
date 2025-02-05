@@ -584,7 +584,6 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
     const { userId, sonido,title, message } = req.body;
-console.log(" SMS NOTI ", userId, sonido,title, message)
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
