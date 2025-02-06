@@ -128,7 +128,7 @@ const viajeDriver = (id) => {
 
 const viajeUser = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT nombre, apellido, telefono, foto FROM usuario
+        connection.query(`SELECT nombre, apellido, telefono, foto, rating, total_viajes FROM usuario
       WHERE id=?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result[0])
@@ -293,6 +293,37 @@ const finalizarViaje = (id) => {
     });
 }
 
+const guardarCalificacion = (idViaje, idUser, punteo, comentario) => {
+    return new Promise((resolve, reject) => {
+        const query = 'INSERT INTO calificacion (idUser, viaje_id, calificacion, comentario) VALUES (?, ?, ?, ?)';
+        connection.query(query, [ idUser, idViaje, punteo, comentario], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const getCalificacion = (idUser) => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT AVG(calificacion) AS promedio, COUNT(*) AS total_viajes 
+            FROM calificacion WHERE idUser = ?`;
+        connection.query(query, [idUser], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const updateRanting= (idUser, promedio, totalViajes) => {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE usuario SET  total_viajes = ?, rating = ? WHERE id = ?`;
+        connection.query(query, [totalViajes, promedio,  idUser], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
 module.exports = {
     conductores,
     createSolicitud,
@@ -314,5 +345,8 @@ module.exports = {
     cancelarViaje,
     viajeUser,
     updateEstadoViaje ,
-    finalizarViaje
+    finalizarViaje,
+    guardarCalificacion,
+    getCalificacion,
+    updateRanting
 }

@@ -583,7 +583,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
-    const { userId, sonido,title, message } = req.body;
+    const { userId, sonido, title, message } = req.body;
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
@@ -594,15 +594,16 @@ isRouter.post("/send-notification", async (req, res) => {
             return res.status(200).json({
                 success: false,
                 message: 'Notificación Error',
-                 result
+                result
             });
-    }else {
-        return res.status(200).json({
-            success: true,
-            message: 'Notificación enviada correctamente',
-            result
-        });
-    } } catch (error) {
+        } else {
+            return res.status(200).json({
+                success: true,
+                message: 'Notificación enviada correctamente',
+                result
+            });
+        }
+    } catch (error) {
         return res.status(500).json({
             error: 'Error enviando la notificación',
             details: error.message,
@@ -643,7 +644,7 @@ isRouter.get('/get-token/:id', async (req, res) => {
     try {
         const id = req.params.id;
         const result = await OneSignal.getTokenId(id);
-        if (!result|| result.length === 0) {
+        if (!result || result.length === 0) {
             return res.status(200).send({
                 success: false,
                 msg: 'No se encontrarón registros',
@@ -659,5 +660,54 @@ isRouter.get('/get-token/:id', async (req, res) => {
 
     }
 })
+
+
+// Endpoint para enviar un mensaje desde el frontend
+isRouter.post("/calificar", async (req, res) => {
+    const { idViaje, idUser, punteo, comentario } = req.body;
+    if (!idUser || ! idViaje) {
+        return res.status(400).json({ error: 'Faltan parámetros' });
+    }
+
+    try {
+        const result = await isController.guardarCalificacion(idViaje, idUser, punteo, comentario);
+        if (!result || result.length === 0) {
+            return res.status(200).json({
+                success: false,
+                message: 'Calificación  Error'
+            });
+        } else {
+            const repromedio = await isController.getCalificacion(idUser);
+            if (! repromedio||  repromedio.length === 0) {
+                return res.status(200).json({
+                    success: false,
+                    message: 'Calificación  Error'
+                });
+            } else {
+               
+                const promedio = parseFloat(repromedio[0].promedio).toFixed(1);
+                const totalViajes = repromedio[0].total_viajes;
+                const resp = await isController.updateRanting( idUser , promedio, totalViajes);
+                if (!resp) {
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Calificación  Error'
+                    });
+                } else {
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Calificación enviada correctamente'
+                    });
+                }
+            }
+        }
+    } catch (error) {
+        return res.status(500).json({
+            error: 'Error enviando la calificación',
+            details: error.message,
+        });
+    }
+})
+
 
 module.exports = isRouter;
