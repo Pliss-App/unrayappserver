@@ -49,10 +49,10 @@ const agregarHistorialdebitos = (idUser, idViaje, costo, debitar, saldo_antes, s
     return new Promise((resolve, reject) => {
         connection.query(
             `insert into debitos_hist(idUser ,   	
-                                        idViaje		
-                                        costo_viaje	
-                                        costo_debito	
-                                        monto_antes 	
+                                        idViaje	,	
+                                        costo_viaje	,
+                                        costo_debito,	
+                                        monto_antes ,	
                                         monto_despues
                                         ) values (?,?,?,?,?,?)`, [idUser, idViaje, costo, debitar, saldo_antes,saldo_despues], (err, rows) => {
             if (err) reject(err)
