@@ -745,7 +745,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
                 message: 'Error al actualizar el estado del usuario'
             });
         }
-        const histpa = await cobro. agregarHistorialPagos(idViaje, nuevoSaldo);
+        const histpa = await cobro. agregarHistorialPagos(idViaje, totalDebitar);
         const histdeb = await  cobro.agregarHistorialdebitos(idUser, idViaje, costo, totalDebitar, saldo.saldo, nuevoSaldo );
 
         if (!histpa &&  !histdeb) {

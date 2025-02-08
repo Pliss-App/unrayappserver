@@ -48,7 +48,7 @@ const agregarHistorialPagos = (idViaje, monto) => { //getByEmail
 const agregarHistorialdebitos = (idUser, idViaje, costo, debitar, saldo_antes, saldo_despues, ) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `insert into debitos_hist(idUser    	
+            `insert into debitos_hist(idUser ,   	
                                         idViaje		
                                         costo_viaje	
                                         costo_debito	
