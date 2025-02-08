@@ -691,7 +691,7 @@ isRouter.post("/calificar", async (req, res) => {
 
 isRouter.put('/finalizar-viaje', async (req, res) => {
     try {
-        const { id, idUser, costo, idViaje } = req.body;
+        const {idViaje , idUser, costo } = req.body;
 
         if (!id || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
