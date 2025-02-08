@@ -3,6 +3,7 @@ const haversine = require('haversine-distance'); // Para calcular distancias ent
 const { getIo } = require('../socket');
 const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
+const cobro = require('../models/cobro')
 //const io = socketIo(server);
 const isRouter = express.Router();
 
@@ -559,27 +560,6 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
     }
 })
 
-isRouter.put('/finalizar-viaje', async (req, res) => {
-    try {
-        const { id } = req.body;
-        const result = await isController.finalizarViaje(id);
-        if (result === undefined) {
-            return res.status(200).send({
-                success: false,
-                msg: 'Sin Registro',
-            });
-        } else {
-            return res.status(200).send({
-                success: true,
-                msg: 'Success',
-                result: result
-            });
-        }
-    } catch (error) {
-
-    }
-})
-
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
@@ -665,7 +645,7 @@ isRouter.get('/get-token/:id', async (req, res) => {
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/calificar", async (req, res) => {
     const { idViaje, idUser, punteo, comentario } = req.body;
-    if (!idUser || ! idViaje) {
+    if (!idUser || !idViaje) {
         return res.status(400).json({ error: 'Faltan parámetros' });
     }
 
@@ -678,16 +658,16 @@ isRouter.post("/calificar", async (req, res) => {
             });
         } else {
             const repromedio = await isController.getCalificacion(idUser);
-            if (! repromedio||  repromedio.length === 0) {
+            if (!repromedio || repromedio.length === 0) {
                 return res.status(200).json({
                     success: false,
                     message: 'Calificación  Error'
                 });
             } else {
-               
+
                 const promedio = parseFloat(repromedio[0].promedio).toFixed(1);
                 const totalViajes = repromedio[0].total_viajes;
-                const resp = await isController.updateRanting( idUser , promedio, totalViajes);
+                const resp = await isController.updateRanting(idUser, promedio, totalViajes);
                 if (!resp) {
                     return res.status(200).json({
                         success: false,
@@ -708,6 +688,87 @@ isRouter.post("/calificar", async (req, res) => {
         });
     }
 })
+
+isRouter.put('/finalizar-viaje', async (req, res) => {
+    try {
+        const { id, idUser, costo, idViaje } = req.body;
+
+        if (!id || !idUser || !costo) {
+            return res.status(400).json({ success: false, message: 'Faltan parámetros' });
+        }
+
+        // Finalizar viaje
+        const result = await isController.finalizarViaje(id);
+        if (!result) {
+            return res.status(200).json({
+                success: false,
+                message: 'Sin Registro'
+            });
+        }
+
+        // Obtener porcentaje de cobro de la app
+        const cobroResult = await cobro.cobroApp();
+        if (!cobroResult) {
+            return res.status(200).json({
+                success: false,
+                message: 'Error al obtener porcentaje de cobro'
+            });
+        }
+
+        const porcentaje = cobroResult.porApp / 100;
+        const totalDebitar = Math.round(costo * porcentaje);
+
+        // Obtener saldo actual del conductor
+        const saldo = await cobro.saldoBilletera(idUser);
+        if (!saldo) {
+            return res.status(200).json({
+                success: false,
+                message: 'Usuario no existe'
+            });
+        }
+
+        // Actualizar saldo de la billetera
+        const nuevoSaldo = saldo.saldo - totalDebitar;
+        const updateSaldo = await cobro.actualizarBilletera(idUser, nuevoSaldo);
+        if (!updateSaldo) {
+            return res.status(200).json({
+                success: false,
+                message: 'Error al actualizar la billetera del Conductor'
+            });
+        }
+
+        // Cambiar el estado del usuario a 'libre'
+        const estado = await isController.updateEstadoUser(idUser, 'libre');
+        if (!estado) {
+            return res.status(200).json({
+                success: false,
+                message: 'Error al actualizar el estado del usuario'
+            });
+        }
+        const histpa = await cobro. agregarHistorialPagos(idViaje, nuevoSaldo);
+        const histdeb = await  cobro.agregarHistorialdebitos(idUser, idViaje, costo, totalDebitar, saldo.saldo, nuevoSaldo );
+
+        if (!histpa &&  !histdeb) {
+            return res.status(200).json({
+                success: false,
+                message: 'Error al actualizar el estado del usuario'
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            message: 'Viaje finalizado y débito realizado con éxito'
+        });
+
+    } catch (error) {
+        console.error("Error en finalizar viaje:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error en el servidor'
+        });
+    }
+});
+
 
 
 module.exports = isRouter;
