@@ -73,7 +73,6 @@ isRouter.post('/create_travelDetail', async (req, res) => {
 isRouter.delete('/delete_solicitud/:id', async (req, res) => {
     try {
         const solicitudId = req.params.id;
-        console.log("IDID ", req.params.id)
         if (!solicitudId) {
             return res.status(400).json({
                 success: false,
@@ -111,12 +110,14 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
     const { idConductor } = req.params;
 
     try {
+        
         // Buscar solicitud activa en memoria
         if (solicitudesActivas.has(idConductor)) {
             const solicitud = solicitudesActivas.get(idConductor);
 
             // Verificar si el tiempo restante expiró
             if (solicitud.tiempoRestante <= 0) {
+              //  console.log("TIEM PO", solicitud.tiempoRestante )
                 solicitudesActivas.delete(idConductor); // Remover solicitud expirada
                 return res.status(200).json({
                     success: false,
@@ -149,8 +150,10 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
             datos: solicitudPendiente,
             tiempoRestante: 30, // 30 segundos
         });
-        if (solicitudPendiente.estado != 'Pendiente') {
-            console.log("SOLICIUTD ACEPTADA YA ");
+
+     //   console.log(solicitudPendiente )
+       /* if (solicitudPendiente.estado != 'Pendiente'  ) {
+            console.log("SOLICIUTD ACEPTADA YA gggg");
             solicitudesActivas.delete(idConductor);
             return res.status(200).json({
                 success: true,
@@ -158,7 +161,7 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
             });
             // Remover solicitud de memoria después de procesarla
 
-        }
+        } */
 
         return res.status(200).json({
             success: true,
@@ -245,6 +248,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
         const driver = drivers.find(d => !conductoresIntentados.includes(d.id));
 
         if (!driver) {
+            isController.deleteSolicitud(solicitudId);
             return res.status(200).json({
                 success: false,
                 message: 'No hay conductores disponibles.',

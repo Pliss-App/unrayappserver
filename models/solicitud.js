@@ -103,7 +103,9 @@ const respDriver = (id) => {
         connection.query(`SELECT u.id as conductor, u.estado_usuario, s.estado FROM usuario u
       INNER JOIN solicitudes s
       on u.id =  s.idConductor
-      WHERE s.idConductor = ?`, [id], (err, result) => {
+      WHERE s.idConductor = ?       
+      order by s.fecha_hora desc  
+      limit 1`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result[0])
         })
