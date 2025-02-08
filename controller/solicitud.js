@@ -693,7 +693,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
     try {
         const {idViaje , idUser, costo } = req.body;
 
-        if (!id || !idUser || !costo) {
+        if (!idViaje  || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
         }
 
