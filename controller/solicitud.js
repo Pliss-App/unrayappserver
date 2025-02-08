@@ -698,7 +698,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
         }
 
         // Finalizar viaje
-        const result = await isController.finalizarViaje(id);
+        const result = await isController.finalizarViaje(idViaje);
         if (!result) {
             return res.status(200).json({
                 success: false,
