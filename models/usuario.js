@@ -164,9 +164,9 @@ const insertLocation = (idUser) => {
     });
 };
 
-const updateLocationConductor = (userData) => {
-    const { iduser, lat, lon, angle } = userData;
-    console.log("CORODOENADA  conductor ",   userData)
+const updateLocationConductor = (iduser, lat, lon, angle) => {
+   // const { iduser, lat, lon, angle } = userData;
+    console.log("CORODOENADA  conductor ",   iduser, lat, lon, angle)
     return new Promise((resolve, reject) => {
         connection.query(
             "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, angle ,iduser], (err, rows) => {

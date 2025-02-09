@@ -249,8 +249,8 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
 
 usuarioRouter.post('/update-location', async (req, res) => {
     try {
-        const data = req.body;
-        const usDet = await userController. updateLocationConductor (data)
+        var { iduser, lat, lon, angle } = req.body;
+        const usDet = await userController. updateLocationConductor (iduser, lat, lon, angle)
         if (usDet === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
