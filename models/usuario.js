@@ -169,7 +169,7 @@ const updateLocationConductor = (userData) => {
     console.log("CORODOENADA  conductor ",   userData)
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, iduser, angle], (err, rows) => {
+            "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, angle ,iduser], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
