@@ -165,10 +165,10 @@ const insertLocation = (idUser) => {
 };
 
 const updateLocationConductor = (userData) => {
-    const { iduser, lat, lon } = userData;
+    const { iduser, lat, lon, angle } = userData;
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE location SET lat=?, lon= ? WHERE iduser=?", [lat, lon, iduser], (err, rows) => {
+            "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, iduser, angle], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
