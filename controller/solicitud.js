@@ -5,6 +5,7 @@ const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
 const cobro = require('../models/cobro')
 //const io = socketIo(server);
+const { io } = require('../socketOr');
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
@@ -240,10 +241,10 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
     let solicitudId = null;
     let conductoresIntentados = [];
-    let contadorTotal = 180; // Tiempo total límite de espera en segundos
+    let contadorTotal = 180; // 3 minutos máximo para asignar un conductor
 
     while (contadorTotal > 0) {
-        // Buscar conductores disponibles que no hayan sido intentados previamente
+        // Buscar conductores cercanos que no hayan sido intentados antes
         const drivers = await findNearestDriver(start_lat, start_lng, idService);
         const driver = drivers.find(d => !conductoresIntentados.includes(d.id));
 
@@ -282,43 +283,40 @@ isRouter.post('/crear_viaje', async (req, res) => {
             await isController.updateSolicitudConductor(solicitudId, driver.id);
         }
 
-        // Esperar respuesta del conductor
-        let contador = 30; // Tiempo para esperar respuesta del conductor actual
+        // **Notificar al conductor sobre la solicitud**
+        io.to(driver.socket_id).emit('nueva_solicitud', {
+            solicitudId,
+            idUser,
+            start_lat,
+            start_lng,
+            start_direction,
+            end_lat,
+            end_lng,
+            end_direction,
+            distance,
+            duration,
+            costo,
+        });
+
+        // Esperar respuesta del conductor (30s)
         let solicitudAceptada = false;
+        let tiempoDeEspera = 30000; // 30 segundos
 
-        const intervalId = setInterval(async () => {
-            contador--;
-            contadorTotal--;
+        await new Promise(resolve => {
+            const timeout = setTimeout(() => {
+                resolve();
+            }, tiempoDeEspera);
 
-            try {
-                const estadoConductor = await isController.respDriver(driver.id);
-
-                if (estadoConductor.estado_usuario === 'ocupado' && estadoConductor.estado === 'Aceptada') {
-                    clearInterval(intervalId);
+            io.once(`respuesta_solicitud_${solicitudId}`, async (data) => {
+                if (data.estado === 'Aceptada') {
                     solicitudAceptada = true;
-
+                    clearTimeout(timeout);
+                    resolve();
                 }
-
-                if (contador <= 0) {
-                    clearInterval(intervalId);
-                    if (!solicitudAceptada) {
-                        return res.status(408).json({ // Por ejemplo, si el tiempo se agota
-                            success: false,
-                            message: 'Tiempo de espera agotado.',
-                        });
-                    }
-                }
-            } catch (error) {
-                console.error('Error al verificar el estado del conductor:', error);
-                clearInterval(intervalId);
-            }
-        }, 1000);
-
-        // Esperar a que termine el intervalo o que se acepte la solicitud
-        await new Promise(resolve => setTimeout(resolve, contador * 1000));
+            });
+        });
 
         if (solicitudAceptada) {
-
             return res.status(200).json({
                 success: true,
                 message: 'Solicitud Aceptada.',
@@ -326,7 +324,9 @@ isRouter.post('/crear_viaje', async (req, res) => {
             });
         }
 
-        // Si se agotó el tiempo para este conductor, intentar con otro
+        // Si el tiempo se agotó para este conductor, intentamos con otro
+        contadorTotal -= 30;
+
         if (contadorTotal <= 0) {
             return res.status(200).json({
                 success: false,

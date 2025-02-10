@@ -6,11 +6,11 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const { initializeSocket } = require('./socket'); // Importa el inicializador de Socket.IO
-
+const {initializeSocketOr} = require('./socketOr');
 const app = express();
 
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
-
+initializeSocketOr(server); // 👈 Iniciamos el socket aquí
 // Inicializa Socket.IO con el servidor
 //initializeSocket(server);
 
@@ -28,7 +28,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const apiRoutes = require('./roles/index');
 
-app.use('/api', apiRoutes);
+app.use('/api', apiRoutes)
 
 
 app.get('/', (req, res) => {
