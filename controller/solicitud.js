@@ -321,7 +321,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
             }, tiempoDeEspera);
 
             io.once(`respuesta_solicitud_${solicitudId}`, async (data) => {
-                if (data.estado === 'Aceptada') {
+                if (data.estado === 'Aceptado') {
                     solicitudAceptada = true;
                     clearTimeout(timeout);
                     resolve();
