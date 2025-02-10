@@ -5,7 +5,7 @@ const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
 const cobro = require('../models/cobro')
 //const io = socketIo(server);
-const { io } = require('../socketOr');
+const { connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
@@ -111,14 +111,14 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
     const { idConductor } = req.params;
 
     try {
-        
+
         // Buscar solicitud activa en memoria
         if (solicitudesActivas.has(idConductor)) {
             const solicitud = solicitudesActivas.get(idConductor);
 
             // Verificar si el tiempo restante expiró
             if (solicitud.tiempoRestante <= 0) {
-              //  console.log("TIEM PO", solicitud.tiempoRestante )
+                //  console.log("TIEM PO", solicitud.tiempoRestante )
                 solicitudesActivas.delete(idConductor); // Remover solicitud expirada
                 return res.status(200).json({
                     success: false,
@@ -152,17 +152,17 @@ isRouter.get('/solicitudes/:idConductor', async (req, res) => {
             tiempoRestante: 30, // 30 segundos
         });
 
-     //   console.log(solicitudPendiente )
-       /* if (solicitudPendiente.estado != 'Pendiente'  ) {
-            console.log("SOLICIUTD ACEPTADA YA gggg");
-            solicitudesActivas.delete(idConductor);
-            return res.status(200).json({
-                success: true,
-                message: 'Solicitud Aceptada!.',
-            });
-            // Remover solicitud de memoria después de procesarla
-
-        } */
+        //   console.log(solicitudPendiente )
+        /* if (solicitudPendiente.estado != 'Pendiente'  ) {
+             console.log("SOLICIUTD ACEPTADA YA gggg");
+             solicitudesActivas.delete(idConductor);
+             return res.status(200).json({
+                 success: true,
+                 message: 'Solicitud Aceptada!.',
+             });
+             // Remover solicitud de memoria después de procesarla
+ 
+         } */
 
         return res.status(200).json({
             success: true,
@@ -217,7 +217,9 @@ isRouter.post('/soli/accion', async (req, res) => {
     }
 });
 
+
 isRouter.post('/crear_viaje', async (req, res) => {
+    const io = getIO();
     const {
         idUser,
         idService,
@@ -283,10 +285,16 @@ isRouter.post('/crear_viaje', async (req, res) => {
             await isController.updateSolicitudConductor(solicitudId, driver.id);
         }
 
+        if (!driver || !driver.socket_id || !connectedDrivers[driver.id]) {
+            console.error('Conductor no tiene socket_id registrado o no está conectado');
+            continue; // Intenta con el siguiente conductor
+        }
+
         // **Notificar al conductor sobre la solicitud**
-        io.to(driver.socket_id).emit('nueva_solicitud', {
+        io.to(connectedDrivers[driver.id]).emit('nueva_solicitud', {
             solicitudId,
             idUser,
+            idService,
             start_lat,
             start_lng,
             start_direction,
@@ -294,8 +302,11 @@ isRouter.post('/crear_viaje', async (req, res) => {
             end_lng,
             end_direction,
             distance,
+            distance_unit,
+            duration_unit,
             duration,
             costo,
+            fecha_hora
         });
 
         // Esperar respuesta del conductor (30s)
@@ -304,6 +315,8 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
         await new Promise(resolve => {
             const timeout = setTimeout(() => {
+                // Si el conductor no responde, emitir un evento para eliminar la solicitud en el frontend
+                io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
                 resolve();
             }, tiempoDeEspera);
 
@@ -695,9 +708,9 @@ isRouter.post("/calificar", async (req, res) => {
 
 isRouter.put('/finalizar-viaje', async (req, res) => {
     try {
-        const {idViaje , idUser, costo } = req.body;
+        const { idViaje, idUser, costo } = req.body;
 
-        if (!idViaje  || !idUser || !costo) {
+        if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
         }
 
@@ -749,10 +762,10 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
                 message: 'Error al actualizar el estado del usuario'
             });
         }
-        const histpa = await cobro. agregarHistorialPagos(idViaje, totalDebitar);
-        const histdeb = await  cobro.agregarHistorialdebitos(idUser, idViaje, costo, totalDebitar, saldo.saldo, nuevoSaldo );
+        const histpa = await cobro.agregarHistorialPagos(idViaje, totalDebitar);
+        const histdeb = await cobro.agregarHistorialdebitos(idUser, idViaje, costo, totalDebitar, saldo.saldo, nuevoSaldo);
 
-        if (!histpa &&  !histdeb) {
+        if (!histpa && !histdeb) {
             return res.status(200).json({
                 success: false,
                 message: 'Error al actualizar el estado del usuario'

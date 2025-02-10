@@ -196,7 +196,7 @@ const conductores = (idService) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id, u.nombre, u.apellido, 
        u.telefono, u.foto, r.nombre as rol, u.estado,
-       u.estado_usuario, l.lat, l.lon FROM usuario u 
+       u.estado_usuario, l.lat, l.lon, u.socket_id FROM usuario u 
        inner join usuario_rol  ur
        on u.id = ur.iduser
        inner join roles r

@@ -94,17 +94,17 @@ usuarioRouter.post('/login', async (req, res) => {
 
                 if (equals) {
                     var _user = {
-                        estado: existingUser.estado, marker: existingUser.marker, 
-                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol, 
-                        rol: existingUser.rol, nombre: existingUser.nombre, 
-                        apellido: existingUser.apellido, correo: existingUser.correo, 
+                        estado: existingUser.estado, marker: existingUser.marker,
+                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
+                        rol: existingUser.rol, nombre: existingUser.nombre,
+                        apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono
                     }
                     const token = jwt.sign({
-                        estado: existingUser.estado, marker: existingUser.marker, 
-                        foto: existingUser.foto, idUser: existingUser.idUser, 
-                        idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, 
-                        apellido: existingUser.apellido, correo: existingUser.correo, 
+                        estado: existingUser.estado, marker: existingUser.marker,
+                        foto: existingUser.foto, idUser: existingUser.idUser,
+                        idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
+                        apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono
                     },
                         process.env.JWT_SECRET, {
@@ -250,7 +250,7 @@ usuarioRouter.post('/addDetailUser', async (req, res) => {
 usuarioRouter.post('/update-location', async (req, res) => {
     try {
         var { iduser, lat, lon, angle } = req.body;
-        const usDet = await userController. updateLocationConductor (iduser, lat, lon, angle)
+        const usDet = await userController.updateLocationConductor(iduser, lat, lon, angle)
         if (usDet === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'
@@ -398,6 +398,24 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/foto/:id', async (req, res) => {
+    const user = await userController.getFotoUser(req.params.id)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: 'editar'
+        })
+    } else {
+
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
+})
+
+
+
 
 usuarioRouter.post('/recover', async (req, res) => {
     const { user } = req.body;
@@ -407,73 +425,87 @@ usuarioRouter.post('/recover', async (req, res) => {
         if (results === undefined) {
             return res.status(404).send('Usuario no encontrado');
         } else {
-      // Generar token único
-      const token = crypto.randomBytes(20).toString('hex');
-      const expiration = new Date();
-      expiration.setHours(expiration.getHours() + 1); // 1 hora de validez
-  
-      // Guardar token en la base de datos
-      userController.updateUsuarioPass(token, expiration, user)
-  
-      // Configurar transporte de nodemailer
-      const transporter = nodemailer.createTransport({
-        host: 'smtp.hostinger.com',
-        port: 465,
-        secure: true,
-        auth: {
-            user: process.env.GMAIL_USER, // Tu correo
-            pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
-        },
-    });
-  
-      // Enviar correo
-      const resetUrl = `https://unraylatinoamerica.com/reset-password?token=${token}`;
-      const mailOptions = {
-        from: process.env.GMAIL_USER,
-        to: user,
-        subject: 'Recuperación de Contraseña',
-        text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
-      };
-  
-      await transporter.sendMail(mailOptions);
-      //res.send('Correo de recuperación enviado');
-      return res.status(200).send({
-        msg: 'SUCCESSFULLY',
-        result: 'Correo de recuperación enviado'
-    });
-    }
-    } catch (err) {
-      console.error(err);
-      res.status(500).send('Error interno del servidor');
-    }
-  });
+            // Generar token único
+            const token = crypto.randomBytes(20).toString('hex');
+            const expiration = new Date();
+            expiration.setHours(expiration.getHours() + 1); // 1 hora de validez
 
-  usuarioRouter.post('/reset-password', async (req, res) => {
+            // Guardar token en la base de datos
+            userController.updateUsuarioPass(token, expiration, user)
+
+            // Configurar transporte de nodemailer
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.hostinger.com',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.GMAIL_USER, // Tu correo
+                    pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+                },
+            });
+
+            // Enviar correo
+            const resetUrl = `https://unraylatinoamerica.com/reset-password?token=${token}`;
+            const mailOptions = {
+                from: process.env.GMAIL_USER,
+                to: user,
+                subject: 'Recuperación de Contraseña',
+                text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,
+            };
+
+            await transporter.sendMail(mailOptions);
+            //res.send('Correo de recuperación enviado');
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: 'Correo de recuperación enviado'
+            });
+        }
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error interno del servidor');
+    }
+});
+
+usuarioRouter.post('/reset-password', async (req, res) => {
     const { token, password } = req.body;
-  
+
     try {
-      const user = await userController.getPassword(token);
-  
-      if (user === undefined) {
-        return res.status(400).send('Token inválido o expirado');
-      }
-  
-      // Hashear la nueva contraseña
-      const hashedPassword = await bcrypt.hash(password, 10);
-  
-      // Actualizar la contraseña en la base de datos
-      const result = await userController.updatePasswordNew(hashedPassword , user.id);
-      return res.status(200).send({
-        msg: 'SUCCESSFULLY',
-        result: 'Contraseña actualizada correctamente'
-    });
-     // res.send('Contraseña actualizada correctamente');
+        const user = await userController.getPassword(token);
+
+        if (user === undefined) {
+            return res.status(400).send('Token inválido o expirado');
+        }
+
+        // Hashear la nueva contraseña
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        // Actualizar la contraseña en la base de datos
+        const result = await userController.updatePasswordNew(hashedPassword, user.id);
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: 'Contraseña actualizada correctamente'
+        });
+        // res.send('Contraseña actualizada correctamente');
     } catch (err) {
-      console.error(err);
-      res.status(500).send('Error interno del servidor');
+        console.error(err);
+        res.status(500).send('Error interno del servidor');
     }
-  });
+});
 
+usuarioRouter.put('/update-socket-io', async (req, res) => {
+    const { id, iduser } = req.body;
+    const user = await userController.updateSocketIO(iduser, id)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, registro no encontrado',
+            result: 'update error'
+        })
+    } else {
 
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY UPDATE'
+        });
+    }
+})
 
 module.exports = usuarioRouter;

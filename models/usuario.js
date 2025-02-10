@@ -165,8 +165,7 @@ const insertLocation = (idUser) => {
 };
 
 const updateLocationConductor = (iduser, lat, lon, angle) => {
-   // const { iduser, lat, lon, angle } = userData;
-    console.log("CORODOENADA  conductor ",   iduser, lat, lon, angle)
+
     return new Promise((resolve, reject) => {
         connection.query(
             "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, angle ,iduser], (err, rows) => {
@@ -175,6 +174,18 @@ const updateLocationConductor = (iduser, lat, lon, angle) => {
             });
     });
 };
+
+const updateSocketIO = (iduser, id) => {
+    // const { iduser, lat, lon, angle } = userData;
+     return new Promise((resolve, reject) => {
+         connection.query(
+             "UPDATE usuario SET socket_id=?  WHERE id=?", [id, iduser], (err, rows) => {
+                 if (err) reject(err)
+                 resolve(rows)
+             });
+     });
+ };
+ 
 
 
 const createUserDriver = (userData) => { //getByEmail
@@ -241,6 +252,16 @@ const getUserDetail = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `SELECT u.id, u.uid, CASE WHEN  ud.idUser IS NULL THEN "editar" ELSE ud.idUser END idUser, ud.photoURL, ud.idphotoURL, ud.uid, ud.name, ud.last_name, ud.phoneNumber, ud.gender, ud.email  FROM user u LEFT JOIN user_detail ud ON u.id=ud.idUser  WHERE u.uid=?`, [uid], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
+const getFotoUser = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT foto from usuario WHERE id=?`, [uid], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows[0])
             });
@@ -434,6 +455,8 @@ module.exports = {
     iconMarker,
     updateUsuarioPass,
     updatePasswordNew,
-    getPassword
+    getPassword,
+    updateSocketIO ,
+    getFotoUser
 
 }

@@ -12,7 +12,7 @@ const app = express();
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
  // 👈 Iniciamos el socket aquí
 // Inicializa Socket.IO con el servidor
-//initializeSocket(server);
+initializeSocketOr(server);
 
 app.use(express.json({ limit: '990mb' }));
 app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900000 }));
@@ -39,9 +39,9 @@ app.get('/', (req, res) => {
 
 const PORT = process.env.PORT || 3000;
 
-const ser = app.listen(PORT, () => {
+const ser = server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
 //initializeSocket(ser);
-initializeSocketOr(ser);
+//initializeSocketOr(ser);
