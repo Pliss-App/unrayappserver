@@ -10,7 +10,7 @@ const {initializeSocketOr} = require('./socketOr');
 const app = express();
 
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
-initializeSocketOr(server); // 👈 Iniciamos el socket aquí
+
 // Inicializa Socket.IO con el servidor
 //initializeSocket(server);
 
@@ -43,4 +43,4 @@ const ser = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}.`);
 });
 
-
+initializeSocketOr(server); // 👈 Iniciamos el socket aquí
