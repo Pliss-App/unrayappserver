@@ -5,7 +5,7 @@ const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
 const cobro = require('../models/cobro')
 //const io = socketIo(server);
-const { connectedDrivers, getIO } = require('../socketOr');
+const {  connectedUsers, connectedDrivers,  getIO } = require('../socketOr');
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
@@ -321,6 +321,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
             }, tiempoDeEspera);
 
             io.once(`respuesta_solicitud_${solicitudId}`, async (data) => {
+                console.log("DATOS DE LA solicitud", data)
                 if (data.estado === 'Aceptado') {
                     solicitudAceptada = true;
                     clearTimeout(timeout);
@@ -349,6 +350,67 @@ isRouter.post('/crear_viaje', async (req, res) => {
     }
 });
 
+isRouter.post('/aceptar_solicitud', async (req, res) => {
+    const io = getIO();
+    const { solicitudId, conductorId } = req.body;
+
+    if (!solicitudId || !conductorId) {
+        return res.status(400).json({ error: "Faltan datos requeridos" });
+    }
+
+    try {
+        // Actualizar solicitud en la base de datos  idsoli, idConductor, accion
+        await isController.procesarSolicitud(solicitudId,conductorId, 'Aceptado' );
+
+        // Notificar al pasajero que la solicitud fue aceptada
+        const solicitud = await isController.obtenerSolicitud(solicitudId);
+        if (solicitud) {
+            io.to(connectedUsers[solicitud.idUser]).emit('solicitud_aceptada', {
+                solicitudId,
+                conductorId,
+                message: "Un conductor ha aceptado tu solicitud.",
+            });
+        }
+
+        // Notificar a otros conductores que la solicitud ya fue tomada
+      //  io.emit(`solicitud_cancelada_${solicitudId}`);
+
+        return res.status(200).json({
+            success: true,
+            message: "Solicitud aceptada.",
+            solicitudId
+        });
+    } catch (error) {
+        console.error("Error al aceptar la solicitud:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
+
+isRouter.post('/rechazar_solicitud', async (req, res) => {
+    const io = getIO();
+    const { solicitudId, conductorId } = req.body;
+
+    if (!solicitudId || !conductorId) {
+        return res.status(400).json({ error: "Faltan datos requeridos" });
+    }
+
+    try {
+        // Registrar que el conductor rechazó la solicitud
+        await isController.registrarRechazoConductor(solicitudId, conductorId);
+
+        // Notificar al sistema que este conductor no está disponible
+        io.emit(`rechazo_solicitud_${solicitudId}`, { conductorId });
+
+        return res.status(200).json({
+            success: true,
+            message: "Solicitud rechazada. Buscando otro conductor...",
+            solicitudId
+        });
+    } catch (error) {
+        console.error("Error al rechazar la solicitud:", error);
+        return res.status(500).json({ error: "Error interno del servidor" });
+    }
+});
 
 isRouter.get('/soli_user/:id', async (req, res) => {
     try {

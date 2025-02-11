@@ -147,6 +147,16 @@ const updateEstadoViaje = (id, estado) => {
     });
 }
 
+
+const obtenerSolicitud = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM solicitud where id= ?`, [ id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 const obtenerEstadoConductor = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT estado_usuario FROM usuario WHERE id = ?`, [id], (err, result) => {
@@ -244,7 +254,7 @@ const obtMessage = (emisorId, receptorId) => {
 
 const obtLocationDriver = (id) => {
     return new Promise((resolve, reject) => {
-        const query = `select lat, lon from location
+        const query = `select lat, lon, angle from location
             where iduser =?`;
         connection.query(query, [id], (err, result) => {
             if (err) return reject(err);
@@ -350,5 +360,6 @@ module.exports = {
     finalizarViaje,
     guardarCalificacion,
     getCalificacion,
-    updateRanting
+    updateRanting,
+    obtenerSolicitud
 }

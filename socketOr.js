@@ -1,7 +1,8 @@
 const { Server } = require('socket.io');
 
 let io;
-const connectedDrivers = {}; // Guarda conductores conectados
+const connectedDrivers = {}; 
+const connectedUsers = {};
 
 function initializeSocketOr(server) {
     io = new Server(server, {
@@ -14,12 +15,12 @@ function initializeSocketOr(server) {
 
     io.on('connection', (socket) => {
      
-        console.log('Conductor conectado:', socket.id);
-
         socket.on('registrar_conductor', (driverId) => {
-        
             connectedDrivers[driverId] = socket.id;
-            console.log("Listado de conductores ", connectedDrivers )
+        });
+
+        socket.on('registrar_usuario', (userId) => {
+            connectedUsers[userId] = socket.id;
         });
 
         socket.on('respuesta_solicitud', (data) => {
@@ -28,6 +29,22 @@ function initializeSocketOr(server) {
 
         socket.on('disconnect', () => {
             console.log('Conductor desconectado:', socket.id);
+
+            for (const driverId in connectedDrivers) {
+                if (connectedDrivers[driverId] === socket.id) {
+                    delete connectedDrivers[driverId];
+                    console.log(`Conductor eliminado: ${driverId}`);
+                    break;
+                }
+            }
+
+            for (const userId in connectedUsers) {
+                if (connectedUsers[userId] === socket.id) {
+                    delete connectedUsers[userId];
+                    console.log(`Usuario eliminado: ${userId}`);
+                    break;
+                }
+            }
         });
     });
 }
@@ -40,4 +57,4 @@ function getIO() {
     return io;
 }
 
-module.exports = { initializeSocketOr, getIO, connectedDrivers  };
+module.exports = { initializeSocketOr, getIO, connectedDrivers,    connectedUsers };

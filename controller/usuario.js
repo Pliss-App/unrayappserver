@@ -398,21 +398,7 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
     }
 })
 
-usuarioRouter.get('/foto/:id', async (req, res) => {
-    const user = await userController.getFotoUser(req.params.id)
-    if (user === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados',
-            result: 'editar'
-        })
-    } else {
 
-        return res.status(200).send({
-            msg: 'SUCCESSFULLY',
-            result: user
-        });
-    }
-})
 
 
 
