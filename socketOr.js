@@ -1,20 +1,21 @@
 const { Server } = require('socket.io');
 
 let io;
-const connectedDrivers = {}; 
+const connectedDrivers = {};
 const connectedUsers = {};
+const respuestasSolicitudes = {};
 
 function initializeSocketOr(server) {
     io = new Server(server, {
         cors: {
-            origin: '*', 
+            origin: '*',
             methods: ['GET', 'POST'],
         },
-        path: '/api/socket/', 
+        path: '/api/socket/',
     });
 
     io.on('connection', (socket) => {
-     
+
         socket.on('registrar_conductor', (driverId) => {
             connectedDrivers[driverId] = socket.id;
         });
@@ -24,27 +25,20 @@ function initializeSocketOr(server) {
         });
 
         socket.on('respuesta_solicitud', (data) => {
-            io.emit(`respuesta_solicitud_${data.solicitudId}`, data);
+            const eventName = `respuesta_solicitud_${data.solicitudId}`;
+            //console.log(`📢 Emitiendo respuesta de la solicitud: ${eventName}`, data);
+        
+            // Guardar respuesta
+            respuestasSolicitudes[data.solicitudId] = data;
+        
+            // Emitir solo al usuario correspondiente
+            if (connectedUsers[data.idUser]) {
+                io.to(connectedUsers[data.idUser]).emit(eventName, data);
+            }
         });
 
         socket.on('disconnect', () => {
             console.log('Conductor desconectado:', socket.id);
-
-            for (const driverId in connectedDrivers) {
-                if (connectedDrivers[driverId] === socket.id) {
-                    delete connectedDrivers[driverId];
-                    console.log(`Conductor eliminado: ${driverId}`);
-                    break;
-                }
-            }
-
-            for (const userId in connectedUsers) {
-                if (connectedUsers[userId] === socket.id) {
-                    delete connectedUsers[userId];
-                    console.log(`Usuario eliminado: ${userId}`);
-                    break;
-                }
-            }
         });
     });
 }
@@ -57,4 +51,4 @@ function getIO() {
     return io;
 }
 
-module.exports = { initializeSocketOr, getIO, connectedDrivers,    connectedUsers };
+module.exports = { initializeSocketOr, getIO, connectedDrivers, connectedUsers, respuestasSolicitudes };

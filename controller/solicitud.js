@@ -5,7 +5,7 @@ const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
 const cobro = require('../models/cobro')
 //const io = socketIo(server);
-const {  connectedUsers, connectedDrivers,  getIO } = require('../socketOr');
+const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
@@ -309,25 +309,25 @@ isRouter.post('/crear_viaje', async (req, res) => {
             fecha_hora
         });
 
-        // Esperar respuesta del conductor (30s)
-        let solicitudAceptada = false;
-        let tiempoDeEspera = 30000; // 30 segundos
-
-        await new Promise(resolve => {
-            const timeout = setTimeout(() => {
-                // Si el conductor no responde, emitir un evento para eliminar la solicitud en el frontend
-                io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
-                resolve();
-            }, tiempoDeEspera);
-
-            io.once(`respuesta_solicitud_${solicitudId}`, async (data) => {
-                console.log("DATOS DE LA solicitud", data)
-                if (data.estado === 'Aceptado') {
-                    solicitudAceptada = true;
-                    clearTimeout(timeout);
-                    resolve();
+        // **Esperar respuesta del conductor con socket.io**
+        const solicitudAceptada = await new Promise(resolve => {
+            let contador = 0;
+            const intervalo = setInterval(() => {
+                if (respuestasSolicitudes[solicitudId]) {
+                    const data = respuestasSolicitudes[solicitudId];
+                    io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId: solicitudId, estado: 'Aceptado' });
+                    clearInterval(intervalo);
+                    delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
+                    resolve(data.estado === 'Aceptado');
                 }
-            });
+                contador += 1;
+                if (contador >= 30) { 
+                isController.updateEstadoUser(driver.id, 'libre');
+                    io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
+                    clearInterval(intervalo);
+                    resolve(false);
+                }
+            }, 1000); // Verifica cada segundo
         });
 
         if (solicitudAceptada) {
@@ -349,6 +349,143 @@ isRouter.post('/crear_viaje', async (req, res) => {
         }
     }
 });
+/*
+isRouter.post('/crear_viaje', async (req, res) => {
+    const io = getIO();
+    const {
+        idUser,
+        idService,
+        start_lat,
+        start_lng,
+        start_direction,
+        end_lat,
+        end_lng,
+        end_direction,
+        distance,
+        distance_unit,
+        duration_unit,
+        duration,
+        costo,
+        fecha_hora,
+    } = req.body;
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: "El cuerpo de la solicitud está vacío" });
+    }
+
+    let solicitudId = null;
+    let conductoresIntentados = [];
+    let contadorTotal = 180; // 3 minutos máximo para asignar un conductor
+
+    while (contadorTotal > 0) {
+        // Buscar conductores cercanos que no hayan sido intentados antes
+        const drivers = await findNearestDriver(start_lat, start_lng, idService);
+        const driver = drivers.find(d => !conductoresIntentados.includes(d.id));
+
+        if (!driver) {
+            isController.deleteSolicitud(solicitudId);
+            return res.status(200).json({
+                success: false,
+                message: 'No hay conductores disponibles.',
+            });
+        }
+
+        // Marcar conductor como intentado
+        conductoresIntentados.push(driver.id);
+
+        // Crear solicitud si no existe
+        if (!solicitudId) {
+            const solicitud = await isController.createSolicitud(
+                idUser,
+                driver.id,
+                idService,
+                start_lat,
+                start_lng,
+                start_direction,
+                end_lat,
+                end_lng,
+                end_direction,
+                distance,
+                distance_unit,
+                duration_unit,
+                duration,
+                costo,
+                fecha_hora
+            );
+            solicitudId = solicitud.insertId;
+        } else {
+            await isController.updateSolicitudConductor(solicitudId, driver.id);
+        }
+
+        if (!driver || !driver.socket_id || !connectedDrivers[driver.id]) {
+            console.error('Conductor no tiene socket_id registrado o no está conectado');
+            continue; // Intenta con el siguiente conductor
+        }
+
+        // **Notificar al conductor sobre la solicitud**
+        io.to(connectedDrivers[driver.id]).emit('nueva_solicitud', {
+            solicitudId,
+            idUser,
+            idService,
+            start_lat,
+            start_lng,
+            start_direction,
+            end_lat,
+            end_lng,
+            end_direction,
+            distance,
+            distance_unit,
+            duration_unit,
+            duration,
+            costo,
+            fecha_hora
+        });
+
+        // Esperar respuesta del conductor (30s)
+        let solicitudAceptada = false;
+        let tiempoDeEspera = 30000; // 30 segundos
+        const eventName = `respuesta_solicitud_${solicitudId}`;
+        console.log(`🔹 Esperando respuesta en evento: ${eventName}`);
+        await new Promise(resolve => {
+               io.once(eventName, (data) => {
+                    console.log("✅ Datos recibidos:", data);
+                    if (data.estado === 'Aceptado') {
+                        solicitudAceptada = true;
+                        resolve();
+                    }
+                });
+
+             setTimeout(() => {
+
+                console.log("SE DEBE ELIMINAR ")
+                // Si el conductor no responde, emitir un evento para eliminar la solicitud en el frontend
+                io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
+                resolve();
+            }, tiempoDeEspera);
+
+      
+        });
+
+        if (solicitudAceptada) {
+            return res.status(200).json({
+                success: true,
+                message: 'Solicitud Aceptada.',
+                solicitudId,
+            });
+        }
+
+        // Si el tiempo se agotó para este conductor, intentamos con otro
+        contadorTotal -= 30;
+
+        if (contadorTotal <= 0) {
+            return res.status(200).json({
+                success: false,
+                message: 'No se pudo asignar un conductor en el tiempo límite.',
+            });
+        }
+    }
+});
+*/
 
 isRouter.post('/aceptar_solicitud', async (req, res) => {
     const io = getIO();
@@ -360,8 +497,8 @@ isRouter.post('/aceptar_solicitud', async (req, res) => {
 
     try {
         // Actualizar solicitud en la base de datos  idsoli, idConductor, accion
-        await isController.procesarSolicitud(solicitudId,conductorId, 'Aceptado' );
-
+        await isController.procesarSolicitud(solicitudId, conductorId, 'Aceptado');
+        await isController.updateEstadoUser(conductorId, 'ocupado');
         // Notificar al pasajero que la solicitud fue aceptada
         const solicitud = await isController.obtenerSolicitud(solicitudId);
         if (solicitud) {
@@ -373,7 +510,7 @@ isRouter.post('/aceptar_solicitud', async (req, res) => {
         }
 
         // Notificar a otros conductores que la solicitud ya fue tomada
-      //  io.emit(`solicitud_cancelada_${solicitudId}`);
+        //  io.emit(`solicitud_cancelada_${solicitudId}`);
 
         return res.status(200).json({
             success: true,

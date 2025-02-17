@@ -78,7 +78,7 @@ const obtenerSolicitudesUsuario = (id) => {
         connection.query(`(SELECT u.foto, u.nombre, u.apellido, s.*
                         FROM solicitudes s
                         INNER JOIN usuario u ON s.idUser = u.id
-                        WHERE s.idUser = ${id} AND s.estado = 'Aceptada'
+                        WHERE s.idUser = ${id} AND s.estado = 'Aceptado'
                         ORDER BY s.fecha_hora ASC
                         LIMIT 1)
                         
@@ -87,7 +87,7 @@ const obtenerSolicitudesUsuario = (id) => {
                         (SELECT u.foto, u.nombre, u.apellido, s.*
                         FROM solicitudes s
                         INNER JOIN usuario u ON s.idConductor = u.id
-                        WHERE s.idConductor = ${id} AND s.estado = 'Aceptada'
+                        WHERE s.idConductor = ${id} AND s.estado = 'Aceptado'
                         ORDER BY s.fecha_hora ASC
                         LIMIT 1)
 
@@ -150,7 +150,7 @@ const updateEstadoViaje = (id, estado) => {
 
 const obtenerSolicitud = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM solicitud where id= ?`, [ id], (err, result) => {
+        connection.query(`SELECT * FROM solicitudes where id= ?`, [ id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
