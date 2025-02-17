@@ -321,8 +321,8 @@ isRouter.post('/crear_viaje', async (req, res) => {
                     resolve(data.estado === 'Aceptado');
                 }
                 contador += 1;
-                if (contador >= 30) { 
-                isController.updateEstadoUser(driver.id, 'libre');
+                if (contador >= 30) {
+                    isController.updateEstadoUser(driver.id, 'libre');
                     io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
                     clearInterval(intervalo);
                     resolve(false);
@@ -757,7 +757,10 @@ isRouter.put('/cancelar-viaje', async (req, res) => {
 
 isRouter.put('/update-estado-viaje', async (req, res) => {
     try {
-        const { id, estado } = req.body;
+        const io = getIO();
+        const { id, estado, idUser, solicitudId } = req.body;
+        io.to(connectedUsers[idUser]).emit('alerta_llegada', { solicitudId: solicitudId, estado: 'Conductor Llego a Salida' });
+
         const result = await isController.updateEstadoViaje(id, estado);
         if (result === undefined) {
             return res.status(200).send({
@@ -906,8 +909,9 @@ isRouter.post("/calificar", async (req, res) => {
 })
 
 isRouter.put('/finalizar-viaje', async (req, res) => {
+    const io = getIO();
     try {
-        const { idViaje, idUser, costo } = req.body;
+        const { idViaje, idUser, idDriver, costo } = req.body;
 
         if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
@@ -970,7 +974,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
                 message: 'Error al actualizar el estado del usuario'
             });
         }
-
+        io.to(connectedUsers[idUser]).emit('calificar', { estado: true, idViaje: idViaje, idDriver: idDriver });
         return res.status(200).json({
             success: true,
             message: 'Viaje finalizado y débito realizado con éxito'
@@ -986,5 +990,57 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 });
 
 
+isRouter.get('/soli_calificacion_conductor/:id/:rol', async (req, res) => {
+    try {
+
+        const id = req.params.id;
+
+//result = await isController.obtenerSoliSinCalificacionUsuario(id);
+ 
+           const result = await isController.obtenerSoliSinCalificacionConductor(id);
+    
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontrarón registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
+
+
+isRouter.get('/soli_calificacion_usuario/:id/:rol', async (req, res) => {
+    try {
+
+        const id = req.params.id;
+
+        const result = await isController.obtenerSoliSinCalificacionUsuario(id);
+ 
+        
+    
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontrarón registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Success',
+                result: result
+            });
+        }
+    } catch (error) {
+
+    }
+})
 
 module.exports = isRouter;

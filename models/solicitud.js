@@ -150,7 +150,7 @@ const updateEstadoViaje = (id, estado) => {
 
 const obtenerSolicitud = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM solicitudes where id= ?`, [ id], (err, result) => {
+        connection.query(`SELECT * FROM solicitudes where id= ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -308,7 +308,7 @@ const finalizarViaje = (id) => {
 const guardarCalificacion = (idViaje, idUser, punteo, comentario) => {
     return new Promise((resolve, reject) => {
         const query = 'INSERT INTO calificacion (idUser, viaje_id, calificacion, comentario) VALUES (?, ?, ?, ?)';
-        connection.query(query, [ idUser, idViaje, punteo, comentario], (err, result) => {
+        connection.query(query, [idUser, idViaje, punteo, comentario], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -326,15 +326,39 @@ const getCalificacion = (idUser) => {
     });
 };
 
-const updateRanting= (idUser, promedio, totalViajes) => {
+const updateRanting = (idUser, promedio, totalViajes) => {
     return new Promise((resolve, reject) => {
         const query = `UPDATE usuario SET  total_viajes = ?, rating = ? WHERE id = ?`;
-        connection.query(query, [totalViajes, promedio,  idUser], (err, result) => {
+        connection.query(query, [totalViajes, promedio, idUser], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
     });
 };
+
+const obtenerSoliSinCalificacionUsuario = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT s.idUser, s.idConductor, s.id
+                            FROM solicitudes s
+                            LEFT JOIN calificacion c ON s.id = c.viaje_id
+                            WHERE s.estado = 'Finalizado' AND  s.idUser = ? AND c.viaje_id IS NULL;`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const obtenerSoliSinCalificacionConductor = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT s.idUser, s.idConductor, s.id
+                            FROM solicitudes s
+                            LEFT JOIN calificacion c ON s.id = c.viaje_id
+                            WHERE s.estado = 'Finalizado' AND s.idConductor = ? AND c.viaje_id IS NULL;`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
 module.exports = {
     conductores,
@@ -356,10 +380,12 @@ module.exports = {
     obtMotCancelar,
     cancelarViaje,
     viajeUser,
-    updateEstadoViaje ,
+    updateEstadoViaje,
     finalizarViaje,
     guardarCalificacion,
     getCalificacion,
     updateRanting,
-    obtenerSolicitud
+    obtenerSolicitud,
+    obtenerSoliSinCalificacionUsuario,
+    obtenerSoliSinCalificacionConductor
 }
