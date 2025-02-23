@@ -860,7 +860,52 @@ isRouter.get('/get-token/:id', async (req, res) => {
     }
 })
 
+// Endpoint para enviar un mensaje desde el frontend
+isRouter.post("/calificar", async (req, res) => {
 
+    const { id_viaje, evaluador_id, evaluado_id, calificacion, comentario } = req.body;
+
+    if (!id_viaje || !evaluador_id || !evaluado_id || !calificacion) {
+      return res.status(400).json({ message: 'Todos los campos son obligatorios' });
+    }
+
+    const result = await isController.guardarCalificacion({ id_viaje, evaluador_id, evaluado_id, calificacion, comentario });
+    if (!result || result.length === 0) {
+        return res.status(200).json({
+            success: false,
+            message: 'Calificación  Error',
+            mos: result,
+        });
+    } else {
+        const repromedio = await isController.getCalificacion(evaluado_id);
+        if (!repromedio || repromedio.length === 0) {
+            return res.status(200).json({
+                success: false,
+                message: 'Calificación  Error'
+            });
+        } else {
+
+            const promedio = parseFloat(repromedio[0].promedio).toFixed(1);
+            const totalViajes = repromedio[0].total_viajes;
+            const resp = await isController.updateRanting(evaluado_id, promedio, totalViajes);
+            if (!resp) {
+                return res.status(200).json({
+                    success: false,
+                    message: 'Calificación  Error'
+                });
+            } else {
+                return res.status(200).json({
+                    success: true,
+                    message: 'Calificación enviada correctamente'
+                });
+            }
+        }
+    }
+
+}
+)
+
+/*
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/calificar", async (req, res) => {
     const { idViaje, idUser, punteo, comentario } = req.body;
@@ -907,7 +952,7 @@ isRouter.post("/calificar", async (req, res) => {
         });
     }
 })
-
+*/
 isRouter.put('/finalizar-viaje', async (req, res) => {
     const io = getIO();
     try {
@@ -990,14 +1035,14 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 });
 
 
-isRouter.get('/soli_calificacion_conductor/:id/:rol', async (req, res) => {
+isRouter.get('/soli_no_calificacion/:id', async (req, res) => {
     try {
 
         const id = req.params.id;
 
 //result = await isController.obtenerSoliSinCalificacionUsuario(id);
  
-           const result = await isController.obtenerSoliSinCalificacionConductor(id);
+           const result = await isController.obtenerSoliSinCalificacion(id);
     
         if (!result || result.length === 0) {
             return res.status(200).send({

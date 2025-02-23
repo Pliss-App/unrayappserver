@@ -399,7 +399,21 @@ usuarioRouter.get('/userDetail/:uid', async (req, res) => {
 })
 
 
+usuarioRouter.get('/usercalificacion/:uid', async (req, res) => {
+    const user = await userController.perfilCalificacion(req.params.uid)
+    if (user === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados',
+            result: 'editar'
+        })
+    } else {
 
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: user
+        });
+    }
+})
 
 
 

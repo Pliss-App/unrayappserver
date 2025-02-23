@@ -268,6 +268,17 @@ const getFotoUser = (uid) => { //getByEmail
     });
 };
 
+
+const perfilCalificacion = (uid) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select nombre, apellido, foto from usuario where id= ?`, [uid], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 const getFoto = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -457,6 +468,7 @@ module.exports = {
     updatePasswordNew,
     getPassword,
     updateSocketIO ,
-    getFotoUser
+    getFotoUser,
+    perfilCalificacion
 
 }

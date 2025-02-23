@@ -114,7 +114,7 @@ const respDriver = (id) => {
 
 const viajeDriver = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`      SELECT  dv.idUser, u.nombre, u.apellido, 
+        connection.query(`      SELECT  dv.idUser, u.nombre, u.apellido,   u.rating, u.total_viajes,
       u.telefono, u.correo, u.foto, dv.placas, 
       dv.modelo, dv.color FROM usuario u
       INNER JOIN detalle_vehiculo dv
@@ -305,10 +305,12 @@ const finalizarViaje = (id) => {
     });
 }
 
-const guardarCalificacion = (idViaje, idUser, punteo, comentario) => {
+const guardarCalificacion = (data) => {
     return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO calificacion (idUser, viaje_id, calificacion, comentario) VALUES (?, ?, ?, ?)';
-        connection.query(query, [idUser, idViaje, punteo, comentario], (err, result) => {
+        const query = `INSERT INTO calificaciones 
+        (id_viaje, evaluador_id, evaluado_id, calificacion, comentario)
+         VALUES (?, ?, ?, ?, ?)`;
+        connection.query(query, [data.id_viaje, data.evaluador_id, data.evaluado_id, data.calificacion, data.comentario], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -318,7 +320,7 @@ const guardarCalificacion = (idViaje, idUser, punteo, comentario) => {
 const getCalificacion = (idUser) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT AVG(calificacion) AS promedio, COUNT(*) AS total_viajes 
-            FROM calificacion WHERE idUser = ?`;
+            FROM calificaciones WHERE evaluado_id = ?`;
         connection.query(query, [idUser], (err, result) => {
             if (err) return reject(err);
             resolve(result);
@@ -348,17 +350,23 @@ const obtenerSoliSinCalificacionUsuario = (id) => {
     });
 }
 
-const obtenerSoliSinCalificacionConductor = (id) => {
+const obtenerSoliSinCalificacion = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT s.idUser, s.idConductor, s.id
+        connection.query(`
+    SELECT s.idUser, s.idConductor, s.id
                             FROM solicitudes s
-                            LEFT JOIN calificacion c ON s.id = c.viaje_id
-                            WHERE s.estado = 'Finalizado' AND s.idConductor = ? AND c.viaje_id IS NULL;`, [id], (err, result) => {
+                            LEFT JOIN calificaciones c 
+                                ON s.id = c.id_viaje AND c.evaluador_id = ?
+                            WHERE s.estado = 'Finalizado' and c.id IS NULL;`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
     });
+
 }
+
+
+
 
 module.exports = {
     conductores,
@@ -387,5 +395,6 @@ module.exports = {
     updateRanting,
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
-    obtenerSoliSinCalificacionConductor
+    obtenerSoliSinCalificacion
+    
 }
