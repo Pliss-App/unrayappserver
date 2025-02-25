@@ -369,13 +369,14 @@ const obtenerSoliSinCalificacion = (id) => {
 
 }
 
-const historial = (id) => {
+const historial = (id, role, offset) => {
     return new Promise((resolve, reject) => {
+        let column = role === "conductor" ? "idConductor" : "idUser";
         connection.query(`SELECT id, start_direction, end_direction, costo, fecha_hora
-                        FROM Solicitudes
-                        WHERE (idUser = ${id} OR idConductor = ${id})
-                        ORDER BY fecha DESC
-                        LIMIT ?, 10; `, (err, result) => {
+                        FROM solicitudes
+                        WHERE ${column} = ?
+                        ORDER BY fecha_hora DESC
+                        LIMIT ?, 10; `, [id, parseInt(offset, 10)], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -414,6 +415,7 @@ module.exports = {
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion,
-    historial
+    historial,
+    
 
 }
