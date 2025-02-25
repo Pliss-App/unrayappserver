@@ -164,6 +164,49 @@ const insertLocation = (idUser) => {
     });
 };
 
+
+const insertBilletera = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO billetera(iduser, saldo, reserva) VALUES (?, ?, ?)`, [idUser, 0, 0], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+
+const insertVehiculo = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO detalle_vehiculo(idUser, placas, modelo, color) VALUES (?, ?, ?, ?)`, [idUser, '', '', ''], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+const insertLocationDireUser = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO usuario_location(idUser, identificador, direccion, municipio, departamento, pais) VALUES (?, ?, ?, ,?, ?)`, [idUser, '', '', ''], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+
+
 const updateLocationConductor = (iduser, lat, lon, angle) => {
 
     return new Promise((resolve, reject) => {
@@ -455,6 +498,7 @@ module.exports = {
     registerLocation,
     getLocationUser,
     updateLocation,
+    insertBilletera,
     getPhotoProfile,
     getUserRol,
     getFoto,
@@ -469,6 +513,7 @@ module.exports = {
     getPassword,
     updateSocketIO ,
     getFotoUser,
-    perfilCalificacion
+    perfilCalificacion,
+    insertVehiculo
 
 }
