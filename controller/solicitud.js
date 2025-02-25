@@ -4,6 +4,7 @@ const { getIo } = require('../socket');
 const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
 const cobro = require('../models/cobro')
+const connection = require('../config/conexion');
 //const io = socketIo(server);
 const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
@@ -1102,7 +1103,7 @@ isRouter.get("/historial", async (req, res) => {
             LIMIT ?, 10
         `;
 
-        const [viajes] = await db.execute(query, [userId, parseInt(offset, 10)]);
+        const [viajes] = await connection.execute(query, [userId, parseInt(offset, 10)]);
         res.json(viajes);
     } catch (error) {
         console.error("Error al obtener viajes:", error);
