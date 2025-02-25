@@ -1103,7 +1103,7 @@ isRouter.get("/historial", async (req, res) => {
             LIMIT ?, 10
         `;
 
-        const [viajes] = await connection.execute(query, [userId, parseInt(offset, 10)]);
+        const [viajes] = await connection.query(query, [userId, parseInt(offset, 10)]);
         res.json(viajes);
     } catch (error) {
         console.error("Error al obtener viajes:", error);
