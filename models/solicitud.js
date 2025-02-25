@@ -352,12 +352,16 @@ const obtenerSoliSinCalificacionUsuario = (id) => {
 
 const obtenerSoliSinCalificacion = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`
-    SELECT s.idUser, s.idConductor, s.id
-                            FROM solicitudes s
-                            LEFT JOIN calificaciones c 
-                                ON s.id = c.id_viaje AND c.evaluador_id = ?
-                            WHERE s.estado = 'Finalizado' and c.id IS NULL;`, [id], (err, result) => {
+        connection.query(`SELECT s.idUser, s.idConductor, s.id
+                FROM solicitudes s
+                LEFT JOIN calificaciones c 
+                    ON s.id = c.id_viaje AND c.evaluador_id = ${id} 
+                WHERE s.estado = 'Finalizado' and c.id IS NULL  
+                AND EXISTS (
+                    SELECT 1
+                    FROM solicitudes sub_s
+                    WHERE sub_s.idUser =  ${id}  OR sub_s.idConductor =  ${id}  
+            );`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -396,5 +400,5 @@ module.exports = {
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion
-    
+
 }
