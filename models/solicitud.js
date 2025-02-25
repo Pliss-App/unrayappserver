@@ -369,6 +369,20 @@ const obtenerSoliSinCalificacion = (id) => {
 
 }
 
+const historial = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT id, start_direction, end_direction, costo, fecha_hora
+                        FROM Solicitudes
+                        WHERE (idUser = ${id} OR idConductor = ${id})
+                        ORDER BY fecha DESC
+                        LIMIT ?, 10; `, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+
+}
+
 
 
 
@@ -399,6 +413,7 @@ module.exports = {
     updateRanting,
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
-    obtenerSoliSinCalificacion
+    obtenerSoliSinCalificacion,
+    historial
 
 }

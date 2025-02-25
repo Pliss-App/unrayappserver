@@ -1088,4 +1088,26 @@ isRouter.get('/soli_calificacion_usuario/:id/:rol', async (req, res) => {
     }
 })
 
+
+isRouter.get("/historial", async (req, res) => {
+    try {
+        const { userId, role, offset = 0 } = req.query; // Parámetros desde el frontend
+        let column = role === "conductor" ? "idConductor" : "idUser";
+
+        const query = `
+            SELECT id, start_direction, end_direction, costo, fecha_hora
+            FROM Solicitudes
+            WHERE ${column} = ?
+            ORDER BY fecha DESC
+            LIMIT ?, 10
+        `;
+
+        const [viajes] = await db.execute(query, [userId, parseInt(offset, 10)]);
+        res.json(viajes);
+    } catch (error) {
+        console.error("Error al obtener viajes:", error);
+        res.status(500).json({ error: "Error al obtener viajes" });
+    }
+});
+
 module.exports = isRouter;
