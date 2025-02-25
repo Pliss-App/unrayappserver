@@ -7,7 +7,7 @@ const isUserController = require('../models/usuario');
 
 const generateTemporaryPassword = () => {
     const length = 8; // Longitud de la contraseña
-    const characters = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+    const characters = '0123456789'; // Solo números
     let password = '';
     for (let i = 0; i < length; i++) {
         const randomIndex = Math.floor(Math.random() * characters.length);
