@@ -202,6 +202,21 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.put('/update-estado/:id/:estado', async (req, res) => {
+    const result = await userController.updateEstado(req.params.id, req.params.estado)
+    if (result === undefined) {
+        return res.status(200).send({
+            msg: 'Error al actualizar',
+            result: false
+        });
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
+
 usuarioRouter.get('/documentacion/:id', async (req, res) => {
     try {
         const getUserby = await userController.getDocumentacionUser(req.params.id);

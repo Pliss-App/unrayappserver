@@ -27,6 +27,20 @@ const getEstado = (id) => { //getByEmail
     });
 };
 
+const updateEstado = (id, estado) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set estado = ? WHERE id = ?", [estado, id], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+
 
 
 const updateUsuarioPass = (token, expiration, _id) => { //getByEmail
@@ -530,6 +544,7 @@ module.exports = {
     getFotoUser,
     perfilCalificacion,
     insertVehiculo,
-    getEstado
+    getEstado,
+    updateEstado
 
 }
