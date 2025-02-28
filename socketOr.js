@@ -35,11 +35,12 @@ function initializeSocketOr(server) {
         // ✅ Cambiar estado del conductor (solo conductores pueden hacerlo)
         socket.on('cambiar_estado', (data) => {
             const { driverId, estado } = data;
+            console.log("CONDUTRO ", driverId, estado)
 
-            if (connectedDrivers[driverId]) {  // Verifica que sea un conductor
+ // Verifica que sea un conductor
                 driverStatus[driverId] = estado; // Guardar estado
-                
-                if (estado === 0) {
+
+                if (estado == 0) {
                     // Si pasa a "offline", eliminar de la lista
                     delete connectedDrivers[driverId];
                     console.log(`❌ Conductor ${driverId} ahora está OFFLINE.`);
@@ -48,13 +49,13 @@ function initializeSocketOr(server) {
                     connectedDrivers[driverId] = socket.id;
                     console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
                 }
-            }
+            
         });
 
         // ✅ Responder solicitud
         socket.on('respuesta_solicitud', (data) => {
             const eventName = `respuesta_solicitud_${data.solicitudId}`;
-            
+
             // Guardar respuesta
             respuestasSolicitudes[data.solicitudId] = data;
 
