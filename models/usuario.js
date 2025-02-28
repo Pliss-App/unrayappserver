@@ -14,6 +14,21 @@ const getUserTelfonoEmail = (_valor) => { //getByEmail
 };
 
 
+const getEstado = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT estado FROM usuario WHERE id = ?", [id], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows[0]);
+            });
+    });
+};
+
+
+
 const updateUsuarioPass = (token, expiration, _id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -514,6 +529,7 @@ module.exports = {
     updateSocketIO ,
     getFotoUser,
     perfilCalificacion,
-    insertVehiculo
+    insertVehiculo,
+    getEstado
 
 }
