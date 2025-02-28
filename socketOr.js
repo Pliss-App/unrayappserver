@@ -5,6 +5,7 @@ const connectedDrivers = {};
 const connectedUsers = {};
 const respuestasSolicitudes = {};
 const userStatus = {};
+const driverStatus = {};
 
 function initializeSocketOr(server) {
     io = new Server(server, {
