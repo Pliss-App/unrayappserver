@@ -328,6 +328,18 @@ const getCalificacion = (idUser) => {
     });
 };
 
+
+const obtenerSiCalifico = (idUser, idviaje) => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT c.id_viaje, c.evaluador_id FROM calificaciones c 
+                        where c.id_viaje = ? and c.evaluador_id=?;`;
+        connection.query(query, [idviaje, idUser], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
 const updateRanting = (idUser, promedio, totalViajes) => {
     return new Promise((resolve, reject) => {
         const query = `UPDATE usuario SET  total_viajes = ?, rating = ? WHERE id = ?`;
@@ -416,6 +428,6 @@ module.exports = {
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion,
     historial,
-    
+    obtenerSiCalifico
 
 }
