@@ -16,57 +16,73 @@ function initializeSocketOr(server) {
     });
 
     io.on('connection', (socket) => {
+        console.log(`🔗 Nueva conexión: ${socket.id}`);
 
+        // ✅ Registrar conductor
         socket.on('registrar_conductor', (driverId) => {
             connectedDrivers[driverId] = socket.id;
-            userStatus[driverId] = 1;  
+            driverStatus[driverId] = 1;  // Marcar como en línea
+            console.log(`🚗 Conductor ${driverId} conectado.`);
         });
 
+        // ✅ Registrar usuario
         socket.on('registrar_usuario', (userId) => {
             connectedUsers[userId] = socket.id;
-            userStatus[userId] = 1;
+            console.log(`👤 Usuario ${userId} conectado.`);
         });
 
+        // ✅ Cambiar estado del conductor (solo conductores pueden hacerlo)
         socket.on('cambiar_estado', (data) => {
-            const { userId, estado } = data;
-            userStatus[userId] = estado; // Guardar estado del usuario
-            
-            // Si el usuario cambia a "offline", permitir desconexión
-            if (estado === 0) {
-                delete connectedUsers[userId];
-                delete connectedDrivers[userId];
-                console.log(`Usuario ${userId} ahora está desconectado`);
-            } else {
-                // Si está en línea, volver a agregarlo si se había eliminado
-                if (!connectedUsers[userId] && !connectedDrivers[userId]) {
-                    connectedUsers[userId] = socket.id;
+            const { driverId, estado } = data;
+
+            if (connectedDrivers[driverId]) {  // Verifica que sea un conductor
+                driverStatus[driverId] = estado; // Guardar estado
+                
+                if (estado === 0) {
+                    // Si pasa a "offline", eliminar de la lista
+                    delete connectedDrivers[driverId];
+                    console.log(`❌ Conductor ${driverId} ahora está OFFLINE.`);
+                } else {
+                    // Si vuelve a estar en línea, actualizar socket ID
+                    connectedDrivers[driverId] = socket.id;
+                    console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
                 }
             }
         });
 
+        // ✅ Responder solicitud
         socket.on('respuesta_solicitud', (data) => {
             const eventName = `respuesta_solicitud_${data.solicitudId}`;
-            //console.log(`📢 Emitiendo respuesta de la solicitud: ${eventName}`, data);
-        
+            
             // Guardar respuesta
             respuestasSolicitudes[data.solicitudId] = data;
-        
+
             // Emitir solo al usuario correspondiente
             if (connectedUsers[data.idUser]) {
                 io.to(connectedUsers[data.idUser]).emit(eventName, data);
             }
         });
+
+        // ✅ Desconexión
         socket.on('disconnect', () => {
-            let userId = Object.keys(connectedUsers).find(key => connectedUsers[key] === socket.id) || 
-                         Object.keys(connectedDrivers).find(key => connectedDrivers[key] === socket.id);
-            
-            if (userId && userStatus[userId] !== 0) {
-                console.log(`⚠️ Usuario ${userId} sigue en línea, re-agregando...`);
-                connectedUsers[userId] = socket.id;
-            } else {
+            let userId = Object.keys(connectedUsers).find(key => connectedUsers[key] === socket.id);
+            let driverId = Object.keys(connectedDrivers).find(key => connectedDrivers[key] === socket.id);
+
+            if (driverId) {
+                if (driverStatus[driverId] !== 0) {
+                    // Si el conductor sigue en línea, lo volvemos a registrar
+                    console.log(`⚠️ Conductor ${driverId} sigue en línea, re-agregando...`);
+                    connectedDrivers[driverId] = socket.id;
+                } else {
+                    // Si estaba offline, lo eliminamos
+                    console.log(`🛑 Conductor ${driverId} se desconectó completamente.`);
+                    delete connectedDrivers[driverId];
+                }
+            }
+
+            if (userId) {
                 console.log(`🛑 Usuario ${userId} se desconectó.`);
-                delete connectedUsers[userId];
-                delete connectedDrivers[userId];
+                delete connectedUsers[userId]; // Eliminar usuario siempre
             }
         });
     });
