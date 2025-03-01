@@ -11,9 +11,10 @@ const connection = require('../config/conexion');
 
 
 usuarioRouter.post('/registro', async (req, res) => {
-
+    const { nombre, apellido, telefono, correo, password } = req.body;
+    let db;
+    const idService = 5;
     try {
-        const { nombre, apellido, telefono, correo, password } = req.body;
 
         const results = await userController.getUserTelfonoEmail(telefono);
         if (results === undefined) {
@@ -24,8 +25,8 @@ usuarioRouter.post('/registro', async (req, res) => {
                 nombre, apellido, telefono, correo,
                 password: hashedPassword
             });
-            const idService = 0;
-            const permission = await userController.agregarRol(result.insertId, idService);
+       
+           const permission = await userController.agregarRol(result.insertId, idService);
             return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
         } else {
             return res.status(200).json({
