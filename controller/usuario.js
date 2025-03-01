@@ -26,7 +26,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 password: hashedPassword
             });
        
-           const permission = await userController.agregarRol(result.insertId, idService);
+           const permission = await userController.agregarRolUser(result.insertId, idService);
             return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
         } else {
             return res.status(200).json({

@@ -308,6 +308,20 @@ const agregarRol = (idUser, idservice) => {
     });
 };
 
+const agregarRolUser = (idUser, idservice) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO usuario_rol (iduser, idrol, idservice)
+               VALUES (?, ?, ?)`, [idUser, 1, idservice], (err, rows) => {
+            if (err) {
+                console.error('Error al guardar registro:', err); // Registro del error en el servidor
+                return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
+            }
+            resolve(rows)
+        });
+    });
+};
+
 const getUser = (uid) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -563,6 +577,7 @@ module.exports = {
     perfilCalificacion,
     insertVehiculo,
     getEstado,
-    updateEstado
+    updateEstado,
+    agregarRolUser
 
 }
