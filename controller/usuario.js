@@ -27,9 +27,10 @@ usuarioRouter.post('/registro', async (req, res) => {
             });
        
            const permission = await userController.agregarRolUser(result.insertId, idService);
-            return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
+            return res.status(200).json({  success: true, msg: 'Cuenta Creada', status: 200 });
         } else {
             return res.status(200).json({
+                success: false,
                 msg: 'Teléfono o correo, vinculados a otra cuenta existente.',
             });
         }
@@ -39,20 +40,23 @@ usuarioRouter.post('/registro', async (req, res) => {
         switch (error.code) {
             case 'ER_NO_SUCH_TABLE':
 
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     error: error.sqlMessage
                 });
             case 'ER_DUP_ENTRY':
                 // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
                 console.error('Correo o teléfono ya existe.');
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     error: error.sqlMessage
                 });
 
             case 'ER_BAD_FIELD_ERROR':
                 // Error de campo incorrecto (cuando un campo de la consulta no existe en la base de datos)
                 console.error('Campo no válido en la consulta.');
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     error: error.sqlMessage
                 });
 
@@ -60,21 +64,24 @@ usuarioRouter.post('/registro', async (req, res) => {
             case 'ER_ROW_IS_REFERENCED':
                 // Error de violación de llave foránea (cuando estás eliminando o insertando un valor que tiene dependencias)
                 console.error('Violación de llave foránea.');
-                return res.status(409).json({
+                return res.status(200).json({
+                    success: false,
                     error: error.sqlMessage
                 });
 
             case 'ER_DATA_TOO_LONG':
                 // Error de longitud de dato (cuando intentas insertar un valor que excede la longitud permitida)
                 console.error('Dato demasiado largo para uno de los campos.');
-                return res.status(400).json({
+                return res.status(200).json({
+                    success: false,
                     error: 'Uno de los campos supera la longitud permitida.'
                 });
 
             default:
                 // Cualquier otro error no manejado específicamente
                 console.error('Error inesperado:', error);
-                return res.status(500).json({
+                return res.status(200).json({
+                    success: false,
                     error: 'Ocurrió un error inesperado al crear tu cuenta.'
                 });
         }
@@ -188,6 +195,22 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
         });
     }
 })
+
+
+usuarioRouter.get('/rating/:id', async (req, res) => {
+    const result = await userController.getRating(req.params.id)
+    if (result  === undefined) {
+        res.json({
+            error: 'Error, Datos no encontrados'
+        })
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: result 
+        });
+    }
+})
+
 
 usuarioRouter.get('/estado/:id', async (req, res) => {
     const getUserby = await userController.getEstado(req.params.id)

@@ -14,6 +14,20 @@ const getUserTelfonoEmail = (_valor) => { //getByEmail
 };
 
 
+const getRating = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT total_viajes, rating FROM usuario WHERE id = ?", [id], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows[0]);
+            });
+    });
+};
+
+
 const getEstado = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -140,7 +154,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE LOWER(u.correo) = LOWER(?)OR u.telefono = ?`, [_valor, _valor], (err, rows) => {
+WHERE (LOWER(u.correo) = LOWER(?)OR u.telefono = ?) and u.estado_eliminacion = 1`, [_valor, _valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -586,6 +600,7 @@ module.exports = {
     insertVehiculo,
     getEstado,
     updateEstado,
-    agregarRolUser
+    agregarRolUser,
+    getRating
 
 }
