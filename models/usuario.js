@@ -186,7 +186,7 @@ const createUser = (userData) => { //getByEmail
                     0,
                     0,
                     null,
-                    libre,
+                    'libre',
                     null,
                 null], (err, rows) => {
             if (err) {
