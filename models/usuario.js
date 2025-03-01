@@ -169,8 +169,26 @@ const createUser = (userData) => { //getByEmail
 
     return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO usuario (nombre, apellido, telefono, correo, foto, password, reset_token, estado, reset_token_expiration)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?)`, [nombre.toUpperCase(), apellido.toUpperCase(), telefono, correo.toUpperCase(), null, password, null, true, null], (err, rows) => {
+            `INSERT INTO usuario (nombre, 
+            apellido, telefono, correo, 
+            foto, password, reset_token, 
+            estado, total_viajes, rating, onesignal_token, estado_usuario, reset_token_expiration
+            , socket_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?)`,
+                [nombre.toUpperCase(), 
+                    apellido.toUpperCase(), 
+                    telefono, 
+                    correo.toUpperCase(), 
+                    null, 
+                    password, 
+                    null, 
+                    true, 
+                    0,
+                    0,
+                    null,
+                    libre,
+                    null,
+                null], (err, rows) => {
             if (err) {
                 console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                 return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
