@@ -136,6 +136,7 @@ const getLogin = (_valor) => { //getByEmail
     u.password, 
     u.correo, 
     u.telefono,  
+    u.verificacion,
     CASE 
         WHEN s.nombre = 'moto ray' THEN 'moto'
         WHEN s.nombre IN ('Un ray', 'Plus ray') THEN 'carro'
@@ -168,7 +169,7 @@ WHERE (LOWER(u.correo) = LOWER(?)OR u.telefono = ?) and u.estado_eliminacion = 1
 const refreshLogin = (_valor) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT u.id as idUser, r.id as idRol, u.foto, r.nombre as rol, u.nombre, u.apellido, u.password, u.correo, u.telefono, u.created_at FROM usuario u INNER JOIN usuario_rol ur ON u.id = ur.iduser INNER JOIN roles r  ON ur.idrol = r.id WHERE u.id =  ?", [_valor], (err, rows) => {
+            "SELECT u.id as idUser, r.id as idRol, u.foto, r.nombre as rol, u.nombre, u.apellido, u.password, u.correo, u.telefono, u.verificacion, u.created_at FROM usuario u INNER JOIN usuario_rol ur ON u.id = ur.iduser INNER JOIN roles r  ON ur.idrol = r.id WHERE u.id =  ?", [_valor], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado

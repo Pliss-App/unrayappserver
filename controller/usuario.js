@@ -94,7 +94,7 @@ usuarioRouter.post('/login', async (req, res) => {
             const { user, password } = req.body;
 
             const existingUser = await userController.getLogin(user);
-
+console.log(" existingUser", existingUser)
             if (existingUser === undefined) {
                 res.json('Error, Correo o telefono no registrados.')
             } else {
@@ -106,14 +106,16 @@ usuarioRouter.post('/login', async (req, res) => {
                         foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
                         rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
-                        telefono: existingUser.telefono
+                        telefono: existingUser.telefono,
+                        verificacion: existingUser.verificacion
                     }
                     const token = jwt.sign({
                         estado: existingUser.estado, marker: existingUser.marker,
                         foto: existingUser.foto, idUser: existingUser.idUser,
                         idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
-                        telefono: existingUser.telefono
+                        telefono: existingUser.telefono,
+                        verificacion: existingUser.verificacion
                     },
                         process.env.JWT_SECRET, {
                         expiresIn: '5h'
@@ -429,11 +431,11 @@ usuarioRouter.put('/updateUser/:id', async (req, res) => {
 
             const existingUser = await userController.refreshLogin(req.params.id);
             var _user = {
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
             }
 
             const token = jwt.sign({
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
             },
                 process.env.JWT_SECRET, {
             }
@@ -461,11 +463,11 @@ usuarioRouter.put('/updateFoto', async (req, res) => {
     } else {
         const existingUser = await userController.refreshLogin(user.id);
         var _user = {
-            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
         }
 
         const token = jwt.sign({
-            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
         },
             process.env.JWT_SECRET, {
         }
