@@ -32,10 +32,25 @@ isRouter.post('/pruebas', async (req, res) => {
         from: process.env.GMAIL_DRIVER,
         to: 'perezlib49@gmail.com',
         subject: 'Credenciales de Usuario',
-        html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
-    <ul>
-     <li>Contraseña Temporal: 123232323</li>
-    </ul>`,
+        html: `
+    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+        <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
+            <h2 style="color: #333;">🔑 Credenciales de Usuario</h2>
+            <p style="color: #555; font-size: 16px;">Te enviamos tus datos para que puedas logearte como conductor:</p>
+            
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
+                Contraseña Temporal: <span style="color: #007bff;">123232323</span>
+            </div>
+
+            <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos cambiar esta contraseña después de iniciar sesión.</p>
+
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+
+            <p style="color: #555; font-size: 14px;">Atentamente,</p>
+            <p style="font-size: 16px; font-weight: bold; color: #333;">Equipo de Soporte</p>
+            <p style="color: #777; font-size: 13px;">📧 soporteconductor@unraylatinoamerica.com</p>
+        </div>
+    </div>`,
     };
 
     await transporter.sendMail(mailOptions, (error, info) => {
@@ -72,7 +87,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
             const permission = await isUserController.agregarRol(result.insertId, idservicio);
             const usDet = await isUserController.insertLocation(result.insertId);
             const usBillerea = await isUserController.insertBilletera(result.insertId);
-            const usVechiculo =  await isUserController.insertVehiculo(result.insertId);
+            const usVechiculo = await isUserController.insertVehiculo(result.insertId);
 
             const transporter = nodemailer.createTransport({
                 host: 'smtp.hostinger.com',
@@ -89,13 +104,26 @@ isRouter.post('/registro_conductor', async (req, res) => {
             const mailOptions = {
                 from: process.env.GMAIL_DRIVER,
                 to: correo,
-                subject: 'Credenciales de Usuario',
-                html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
-            <ul>
-             <li>Contraseña Temporal: <b> ${temporaryPassword} </b> </li>
-            </ul>
-            <p></p>
-            `,
+                subject: 'Credenciales de Usuario | Conductor',
+                html: `
+    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+        <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
+            <h2 style="color: #333;">🔑 Credenciales de Usuario</h2>
+            <p style="color: #555; font-size: 16px;">Te enviamos tus datos para que puedas logearte como conductor:</p>
+            
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
+                Contraseña Temporal: <span style="color: #007bff;">${temporaryPassword}</span>
+            </div>
+
+            <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos cambiar esta contraseña después de iniciar sesión.</p>
+
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+
+            <p style="color: #555; font-size: 14px;">Atentamente,</p>
+            <p style="font-size: 16px; font-weight: bold; color: #333;">Equipo de Soporte</p>
+            <p style="color: #777; font-size: 13px;">📧 soporteconductor@unraylatinoamerica.com</p>
+        </div>
+    </div>`,
             };
 
             await transporter.sendMail(mailOptions, (error, info) => {

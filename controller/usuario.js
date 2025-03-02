@@ -29,7 +29,8 @@ usuarioRouter.post('/registro', async (req, res) => {
     try {
 
         const results = await userController.getUserTelfonoEmail(telefono);
-        if (results === undefined) {
+
+        if (results === undefined || results === null) {
 
             const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -55,12 +56,25 @@ usuarioRouter.post('/registro', async (req, res) => {
                 from: process.env.GMAIL_USER,
                 to: correo,
                 subject: 'Código de Verificación',
-                html: `<p>Inicia sesión en la aplicación e ingresa el siguiente código para poder validar tu cuenta :</p>
-            <ul>
-             <li> Código: <b> ${codigo} </b> </li>
-            </ul>
-            <p></p>
-            `,
+                html:`
+    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+        <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
+            <h2 style="color: #333;">🔑 Código de Verificación</h2>
+            <p style="color: #555; font-size: 16px;">Te enviamos tu código para que puedas verificar tu cuenta:</p>
+            
+            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
+                Código: <span style="color: #007bff;">${codigo}</span>
+            </div>
+
+            <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos no compartir tu código.</p>
+
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+
+            <p style="color: #555; font-size: 14px;">Atentamente,</p>
+            <p style="font-size: 16px; font-weight: bold; color: #333;">Equipo de Soporte</p>
+            <p style="color: #777; font-size: 13px;">📧 soporteusuario@unraylatinoamerica.com</p>
+        </div>
+    </div>`,
             };
 
             await transporter.sendMail(mailOptions, (error, info) => {
@@ -82,20 +96,22 @@ usuarioRouter.post('/registro', async (req, res) => {
         }
 
     } catch (error) {
-        console.error('Error durante el registro:', error);  // Verificamos el código de error
+       // console.error('Error durante el registro:', error);  // Verificamos el código de error
         switch (error.code) {
             case 'ER_NO_SUCH_TABLE':
 
                 return res.status(200).json({
                     success: false,
-                    error: error.sqlMessage
+                    error: error.sqlMessage,
+                    msg :  'ER_NO_SUCH_TABLE'
                 });
             case 'ER_DUP_ENTRY':
                 // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
                 console.error('Correo o teléfono ya existe.');
                 return res.status(200).json({
                     success: false,
-                    error: error.sqlMessage
+                    error: error.sqlMessage,
+                    msg : 'Correo o teléfono ya existe.'
                 });
 
             case 'ER_BAD_FIELD_ERROR':
@@ -103,7 +119,8 @@ usuarioRouter.post('/registro', async (req, res) => {
                 console.error('Campo no válido en la consulta.');
                 return res.status(200).json({
                     success: false,
-                    error: error.sqlMessage
+                    error: error.sqlMessage,
+                        msg :  'ER_BAD_FIELD_ERROR'
                 });
 
             case 'ER_NO_REFERENCED_ROW':
@@ -112,7 +129,8 @@ usuarioRouter.post('/registro', async (req, res) => {
                 console.error('Violación de llave foránea.');
                 return res.status(200).json({
                     success: false,
-                    error: error.sqlMessage
+                    error: error.sqlMessage,
+                      msg :  'Violación de llave foránea'
                 });
 
             case 'ER_DATA_TOO_LONG':
@@ -120,15 +138,15 @@ usuarioRouter.post('/registro', async (req, res) => {
                 console.error('Dato demasiado largo para uno de los campos.');
                 return res.status(200).json({
                     success: false,
-                    error: 'Uno de los campos supera la longitud permitida.'
+                    error: 'Uno de los campos supera la longitud permitida.',
+                    msg: 'Dato demasiado largo para uno de los campos.'
                 });
 
             default:
-                // Cualquier otro error no manejado específicamente
-                console.error('Error inesperado:', error);
                 return res.status(200).json({
                     success: false,
-                    error: 'Ocurrió un error inesperado al crear tu cuenta.'
+                    error: 'Ocurrió un error inesperado al crear tu cuenta.',
+                    msg :  error?.message || error
                 });
         }
     }
@@ -638,7 +656,7 @@ usuarioRouter.post('/recover', async (req, res) => {
     try {
 
         const results = await userController.getUserTelfonoEmail(user);
-        if (results === undefined) {
+        if (results === undefined || results === null) {
             return res.status(404).send('Usuario no encontrado');
         } else {
             // Generar token único

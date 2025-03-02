@@ -1,17 +1,35 @@
 const connection = require('../config/conexion');
 
-const getUserTelfonoEmail = (_valor) => { //getByEmail
+const getUserTelfonoEmail = (_valor) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM usuario WHERE correo = ? OR telefono = ?", [_valor, _valor], (err, rows) => {
+            "SELECT correo, telefono FROM usuario WHERE correo = ? OR telefono = ?", 
+            [_valor, _valor], 
+            (err, rows) => {
                 if (err) {
-                    console.error('Error getting record:', err); // Registro del error en el servidor
-                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                    console.error('Error obteniendo el registro:', err);
+                    return reject(new Error('Error al obtener el registro'));
                 }
-                resolve(rows[0]);
-            });
+
+                if (rows.length > 0) {
+                    const existeCorreo = rows.some(row => row.correo === _valor);
+                    const existeTelefono = rows.some(row => row.telefono === _valor);
+                    
+                    if (existeCorreo && existeTelefono) {
+                        return reject(new Error('El correo y el teléfono ya están registrados en otra cuenta.'));
+                    } else if (existeCorreo) {
+                        return reject(new Error('El correo ya está registrado en otra cuenta.'));
+                    } else if (existeTelefono) {
+                        return reject(new Error('El teléfono ya está registrado en otra cuenta.'));
+                    }
+                }
+
+                resolve(null); // No hay registros encontrados
+            }
+        );
     });
 };
+
 
 
 const verificarCuenta = (id, codigo) => { //getByEmail
@@ -233,7 +251,7 @@ const createUser = (userData) => { //getByEmail
                 null,
                 null, codigo], (err, rows) => {
                     if (err) {
-                        console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                      //  console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                         return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
                     }
                     resolve(rows)
