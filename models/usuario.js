@@ -582,7 +582,7 @@ const getUserRol = (uid) => { //getByEmail
 const eliminarCuenta = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `UPDATE usuario SET correo = CONCAT('deleted_', ? , '@email.com'), telefono = NULL WHERE id = ?`, [idUser, idUser], (err, rows) => {
+            `UPDATE usuario SET correo = CONCAT('deleted_', ? , '@email.com'), telefono = NULL, estado_eliminacion= 0 WHERE id = ?`, [idUser, idUser], (err, rows) => {
                 if (err) {
                     console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                     return reject(new Error('Error al eliminar cuenta')); // Rechazo con un mensaje de error personalizado
