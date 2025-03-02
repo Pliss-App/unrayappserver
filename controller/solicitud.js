@@ -815,8 +815,6 @@ isRouter.post("/send-notification", async (req, res) => {
 isRouter.put('/update-onesignal', async (req, res) => {
     try {
         const { id, token } = req.body;
-
-        console.log("OneSignal", id, token);
         if (!id || !token) {
             return res.status(400).json({ error: 'Faltan parámetros' });
         }
