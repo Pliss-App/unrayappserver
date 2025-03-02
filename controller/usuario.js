@@ -251,10 +251,10 @@ usuarioRouter.post('/login', async (req, res) => {
 usuarioRouter.put('/verificar-cuenta', async (req, res) => {
     const { id, verificationCode } = req.body;
     const result = await userController.verificarCuenta(id, verificationCode)
-    if (result === undefined) {
+    if (result === undefined || result == null) {
         return res.status(200).send({
             success: false,
-            msg: 'No se encontro registro.',
+            msg: 'Código no valido.',
 
         });
     } else {

@@ -31,7 +31,7 @@ const getUserTelfonoEmail = (_valor) => {
 };
 
 
-
+/*
 const verificarCuenta = (id, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -42,6 +42,29 @@ const verificarCuenta = (id, codigo) => { //getByEmail
                 }
                 resolve(rows);
             });
+    });
+};
+*/
+
+const  verificarCuenta = (id, codigo) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT codigo_verificacion FROM usuario WHERE id = ? AND codigo_verificacion = ?",
+            [id, codigo],
+            (err, rows) => {
+                if (err) {
+                    console.error("Error en la consulta:", err);
+                    return reject(err);
+                }
+
+                // Si no hay resultados, devolver null
+                if (rows.length === 0) {
+                    resolve(null);
+                } else {
+                    resolve(rows[0].codigo_verificacion); // Devuelve el código si existe
+                }
+            }
+        );
     });
 };
 

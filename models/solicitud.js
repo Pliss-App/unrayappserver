@@ -372,7 +372,7 @@ const obtenerSoliSinCalificacion = (id) => {
                 AND EXISTS (
                     SELECT 1
                     FROM solicitudes sub_s
-                    WHERE sub_s.idUser =  ${id}  OR sub_s.idConductor =  ${id}  
+                    WHERE sub_s.estado = 'Finalizado' AND sub_s.idUser =  ${id}  OR sub_s.idConductor =  ${id}  
             );`, (err, result) => {
             if (err) reject(err)
             resolve(result)
