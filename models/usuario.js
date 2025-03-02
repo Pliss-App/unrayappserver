@@ -14,6 +14,34 @@ const getUserTelfonoEmail = (_valor) => { //getByEmail
 };
 
 
+const verificarCuenta = (id, codigo) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT codigo_verificacion FROM usuario WHERE id = ?  and codigo_verificacion = ? ", [id, codigo], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+const actualizarVerificacionCuenta = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set verificacion = 1, codigo_verificacion= null where id = ?", [id], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+
+
 const getRating = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -84,7 +112,7 @@ const getPassword = (token) => { //getByEmail
     });
 };
 
-const updatePasswordNew  = (password, id) => { //getByEmail
+const updatePasswordNew = (password, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             "UPDATE usuario SET password = ?, reset_token = NULL, reset_token_expiration = NULL WHERE id = ?", [password, id], (err, rows) => {
@@ -180,7 +208,7 @@ const refreshLogin = (_valor) => { //getByEmail
 };
 
 const createUser = (userData) => { //getByEmail
-    const { nombre, apellido, telefono, correo, password } = userData;
+    const { nombre, apellido, telefono, correo, password, codigo } = userData;
 
     return new Promise((resolve, reject) => {
         connection.query(
@@ -188,28 +216,28 @@ const createUser = (userData) => { //getByEmail
             apellido, telefono, correo, 
             foto, password, reset_token, 
             estado, total_viajes, rating, onesignal_token, estado_usuario, reset_token_expiration
-            , socket_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?)`,
-                [nombre.toUpperCase(), 
-                    apellido.toUpperCase(), 
-                    telefono, 
-                    correo.toUpperCase(), 
-                    null, 
-                    password, 
-                    null, 
-                    true, 
-                    0,
-                    0,
-                    null,
-                    'libre',
-                    null,
-                null], (err, rows) => {
-            if (err) {
-                console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
-                return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
-            }
-            resolve(rows)
-        });
+            , socket_id, codigo_verificacion)
+               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre.toUpperCase(),
+            apellido.toUpperCase(),
+                telefono,
+            correo.toUpperCase(),
+                null,
+                password,
+                null,
+                true,
+                0,
+                0,
+                null,
+                'libre',
+                null,
+                null, codigo], (err, rows) => {
+                    if (err) {
+                        console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                        return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                    }
+                    resolve(rows)
+                });
     });
 };
 
@@ -287,7 +315,7 @@ const updateLocationConductor = (iduser, lat, lon, angle) => {
 
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, angle ,iduser], (err, rows) => {
+            "UPDATE location SET lat=?, lon= ?, angle =? WHERE iduser=?", [lat, lon, angle, iduser], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
@@ -296,15 +324,15 @@ const updateLocationConductor = (iduser, lat, lon, angle) => {
 
 const updateSocketIO = (iduser, id) => {
     // const { iduser, lat, lon, angle } = userData;
-     return new Promise((resolve, reject) => {
-         connection.query(
-             "UPDATE usuario SET socket_id=?  WHERE id=?", [id, iduser], (err, rows) => {
-                 if (err) reject(err)
-                 resolve(rows)
-             });
-     });
- };
- 
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "UPDATE usuario SET socket_id=?  WHERE id=?", [id, iduser], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 
 
 const createUserDriver = (userData) => { //getByEmail
@@ -316,18 +344,18 @@ const createUserDriver = (userData) => { //getByEmail
             apellido, telefono, correo, 
             foto, password, reset_token, 
             estado, total_viajes, rating, onesignal_token, estado_usuario, reset_token_expiration
-            , socket_id)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?)`, 
-               [nombre.toUpperCase(), apellido.toUpperCase(), 
-                telefono, correo.toUpperCase(), null, 
-                password, null, 
-                false, 0, 0, null, 'libre',null, null], (err, rows) => {
-            if (err) {
-                console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
-                return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
-            }
-            resolve(rows)
-        });
+            , socket_id, codigo_verificacion)
+               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)`,
+            [nombre.toUpperCase(), apellido.toUpperCase(),
+                telefono, correo.toUpperCase(), null,
+                password, null,
+                false, 0, 0, null, 'libre', null, null, 0], (err, rows) => {
+                    if (err) {
+                        console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                        return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                    }
+                    resolve(rows)
+                });
     });
 };
 
@@ -425,7 +453,7 @@ const getFoto = (id) => { //getByEmail
         connection.query(
             `SELECT foto FROM usuario WHERE id=?`, [id], (err, rows) => {
                 if (err) reject(err)
-                      // Si no hay filas, devuelve un valor predeterminado (null, o lo que prefieras)
+                // Si no hay filas, devuelve un valor predeterminado (null, o lo que prefieras)
                 if (rows.length === 0) {
                     return resolve(null); // O puedes poner algún valor predeterminado
                 }
@@ -627,7 +655,7 @@ module.exports = {
     updateUsuarioPass,
     updatePasswordNew,
     getPassword,
-    updateSocketIO ,
+    updateSocketIO,
     getFotoUser,
     perfilCalificacion,
     insertVehiculo,
@@ -636,6 +664,8 @@ module.exports = {
     agregarRolUser,
     getRating,
     insertNotaSoporte,
-    eliminarCuenta
+    eliminarCuenta,
+    verificarCuenta,
+    actualizarVerificacionCuenta
 
 }

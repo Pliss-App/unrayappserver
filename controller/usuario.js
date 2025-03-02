@@ -9,11 +9,23 @@ const usuarioRouter = express.Router();
 const userController = require('../models/usuario');
 const connection = require('../config/conexion');
 
-
+const generateTemporaryPassword = () => {
+    const length = 6; // Longitud de la contraseña
+    const characters = '0123456789'; // Solo números
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        password += characters[randomIndex];
+    }
+    return password;
+};
 usuarioRouter.post('/registro', async (req, res) => {
     const { nombre, apellido, telefono, correo, password } = req.body;
     let db;
     const idService = 5;
+
+    const codigo = generateTemporaryPassword();
+
     try {
 
         const results = await userController.getUserTelfonoEmail(telefono);
@@ -23,7 +35,41 @@ usuarioRouter.post('/registro', async (req, res) => {
 
             const result = await userController.createUser({
                 nombre, apellido, telefono, correo,
-                password: hashedPassword
+                password: hashedPassword,
+                codigo
+            });
+
+            const transporter = nodemailer.createTransport({
+                host: 'smtp.hostinger.com',
+                port: 465,
+                secure: true,
+                auth: {
+                    user: process.env.GMAIL_USER, // Tu correo
+                    pass: process.env.GMAIL_APP_PASSWORDUSER, // La contraseña específica de la aplicación
+                },
+            });
+
+            // Enviar el correo con el enlace de restablecimiento
+            // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
+            const mailOptions = {
+                from: process.env.GMAIL_USER,
+                to: correo,
+                subject: 'Código de Verificación',
+                html: `<p>Inicia sesión en la aplicación e ingresa el siguiente código para poder validar tu cuenta :</p>
+            <ul>
+             <li> Código: <b> ${codigo} </b> </li>
+            </ul>
+            <p></p>
+            `,
+            };
+
+            await transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                    console.log("EERO ", error)
+                    return res.status(500).send(error.toString());
+                }
+
+                res.status(200).send('Correo enviado: ' + info.response);
             });
 
             const permission = await userController.agregarRolUser(result.insertId, idService);
@@ -94,7 +140,7 @@ usuarioRouter.post('/login', async (req, res) => {
             const { user, password } = req.body;
 
             const existingUser = await userController.getLogin(user);
-console.log(" existingUser", existingUser)
+
             if (existingUser === undefined) {
                 res.json('Error, Correo o telefono no registrados.')
             } else {
@@ -180,6 +226,44 @@ console.log(" existingUser", existingUser)
                     error: 'Ocurrió un error inesperado al actualizar la cuenta.'
                 });
         }
+    }
+})
+
+
+usuarioRouter.put('/verificar-cuenta', async (req, res) => {
+    const { id, verificationCode } = req.body;
+    const result = await userController.verificarCuenta(id, verificationCode)
+    if (result === undefined) {
+        return res.status(200).send({
+            success: false,
+            msg: 'No se encontro registro.',
+
+        });
+    } else {
+
+        const verifi = await userController.actualizarVerificacionCuenta(id);
+        if (verifi === undefined) {
+        } else {
+            const existingUser = await userController.refreshLogin(id);
+            var _user = {
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+            }
+
+            const token = jwt.sign({
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+            },
+                process.env.JWT_SECRET, {
+            }
+            );
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                token,
+                result: true,
+                user: _user
+            });
+        }
+
     }
 })
 
@@ -571,7 +655,7 @@ usuarioRouter.post('/recover', async (req, res) => {
                 port: 465,
                 secure: true,
                 auth: {
-                    user: process.env.GMAIL_USER, // Tu correo
+                    user: process.env.GMAIL_DRIVER, // Tu correo
                     pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
                 },
             });
@@ -579,7 +663,7 @@ usuarioRouter.post('/recover', async (req, res) => {
             // Enviar correo
             const resetUrl = `https://unraylatinoamerica.com/reset-password?token=${token}`;
             const mailOptions = {
-                from: process.env.GMAIL_USER,
+                from: process.env.GMAIL_DRIVER,
                 to: user,
                 subject: 'Recuperación de Contraseña',
                 text: `Haz clic en el siguiente enlace para restablecer tu contraseña: ${resetUrl}`,

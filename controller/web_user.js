@@ -23,13 +23,13 @@ isRouter.post('/pruebas', async (req, res) => {
         port: 465,
         secure: true,
         auth: {
-            user: process.env.GMAIL_USER, // Tu correo
+            user: process.env.GMAIL_DRIVER, // Tu correo
             pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
         },
     });
 
     const mailOptions = {
-        from: process.env.GMAIL_USER,
+        from: process.env.GMAIL_DRIVER,
         to: 'perezlib49@gmail.com',
         subject: 'Credenciales de Usuario',
         html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
@@ -79,7 +79,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
                 port: 465,
                 secure: true,
                 auth: {
-                    user: process.env.GMAIL_USER, // Tu correo
+                    user: process.env.GMAIL_DRIVER, // Tu correo
                     pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
                 },
             });
@@ -87,7 +87,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
             // Enviar el correo con el enlace de restablecimiento
             // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
             const mailOptions = {
-                from: process.env.GMAIL_USER,
+                from: process.env.GMAIL_DRIVER,
                 to: correo,
                 subject: 'Credenciales de Usuario',
                 html: `<p>Te enviamos tus datos para que puedas logearte como conductor:</p>
