@@ -25,9 +25,9 @@ usuarioRouter.post('/registro', async (req, res) => {
                 nombre, apellido, telefono, correo,
                 password: hashedPassword
             });
-       
-           const permission = await userController.agregarRolUser(result.insertId, idService);
-            return res.status(200).json({  success: true, msg: 'Cuenta Creada', status: 200 });
+
+            const permission = await userController.agregarRolUser(result.insertId, idService);
+            return res.status(200).json({ success: true, msg: 'Cuenta Creada', status: 200 });
         } else {
             return res.status(200).json({
                 success: false,
@@ -196,17 +196,93 @@ usuarioRouter.get('/userId/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.put('/eliminar-cuenta', async (req, res) => {
+    const { id } = req.body;
+    try {
+        const result = await userController.eliminarCuenta(id);
+
+        if (!result) {
+            return res.status(400).json({  // Código 400 = Solicitud incorrecta
+                success: false,
+                msg: 'No se pudo eliminar la cuenta. Verifique el ID.',
+            });
+        }
+
+        return res.status(200).json({
+            success: true,
+            msg: 'Cuenta eliminada correctamente',
+        });
+    } catch (error) {
+        console.error('Error en la base de datos:', error);
+
+        // Verifica si el error es de MySQL
+        if (error.code === 'ER_NO_SUCH_TABLE') {
+            return res.status(500).json({
+                success: false,
+                msg: 'Error interno: La tabla no existe.',
+                error: error.message
+            });
+        } else if (error.code === 'ER_BAD_FIELD_ERROR') {
+            return res.status(500).json({
+                success: false,
+                msg: 'Error en la consulta: Campo desconocido.',
+                error: error.message
+            });
+        } else if (error.code === 'ER_DUP_ENTRY') {
+            return res.status(400).json({
+                success: false,
+                msg: 'Error: Registro duplicado.',
+                error: error.message
+            });
+        } else {
+            return res.status(500).json({
+                success: false,
+                msg: 'Error en el servidor.',
+                error: error.message
+            });
+        }
+    }
+});
+
+
+usuarioRouter.post('/insertnotasoporteusuario', async (req, res) => {
+    const { idUser, titulo, mensaje } = req.body;
+
+    try {
+        const result = await userController.insertNotaSoporte(idUser, titulo, mensaje)
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'falled',
+
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+            });
+        }
+    } catch (error) {
+        return res.status(200).send({
+            success: false,
+            msg: 'Error',
+            error: error
+
+        });
+    }
+
+})
 
 usuarioRouter.get('/rating/:id', async (req, res) => {
     const result = await userController.getRating(req.params.id)
-    if (result  === undefined) {
+    if (result === undefined) {
         res.json({
             error: 'Error, Datos no encontrados'
         })
     } else {
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
-            result: result 
+            result: result
         });
     }
 })
@@ -227,8 +303,8 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
 })
 
 usuarioRouter.put('/update-estado/:id', async (req, res) => {
-    const {id, estado}= req.body;
-    const result = await userController.updateEstado(id,estado)
+    const { id, estado } = req.body;
+    const result = await userController.updateEstado(id, estado)
     if (result === undefined) {
         return res.status(200).send({
             msg: 'Error al actualizar',

@@ -226,6 +226,20 @@ const insertLocation = (idUser) => {
 };
 
 
+const insertNotaSoporte = (idUser, titulo, mensaje) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO soporteusuario(idUser, titulo, mensaje, estado) VALUES (?, ?, ?, ?)`, [idUser, titulo, mensaje, 'Revisión'], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+
 const insertBilletera = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
@@ -410,6 +424,11 @@ const getFoto = (id) => { //getByEmail
         connection.query(
             `SELECT foto FROM usuario WHERE id=?`, [id], (err, rows) => {
                 if (err) reject(err)
+                      // Si no hay filas, devuelve un valor predeterminado (null, o lo que prefieras)
+                if (rows.length === 0) {
+                    return resolve(null); // O puedes poner algún valor predeterminado
+                }
+
                 resolve(rows[0])
             });
     });
@@ -560,6 +579,19 @@ const getUserRol = (uid) => { //getByEmail
 
 
 
+const eliminarCuenta = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `UPDATE usuario SET correo = CONCAT('deleted_', ? , '@email.com'), telefono = NULL WHERE id = ?`, [idUser, idUser], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al eliminar cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
 
 
 module.exports = {
@@ -601,6 +633,8 @@ module.exports = {
     getEstado,
     updateEstado,
     agregarRolUser,
-    getRating
+    getRating,
+    insertNotaSoporte,
+    eliminarCuenta
 
 }
