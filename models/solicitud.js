@@ -213,7 +213,7 @@ const conductores = (idService) => {
        ON r.id = ur.idrol
        INNER JOIN location l
        ON u.id = l.iduser
-       WHERE estado_usuario = 'libre' AND idservice = ? `, [idService], (err, result) => {
+       WHERE estado = 1 and estado_usuario = 'libre' AND idservice = ? `, [idService], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })

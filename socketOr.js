@@ -1,7 +1,7 @@
 const { Server } = require('socket.io');
 
 let io;
-const connectedDrivers = {};
+const connectedDrivers = {}; 
 const connectedUsers = {};
 const respuestasSolicitudes = {};
 const userStatus = {};
@@ -35,7 +35,6 @@ function initializeSocketOr(server) {
         // ✅ Cambiar estado del conductor (solo conductores pueden hacerlo)
         socket.on('cambiar_estado', (data) => {
             const { driverId, estado } = data;
-            console.log("CONDUTRO ", driverId, estado)
 
  // Verifica que sea un conductor
                 driverStatus[driverId] = estado; // Guardar estado

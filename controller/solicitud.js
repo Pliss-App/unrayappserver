@@ -261,7 +261,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
         // Marcar conductor como intentado
         conductoresIntentados.push(driver.id);
-
+      console.log("LIDTAOD E CONDCUTOR ", driver.id)
         // Crear solicitud si no existe
         if (!solicitudId) {
             const solicitud = await isController.createSolicitud(
@@ -285,13 +285,14 @@ isRouter.post('/crear_viaje', async (req, res) => {
         } else {
             await isController.updateSolicitudConductor(solicitudId, driver.id);
         }
-
+        console.log("EMIT ",connectedDrivers[driver.id] )
         if (!driver || !driver.socket_id || !connectedDrivers[driver.id]) {
             console.error('Conductor no tiene socket_id registrado o no está conectado');
             continue; // Intenta con el siguiente conductor
         }
 
         // **Notificar al conductor sobre la solicitud**
+      
         io.to(connectedDrivers[driver.id]).emit('nueva_solicitud', {
             solicitudId,
             idUser,
