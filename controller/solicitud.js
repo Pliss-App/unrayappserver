@@ -336,10 +336,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
                 message: 'Solicitud Aceptada.',
                 solicitudId,
             });
-        } else {
-
-            console.log("Solciitud Rechazada")
-        }
+        } 
 
         // Si el tiempo se agotó para este conductor, intentamos con otro
         contadorTotal -= 30;
