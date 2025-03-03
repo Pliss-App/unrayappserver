@@ -244,7 +244,9 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
     let solicitudId = null;
     let conductoresIntentados = [];
-    let contadorTotal = 180; // 3 minutos máximo para asignar un conductor
+    let contadorTotal = 180; // 3 minutos máximo
+
+    console.log("LISTADO DE CONDUCTORES CON SOCKET ", connectedDrivers)
 
     while (contadorTotal > 0) {
         // Buscar conductores cercanos que no hayan sido intentados antes
@@ -252,15 +254,18 @@ isRouter.post('/crear_viaje', async (req, res) => {
         const driver = drivers.find(d => !conductoresIntentados.includes(d.id));
 
         if (!driver) {
-            isController.deleteSolicitud(solicitudId);
+            // Si ya no hay conductores disponibles
+            if (solicitudId) {
+                await isController.deleteSolicitud(solicitudId);
+            }
             return res.status(200).json({
                 success: false,
                 message: 'No hay conductores disponibles.',
             });
         }
 
-        // Marcar conductor como intentado
-        conductoresIntentados.push(driver.id);
+        conductoresIntentados.push(driver.id); // Registrar intento
+
         // Crear solicitud si no existe
         if (!solicitudId) {
             const solicitud = await isController.createSolicitud(
@@ -284,13 +289,13 @@ isRouter.post('/crear_viaje', async (req, res) => {
         } else {
             await isController.updateSolicitudConductor(solicitudId, driver.id);
         }
-        if (!driver || !driver.socket_id || !connectedDrivers[driver.id]) {
+
+        if (!driver.socket_id || !connectedDrivers[driver.id]) {
             console.error('Conductor no tiene socket_id registrado o no está conectado');
-            continue; // Intenta con el siguiente conductor
+            continue; // Intenta con otro conductor
         }
 
-        // **Notificar al conductor sobre la solicitud**
-      
+        // **Notificar al conductor**
         io.to(connectedDrivers[driver.id]).emit('nueva_solicitud', {
             solicitudId,
             idUser,
@@ -309,25 +314,35 @@ isRouter.post('/crear_viaje', async (req, res) => {
             fecha_hora
         });
 
-        // **Esperar respuesta del conductor con socket.io**
+        // **Esperar respuesta del conductor**
         const solicitudAceptada = await new Promise(resolve => {
             let contador = 0;
             const intervalo = setInterval(() => {
                 if (respuestasSolicitudes[solicitudId]) {
                     const data = respuestasSolicitudes[solicitudId];
-                    io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId: solicitudId, estado: 'Aceptado' });
-                    clearInterval(intervalo);
                     delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
-                    resolve(data.estado === 'Aceptado');
+
+                    if (data.estado === 'Aceptado') {
+                        io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
+                        clearInterval(intervalo);
+                        resolve(true);
+                    } else {
+                        // Si el conductor rechaza, liberarlo y seguir con otro
+                        isController.updateEstadoUser(driver.id, 'libre');
+                        io.to(connectedDrivers[driver.id]).emit('solicitud_rechazada', { solicitudId });
+                        clearInterval(intervalo);
+                        resolve(false);
+                    }
                 }
                 contador += 1;
                 if (contador >= 30) {
+                    // Si el conductor no responde en 30s, liberarlo y continuar
                     isController.updateEstadoUser(driver.id, 'libre');
                     io.to(connectedDrivers[driver.id]).emit('solicitud_expirada', { solicitudId });
                     clearInterval(intervalo);
                     resolve(false);
                 }
-            }, 1000); // Verifica cada segundo
+            }, 1000);
         });
 
         if (solicitudAceptada) {
@@ -336,19 +351,21 @@ isRouter.post('/crear_viaje', async (req, res) => {
                 message: 'Solicitud Aceptada.',
                 solicitudId,
             });
-        } 
-
-        // Si el tiempo se agotó para este conductor, intentamos con otro
-        contadorTotal -= 30;
-
-        if (contadorTotal <= 0) {
-            return res.status(200).json({
-                success: false,
-                message: 'No se pudo asignar un conductor en el tiempo límite.',
-            });
+        } else {
+            console.log(`RESPUESTA REACAHZADA POR CONDCUTOR ${driver.id}`)
         }
+
+        // **Reducir tiempo total y continuar con otro conductor**
+        contadorTotal -= 30;
     }
+
+    // Si el tiempo total se agotó sin éxito
+    return res.status(200).json({
+        success: false,
+        message: 'No se pudo asignar un conductor en el tiempo límite.',
+    });
 });
+
 /*
 isRouter.post('/crear_viaje', async (req, res) => {
     const io = getIO();
