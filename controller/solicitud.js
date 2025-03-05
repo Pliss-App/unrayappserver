@@ -1045,10 +1045,21 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
             });
         }
         io.to(connectedUsers[idUser]).emit('calificar', { estado: true, idViaje: idViaje, idDriver: idDriver });
-        return res.status(200).json({
-            success: true,
-            message: 'Viaje finalizado y débito realizado con éxito'
-        });
+                  const insert = await isController.insertMoviBilletera(idUser, totalDebitar,  `Viaje id= ${idViaje}`, 'débito');
+                  if (insert=== undefined){
+                      return res.status(200).send({
+                          success: false,
+                          msg: 'Error'
+                      });
+                  }else {
+                    return res.status(200).json({
+                        success: true,
+                        message: 'Viaje finalizado y débito realizado con éxito'
+                    });
+
+                  }
+      
+
 
     } catch (error) {
         console.error("Error en finalizar viaje:", error);

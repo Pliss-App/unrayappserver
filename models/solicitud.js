@@ -396,7 +396,30 @@ const historial = (id, role, offset) => {
 
 }
 
-
+const insertMoviBilletera=(id_user, monto, descripcion, tipo ) =>{
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO movimiento_billetera (
+    idUser, 
+    tipo, 
+    descripcion, 
+    cantidad, 
+    estado_movimiento, 
+    estado
+) 
+VALUES (
+    ?,       
+    ?,       
+    ?,     
+    ?,       
+    ?,      
+    ?        
+);
+`, [id_user, tipo,descripcion,monto, 'Realizado', 'A'], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
 
 module.exports = {
@@ -427,7 +450,7 @@ module.exports = {
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion,
-    historial,
+    historial,insertMoviBilletera,
     obtenerSiCalifico
 
 }

@@ -43,14 +43,25 @@ isRouter.post('/recargar-billetera', async (req, res) => {
         const { iduser, boleta, monto, url } = req.body;
         const create = await isController.recargarBilletera(iduser, boleta, monto, url);
         if (create === undefined) {
-            res.json({
-                error: 'Error, Datos no encontrados'
-            })
-        } else {
             return res.status(200).send({
-                msg: 'SUCCESSFULLY',
-                result: create
+                success: false,
+                msg: 'Error'
             });
+        } else {
+            const insert = await isController.insertMoviBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
+            if (insert=== undefined){
+                return res.status(200).send({
+                    success: false,
+                    msg: 'Error'
+                });
+            }else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: create
+                });
+            }
+       
         }
     } catch (error) {
         console.error(error)

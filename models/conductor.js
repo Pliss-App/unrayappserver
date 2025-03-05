@@ -21,6 +21,31 @@ const recargarBilletera=(id_user, boleta, monto, url) =>{
     });
 }
 
+const insertMoviBilletera=(id_user, monto, descripcion, tipo ) =>{
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO movimiento_billetera (
+    idUser, 
+    tipo, 
+    descripcion, 
+    cantidad, 
+    estado_movimiento, 
+    estado
+) 
+VALUES (
+    ?,       
+    ?,       
+    ?,     
+    ?,       
+    ?,      
+    ?        
+);
+`, [id_user, tipo,descripcion,monto, 'Realizado', 'A'], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 const createTravel=(id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) =>{
     return new Promise((resolve, reject) => {
 
@@ -48,5 +73,6 @@ module.exports = {
     createTravel,
     createTravelDetail,
     saldoBilletera,
-    recargarBilletera
+    recargarBilletera,
+    insertMoviBilletera
 }
