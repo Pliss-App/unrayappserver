@@ -49,19 +49,19 @@ isRouter.post('/recargar-billetera', async (req, res) => {
             });
         } else {
             const insert = await isController.insertMoviBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
-            if (insert=== undefined){
+            if (insert === undefined) {
                 return res.status(200).send({
                     success: false,
                     msg: 'Error'
                 });
-            }else {
+            } else {
                 return res.status(200).send({
                     success: true,
                     msg: 'SUCCESSFULLY',
                     result: create
                 });
             }
-       
+
         }
     } catch (error) {
         console.error(error)
@@ -95,4 +95,31 @@ isRouter.get('/saldo-billetera/:id', async (req, res) => {
     }
 })
 
+isRouter.get('/movimientos/:id', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const mov = await isController.movimientos(req.params.id);
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!mov || Object.keys(mov).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: mov
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
 module.exports = isRouter;
