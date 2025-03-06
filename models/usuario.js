@@ -500,10 +500,10 @@ const perfilCalificacion = (uid) => { //getByEmail
     });
 };
 
-const preguntasFrecuentes = () => { //getByEmail
+const preguntasFrecuentes = (rol) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `select * from preguntasfrecuentes`, (err, rows) => {
+            `select * from preguntasfrecuentes where rol = ?`,[rol], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });

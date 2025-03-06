@@ -649,8 +649,8 @@ usuarioRouter.get('/usercalificacion/:uid', async (req, res) => {
     }
 })
 
-usuarioRouter.get('/preguntasfrecuentes', async (req, res) => {
-    const result = await userController.preguntasFrecuentes()
+usuarioRouter.get('/preguntasfrecuentes/:rol', async (req, res) => {
+    const result = await userController.preguntasFrecuentes(req.params.rol)
     if (result === undefined) {
         return res.status(200).send({
             success: false,
