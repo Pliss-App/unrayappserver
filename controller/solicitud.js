@@ -1045,7 +1045,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
             });
         }
         io.to(connectedUsers[idUser]).emit('calificar', { estado: true, idViaje: idViaje, idDriver: idDriver });
-                  const insert = await isController.insertMoviBilletera(idUser, totalDebitar,  `Viaje id= ${idViaje}`, 'débito');
+                  const insert = await isController.insertMoviBilletera(idUser, totalDebitar,  `Viaje Id ${idViaje} - Q${costo}`, 'débito');
                   if (insert=== undefined){
                       return res.status(200).send({
                           success: false,
