@@ -81,7 +81,18 @@ const actualizarVerificacionCuenta = (id) => { //getByEmail
     });
 };
 
-
+const insertProblemasSugerencia = (idUser, tipo,descripcion, imagen) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO problemas_sugerencia (idUser, tipo_reporte, descripcion, img) VALUES (?,?,?,?)`, [idUser, tipo,descripcion, imagen], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
 
 const getRating = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
@@ -489,6 +500,17 @@ const perfilCalificacion = (uid) => { //getByEmail
     });
 };
 
+const preguntasFrecuentes = () => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select * from preguntasfrecuentes`, (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
 const getFoto = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -707,6 +729,8 @@ module.exports = {
     insertNotaSoporte,
     eliminarCuenta,
     verificarCuenta,
-    actualizarVerificacionCuenta
+    actualizarVerificacionCuenta,
+    insertProblemasSugerencia,
+    preguntasFrecuentes 
 
 }

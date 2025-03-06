@@ -649,6 +649,44 @@ usuarioRouter.get('/usercalificacion/:uid', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/preguntasfrecuentes', async (req, res) => {
+    const result = await userController.preguntasFrecuentes()
+    if (result === undefined) {
+        return res.status(200).send({
+            success: false,
+            msg: 'Error, al recuperar datos.',
+        });
+    } else {
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
+
+usuarioRouter.post('/insert-problema-sugerencia', async (req, res) => {
+    const {idUser, tipo,descripcion, imagen} = req.body;
+    try {
+        const user = await userController.insertProblemasSugerencia(idUser, tipo,descripcion, imagen);
+        if (user === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, no se pudo insertar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+            });
+        }
+    } catch (error) {
+        return res.status(200).send({
+            success: false,
+            msg: error
+        });
+    }
+})
 
 
 usuarioRouter.post('/recover', async (req, res) => {
