@@ -1,7 +1,8 @@
 const { Server } = require('socket.io');
+const isController = require('./models/solicitud');
 
 let io;
-const connectedDrivers = {}; 
+const connectedDrivers = {};
 const connectedUsers = {};
 const respuestasSolicitudes = {};
 const userStatus = {};
@@ -16,14 +17,53 @@ function initializeSocketOr(server) {
         path: '/api/socket/',
     });
 
-    io.on('connection', (socket) => {
+    io.on('connection', async (socket) => {
         console.log(`🔗 Nueva conexión: ${socket.id}`);
 
+
+
         // ✅ Registrar conductor
-        socket.on('registrar_conductor', (driverId) => {
+        socket.on('registrar_conductor', async (driverId) => {
             connectedDrivers[driverId] = socket.id;
             driverStatus[driverId] = 1;  // Marcar como en línea
             console.log(`🚗 Conductor ${driverId} conectado.`);
+            // Buscar la solicitud pendiente del conductor
+            const solicitudPendiente = await isController.obtenerSolicitudPendiente(driverId);
+
+            if (solicitudPendiente) {
+                const tiempoRestante = solicitudPendiente.tiempoExpiracion - Date.now();
+                if (tiempoRestante > 0) {
+                    //io.to(connectedDrivers[driver.id]).emit('nueva_solicitud', 
+
+                io.to(connectedDrivers[driverId]).emit('nueva_solicitud', {
+                    solicitudId:     solicitudPendiente.id,        
+                     idUser:          solicitudPendiente.idUser,
+                     idService:       solicitudPendiente.idService,
+                     start_lat:       solicitudPendiente.start_lat,
+                     start_lng:       solicitudPendiente.start_lng,
+                     start_direction: solicitudPendiente.start_direction,
+                     end_lat:         solicitudPendiente.end_lat,
+                     end_lng:         solicitudPendiente.end_lng,
+                     end_direction:   solicitudPendiente.end_direction,
+                     distance:        solicitudPendiente.distance,
+                     distance_unit:   solicitudPendiente.distance_unit,
+                     duration_unit:   solicitudPendiente.duration_unit,
+                     duration:        solicitudPendiente.duration,
+                     costo:           solicitudPendiente.costo,
+                     fecha_hora:      solicitudPendiente.fecha_hora
+                    });
+
+                    // Si queda poco tiempo, configurar un timeout
+                    setTimeout(async () => {
+                        // await isController.updateEstadoSolicitud(solicitudPendiente.id, 'expirada');
+                        console.log(`Tiempo agotado para la solicitud ${solicitudPendiente.id}`);
+                    }, tiempoRestante);
+                } /*else {
+            // Si ya pasó el tiempo, cancelar la solicitud
+            await isController.updateEstadoSolicitud(solicitudPendiente.id, 'expirada');
+            console.log(`Solicitud expirada para el conductor ${conductorId}`);
+        }*/
+            }
         });
 
         // ✅ Registrar usuario
@@ -36,19 +76,19 @@ function initializeSocketOr(server) {
         socket.on('cambiar_estado', (data) => {
             const { driverId, estado } = data;
 
- // Verifica que sea un conductor
-                driverStatus[driverId] = estado; // Guardar estado
+            // Verifica que sea un conductor
+            driverStatus[driverId] = estado; // Guardar estado
 
-                if (estado == 0) {
-                    // Si pasa a "offline", eliminar de la lista
-                    delete connectedDrivers[driverId];
-                    console.log(`❌ Conductor ${driverId} ahora está OFFLINE.`);
-                } else {
-                    // Si vuelve a estar en línea, actualizar socket ID
-                    connectedDrivers[driverId] = socket.id;
-                    console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
-                }
-            
+            if (estado == 0) {
+                // Si pasa a "offline", eliminar de la lista
+                delete connectedDrivers[driverId];
+                console.log(`❌ Conductor ${driverId} ahora está OFFLINE.`);
+            } else {
+                // Si vuelve a estar en línea, actualizar socket ID
+                connectedDrivers[driverId] = socket.id;
+                console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
+            }
+
         });
 
         // ✅ Responder solicitud

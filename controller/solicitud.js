@@ -218,9 +218,35 @@ isRouter.post('/soli/accion', async (req, res) => {
     }
 });
 
+isRouter.post('/crearviaje', async (req, res) => {
+    const io = getIO();
+    let solicitudId = null;
+    const {
+        idUser,
+        idService,
+        start_lat,
+        start_lng,
+        start_direction,
+        end_lat,
+        end_lng,
+        end_direction,
+        distance,
+        distance_unit,
+        duration_unit,
+        duration,
+        costo,
+        fecha_hora,
+    } = req.body;
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+        return res.status(400).json({ error: "El cuerpo de la solicitud está vacío" });
+    }
+})
+
 
 isRouter.post('/crear_viaje', async (req, res) => {
     const io = getIO();
+    
     const {
         idUser,
         idService,

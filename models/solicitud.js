@@ -184,9 +184,9 @@ const updateEstadoSolicitud = (solicitudId, estado) => {
     });
 }
 
-const updateSolicitudConductor = (id, idConductor) => {
+const updateSolicitudConductor = (id,  time, idConductor,) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE solicitudes SET idConductor = ? WHERE id = ?`, [idConductor, id], (err, result) => {
+        connection.query(`UPDATE solicitudes SET idConductor = ?,  tiempoExpiracion = ? WHERE id = ?`, [idConductor,time, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -251,6 +251,17 @@ const obtMessage = (emisorId, receptorId) => {
         });
     });
 };
+
+
+const obtenerSolicitudPendiente = (driverId) =>{    
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM solicitudes WHERE idConductor = ? AND estado= 'Pendiente'`;
+        connection.query(query, [driverId], (err, result) => {
+            if (err) return reject(err);
+            resolve(result[0]);
+        });
+    });
+}
 
 const obtLocationDriver = (id) => {
     return new Promise((resolve, reject) => {
@@ -451,6 +462,7 @@ module.exports = {
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion,
     historial,insertMoviBilletera,
-    obtenerSiCalifico
+    obtenerSiCalifico,
+    obtenerSolicitudPendiente
 
 }

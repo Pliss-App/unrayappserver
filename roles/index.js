@@ -9,7 +9,7 @@ const condRouter = require('../controller/conductor');
 const soliRouter = require('../controller/solicitud');
 //const comercioRouter = require('../controller/comercio');
 const servicesRouter = require('../controller/services');
-
+const solicitudes = require('../controller/procesarsolicitud')
 const apiRouter = express.Router();
 
 apiRouter.use('/init', indexRouter);
@@ -22,5 +22,6 @@ apiRouter.use('/documentacion', docRouter);
 apiRouter.use('/viaje', soliRouter);
 //apiRouter.use('/comercio', comercioRouter);
 apiRouter.use('/servicios', servicesRouter);
+apiRouter.use('/solicitudes',solicitudes);
 
 module.exports = apiRouter;

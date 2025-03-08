@@ -511,18 +511,21 @@ const preguntasFrecuentes = (rol) => { //getByEmail
 };
 
 
-const getFoto = (id) => { //getByEmail
+const getFoto = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(
             `SELECT foto FROM usuario WHERE id=?`, [id], (err, rows) => {
-                if (err) reject(err)
-                // Si no hay filas, devuelve un valor predeterminado (null, o lo que prefieras)
-                if (rows.length === 0) {
-                    return resolve(null); // O puedes poner algún valor predeterminado
+                if (err) {
+                    return reject(err); // Rechaza la promesa si hay un error en la consulta
                 }
 
-                resolve(rows[0])
-            });
+                if (!rows || rows.length === 0) {    
+                    return resolve(null); // Si no hay resultados, devuelve null o un valor predeterminado
+                }
+
+                resolve(rows[0]); // Devuelve la fila encontrada
+            }
+        );
     });
 };
 
