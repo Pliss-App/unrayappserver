@@ -31,6 +31,30 @@ const movimientos = (id_user) => {
     });
 }
 
+const getTokenOnesignal = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT onesignal_token AS token FROM usuario WHERE idUser = ?;`, 
+            [id], 
+            (err, result) => {
+                if (err) {
+                    console.error("Error al obtener el token:", err);
+                    return reject(err);  // Rechaza la promesa en caso de error
+                }
+
+                // Si no hay resultados, resuelve con null en lugar de `undefined`
+                if (!result || result.length === 0) {
+                    return resolve(null);
+                }
+
+                resolve(result[0].token); // Devuelve solo el token en lugar de un objeto completo
+            }
+        );
+    });
+};
+
+
+
 
 const insertMoviBilletera = (id_user, monto, descripcion, tipo) => {
     return new Promise((resolve, reject) => {
@@ -86,5 +110,6 @@ module.exports = {
     saldoBilletera,
     recargarBilletera,
     insertMoviBilletera,
-    movimientos
+    movimientos,
+    getTokenOnesignal
 }
