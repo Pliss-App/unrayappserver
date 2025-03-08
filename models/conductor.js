@@ -34,7 +34,7 @@ const movimientos = (id_user) => {
 const getTokenOnesignal = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT onesignal_token AS token FROM usuario WHERE idUser = ?;`, 
+            `SELECT onesignal_token AS token FROM usuario WHERE id = ?;`, 
             [id], 
             (err, result) => {
                 if (err) {
