@@ -84,13 +84,13 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const conductor = conductores[index];
         // Actualizar el idCONDUCTOR en la base de datos
-        const token=  await tokeOne.getTokenOnesignal(conductor.id);
+    /*    const token=  await tokeOne.getTokenOnesignal(conductor.id);
         if (!token) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         }else {
             OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
-        }
+        }*/
           
         isController.updateEstadoUser(conductor.id, 'ocupado');
         const tiempoExpiracion = Date.now() + 30000;
@@ -117,7 +117,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             isController.updateEstadoUser(conductor.id, 'libre');
             // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
             resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-        }, 30000);
+        }, 32000);
 
         const intervalo = setInterval(async () => {
             if (respuestasSolicitudes[solicitudId]) {

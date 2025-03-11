@@ -490,13 +490,19 @@ const getFotoUser = (uid) => { //getByEmail
 };
 
 
-const perfilCalificacion = (uid) => { //getByEmail
+const perfilCalificacion = (uid) => { 
     return new Promise((resolve, reject) => {
         connection.query(
-            `select nombre, apellido, foto from usuario where id= ?`, [uid], (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
+            `SELECT nombre, apellido, foto FROM usuario WHERE id = ?`, [uid], (err, rows) => {
+                if (err) return reject(err);  // Si hay error, rechazar la promesa
+                
+                if (!rows || rows.length === 0) {  // Verifica si el resultado está vacío
+                    return reject(new Error("Usuario no encontrado"));
+                }
+
+                resolve(rows[0]);  // Retorna el primer usuario encontrado
+            }
+        );
     });
 };
 

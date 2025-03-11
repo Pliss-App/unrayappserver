@@ -246,7 +246,7 @@ isRouter.post('/crearviaje', async (req, res) => {
 
 isRouter.post('/crear_viaje', async (req, res) => {
     const io = getIO();
-    
+
     const {
         idUser,
         idService,
@@ -635,7 +635,6 @@ isRouter.get('/location_driver/:id', async (req, res) => {
     }
 })
 
-
 isRouter.get('/soli/user/:id', async (req, res) => {
     try {
         const id = req.params.id;
@@ -913,6 +912,7 @@ isRouter.post("/calificar", async (req, res) => {
     }
     const califico = await isController.obtenerSiCalifico(evaluador_id, id_viaje);
     if (!califico || califico.length === 0) {
+        await isController.updateCali_viaje(evaluador_id, id_viaje);
         const result = await isController.guardarCalificacion({ id_viaje, evaluador_id, evaluado_id, calificacion, comentario });
         if (!result || result.length === 0) {
             return res.status(200).json({
@@ -921,6 +921,7 @@ isRouter.post("/calificar", async (req, res) => {
                 mos: result,
             });
         } else {
+            await isController.updateCali_viaje(evaluador_id, id_viaje);
             const repromedio = await isController.getCalificacion(evaluado_id);
             if (!repromedio || repromedio.length === 0) {
                 return res.status(200).json({
@@ -928,16 +929,18 @@ isRouter.post("/calificar", async (req, res) => {
                     message: 'Calificación  Error'
                 });
             } else {
-
                 const promedio = parseFloat(repromedio[0].promedio).toFixed(1);
                 const totalViajes = repromedio[0].total_viajes;
+                await isController.updateCali_viaje(evaluador_id, id_viaje)
                 const resp = await isController.updateRanting(evaluado_id, promedio, totalViajes);
                 if (!resp) {
+                    
                     return res.status(200).json({
                         success: false,
                         message: 'Calificación  Error'
                     });
                 } else {
+                    await isController.updateCali_viaje(evaluador_id, id_viaje)
                     return res.status(200).json({
                         success: true,
                         message: 'Calificación enviada correctamente'
@@ -946,6 +949,7 @@ isRouter.post("/calificar", async (req, res) => {
             }
         }
     } else {
+        await isController.updateCali_viaje(evaluador_id, id_viaje)
         return res.status(200).json({
             success: true,
             message: 'Ya Califico'
@@ -1007,12 +1011,11 @@ isRouter.post("/calificar", async (req, res) => {
 isRouter.put('/finalizar-viaje', async (req, res) => {
     const io = getIO();
     try {
-        const { idViaje, idUser, idDriver, costo } = req.body;
+        const { idViaje, idUser,  idUserViaje, idDriver, costo } = req.body;
 
         if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
         }
-
         // Finalizar viaje
         const result = await isController.finalizarViaje(idViaje);
         if (!result) {
@@ -1021,6 +1024,9 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
                 message: 'Sin Registro'
             });
         }
+        // CREAMOS LAS CALIFICACIONES 
+        await isController.guardarCali_previa(idDriver, idViaje);
+        await isController.guardarCali_previa(idUserViaje, idViaje);
 
         // Obtener porcentaje de cobro de la app
         const cobroResult = await cobro.cobroApp();
@@ -1071,20 +1077,20 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
             });
         }
         io.to(connectedUsers[idUser]).emit('calificar', { estado: true, idViaje: idViaje, idDriver: idDriver });
-                  const insert = await isController.insertMoviBilletera(idUser, totalDebitar,  `Viaje Id ${idViaje} - Q${costo}`, 'débito');
-                  if (insert=== undefined){
-                      return res.status(200).send({
-                          success: false,
-                          msg: 'Error'
-                      });
-                  }else {
-                    return res.status(200).json({
-                        success: true,
-                        message: 'Viaje finalizado y débito realizado con éxito'
-                    });
+        const insert = await isController.insertMoviBilletera(idUser, totalDebitar, `Viaje Id ${idViaje} - Q${costo}`, 'débito');
+        if (insert === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error'
+            });
+        } else {
+            return res.status(200).json({
+                success: true,
+                message: 'Viaje finalizado y débito realizado con éxito'
+            });
 
-                  }
-      
+        }
+
 
 
     } catch (error) {
@@ -1099,13 +1105,9 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 
 isRouter.get('/soli_no_calificacion/:id', async (req, res) => {
     try {
-
         const id = req.params.id;
-
         //result = await isController.obtenerSoliSinCalificacionUsuario(id);
-
-        const result = await isController.obtenerSoliSinCalificacion(id);
-
+        const result = await isController.obtLisCali(id);    //obtenerSoliSinCalificacion(id);
         if (!result || result.length === 0) {
             return res.status(200).send({
                 success: false,

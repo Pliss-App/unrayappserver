@@ -114,14 +114,12 @@ const respDriver = (id) => {
 
 const viajeDriver = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`      SELECT  dv.idUser, u.nombre, u.apellido,   u.rating, u.total_viajes,
+        connection.query(`   SELECT  dv.idUser, u.nombre, u.apellido,   u.rating, u.total_viajes,
       u.telefono, u.correo, u.foto, dv.placas, 
       dv.modelo, dv.color FROM usuario u
       INNER JOIN detalle_vehiculo dv
       on u.id = dv.idUser
-      INNER JOIN solicitudes s
-      on u.id =  s.idConductor
-      WHERE s.idConductor = ?`, [id], (err, result) => {
+      WHERE u.id = ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result[0])
         })
@@ -328,6 +326,18 @@ const guardarCalificacion = (data) => {
     });
 };
 
+const guardarCali_previa = (idUser, idViaje) => {
+    return new Promise((resolve, reject) => {
+        const query = `INSERT INTO cali_viaje
+        (idUser, idViaje, estado)
+         VALUES (?, ?, ?)`;
+        connection.query(query, [idUser,idViaje, 'A'], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
 const getCalificacion = (idUser) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT AVG(calificacion) AS promedio, COUNT(*) AS total_viajes 
@@ -342,9 +352,19 @@ const getCalificacion = (idUser) => {
 
 const obtenerSiCalifico = (idUser, idviaje) => {
     return new Promise((resolve, reject) => {
-        const query = `SELECT c.id_viaje, c.evaluador_id FROM calificaciones c 
-                        where c.id_viaje = ? and c.evaluador_id=?;`;
-        connection.query(query, [idviaje, idUser], (err, result) => {
+        const query = `select * from cali_viaje
+            where idUser = ? and idViaje= ?`;
+        connection.query(query, [idUser, idviaje], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const updateCali_viaje = (idUser, idViaje) => {
+    return new Promise((resolve, reject) => {
+        const query = `UPDATE cali_viaje SET estado = 'N' WHERE idUser = ? and idViaje= ?`;
+        connection.query(query, [idUser, idViaje], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -378,13 +398,26 @@ const obtenerSoliSinCalificacion = (id) => {
         connection.query(`SELECT s.idUser, s.idConductor, s.id
                 FROM solicitudes s
                 LEFT JOIN calificaciones c 
-                    ON s.id = c.id_viaje AND c.evaluador_id = ${id} 
-                WHERE s.estado = 'Finalizado' and c.id IS NULL  
+                    ON s.id = c.id_viaje AND c.evaluador_id = ? 
+                WHERE s.estado = 'Finalizado' and estado_viaje= 'Finalizado' and c.id IS NULL  
                 AND EXISTS (
                     SELECT 1
                     FROM solicitudes sub_s
-                    WHERE sub_s.estado = 'Finalizado' AND sub_s.idUser =  ${id}  OR sub_s.idConductor =  ${id}  
-            );`, (err, result) => {
+                    WHERE sub_s.estado = 'Finalizado' and estado_viaje= 'Finalizado' AND sub_s.idUser = ? OR sub_s.idConductor = ?
+            );` , [id, id, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+
+}
+
+const obtLisCali = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(` SELECT s.idUser, s.idConductor, s.id FROM cali_viaje c
+            INNER JOIN  solicitudes s
+            on c.idViaje = s.id
+            where c.estado = 'A' AND c.idUser = ?` , [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -463,6 +496,8 @@ module.exports = {
     obtenerSoliSinCalificacion,
     historial,insertMoviBilletera,
     obtenerSiCalifico,
-    obtenerSolicitudPendiente
-
+    obtenerSolicitudPendiente,
+    guardarCali_previa,
+    updateCali_viaje,
+    obtLisCali
 }
