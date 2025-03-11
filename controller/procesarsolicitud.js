@@ -84,13 +84,13 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const conductor = conductores[index];
         // Actualizar el idCONDUCTOR en la base de datos
-      /*  const token=  await tokeOne.getTokenOnesignal(conductor.id);
+        const token=  await tokeOne.getTokenOnesignal(conductor.id);
         if (!token) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         }else {
             OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
-        }*/
+        }
           
         isController.updateEstadoUser(conductor.id, 'ocupado');
         const tiempoExpiracion = Date.now() + 30000;
@@ -166,6 +166,30 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         }, 1000);
     });
 }
+
+isRouter.post("/prueba_onesignal", async (req, res) => {
+    const token=  await tokeOne.getTokenOnesignal(1);
+    if (!token) {
+        return;
+        // return res.json({ success: false, message: "Token no encontrado" });
+    }else {
+      const result = await  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
+      if (result === undefined) {
+        //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
+        return res.status(200).json({
+            success: false,
+            message: 'ERROR AL ENVIAR',
+
+        });
+    }else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+   
+    }
+})
 
 // Endpoint para solicitar un viaje
 isRouter.post("/crear", async (req, res) => {
