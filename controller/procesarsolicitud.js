@@ -113,7 +113,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             fecha_hora
         });
 
-        let timeout = setTimeout(async () => {
+       var timeout = setTimeout(async () => {
             isController.updateEstadoUser(conductor.id, 'libre');
             // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
             resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
@@ -127,6 +127,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
                 if (data.estado === 'Aceptado') {
+                    clearTimeout(timeout);
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
                     isController.updateEstadoUser(conductor.id, 'ocupado');
                     await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
