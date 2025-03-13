@@ -128,6 +128,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
                 if (data.estado === 'Aceptado') {
                     clearTimeout(timeout);
+                    io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
+                   
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
                     isController.updateEstadoUser(conductor.id, 'ocupado');
                     await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
