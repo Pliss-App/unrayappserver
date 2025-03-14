@@ -86,6 +86,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
 
             const permission = await isUserController.agregarRol(result.insertId, idservicio);
             const usDet = await isUserController.insertLocation(result.insertId);
+            const usDire = await isUserController.insertDireccion(result.insertId);
             const usBillerea = await isUserController.insertBilletera(result.insertId);
             const usVechiculo = await isUserController.insertVehiculo(result.insertId);
 

@@ -306,6 +306,19 @@ const insertLocation = (idUser) => {
     });
 };
 
+const insertDireccion = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO usuario_location(idUser, identificador, direccion, municipio, departamento, pais) VALUES (?, ?, ?, ?, ?, ?)`, [idUser, '', '', '', '', ''], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
 
 const insertNotaSoporte = (idUser, titulo, mensaje) => {
     return new Promise((resolve, reject) => {
@@ -740,6 +753,7 @@ module.exports = {
     verificarCuenta,
     actualizarVerificacionCuenta,
     insertProblemasSugerencia,
-    preguntasFrecuentes 
+    preguntasFrecuentes,
+    insertDireccion
 
 }
