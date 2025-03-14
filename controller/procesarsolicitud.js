@@ -3,7 +3,7 @@ const haversine = require('haversine-distance'); // Para calcular distancias ent
 const { getIo } = require('../socket');
 const { findNearestDriver } = require("../utils/solicitud");
 const OneSignal = require('../models/onesignalModel')
-const tokeOne = require ('../models/conductor')
+const tokeOne = require('../models/conductor')
 const cobro = require('../models/cobro')
 const connection = require('../config/conexion');
 //const io = socketIo(server);
@@ -84,14 +84,14 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const conductor = conductores[index];
         // Actualizar el idCONDUCTOR en la base de datos
-        const token=  await tokeOne.getTokenOnesignal(conductor.id);
+        const token = await tokeOne.getTokenOnesignal(conductor.id);
         if (!token) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
-        }else {
+        } else {
             OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
         }
-          
+
         isController.updateEstadoUser(conductor.id, 'ocupado');
         const tiempoExpiracion = Date.now() + 30000;
         await isController.updateSolicitudConductor(solicitudId, tiempoExpiracion, conductor.id);
@@ -113,23 +113,24 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             fecha_hora
         });
 
-       var timeout = setTimeout(async () => {
-            isController.updateEstadoUser(conductor.id, 'libre');
-            // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
-            resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-        }, 32000);
+        /*    var timeout = setTimeout(async () => {
+                 isController.updateEstadoUser(conductor.id, 'libre');
+                 // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
+                 resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+             }, 32000); */
 
         const intervalo = setInterval(async () => {
             if (respuestasSolicitudes[solicitudId]) {
 
-                clearTimeout(timeout);
+                //  clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
                 if (data.estado === 'Aceptado') {
-                    clearTimeout(timeout);
+                    clearInterval(intervalo);
+                    //      clearTimeout(timeout);
                     io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
-                   
+
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
                     isController.updateEstadoUser(conductor.id, 'ocupado');
                     await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
@@ -148,7 +149,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
                 } else if (data.estado == 'Cancelado') {
                     console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
-                    clearTimeout(timeout);
+                    // clearTimeout(timeout);
 
                     await isController.updateEstadoUser(conductor.id, 'libre');
                     await isController.deleteSolicitud(solicitudId);
@@ -171,26 +172,26 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 }
 
 isRouter.post("/prueba_onesignal", async (req, res) => {
-    const token=  await tokeOne.getTokenOnesignal(1);
+    const token = await tokeOne.getTokenOnesignal(1);
     if (!token) {
         return;
         // return res.json({ success: false, message: "Token no encontrado" });
-    }else {
-      const result = await  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
-      if (result === undefined) {
-        //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
-        return res.status(200).json({
-            success: false,
-            message: 'ERROR AL ENVIAR',
+    } else {
+        const result = await OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
+        if (result === undefined) {
+            //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
+            return res.status(200).json({
+                success: false,
+                message: 'ERROR AL ENVIAR',
 
-        });
-    }else {
-        return res.status(200).send({
-            msg: 'SUCCESSFULLY',
-            result: result
-        });
-    }
-   
+            });
+        } else {
+            return res.status(200).send({
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
     }
 })
 
