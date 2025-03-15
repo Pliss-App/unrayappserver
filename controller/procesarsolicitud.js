@@ -113,12 +113,15 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         let timeout;
         let intervalo;
+        let solicitudResuelta = false;  // Variable de control
 
         const timeoutPromise = new Promise(async (resolveTimeout) => {
             timeout = setTimeout(async () => {
-                isController.updateEstadoUser(conductor.id, 'libre');
-                console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
-                resolveTimeout(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+                if (!solicitudResuelta) {  // Solo reasignar si no se resolvió
+                    isController.updateEstadoUser(conductor.id, 'libre');
+                    console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
+                    resolveTimeout(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+                }
             }, 32000); 
         });
 
@@ -132,6 +135,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     if (data.estado === 'Aceptado') {
                         clearInterval(intervalo);
                         clearTimeout(timeout);
+                        solicitudResuelta = true;  // Marca que la solicitud ya fue resuelta
                         io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
 
                         // Actualizar estado del conductor
@@ -174,7 +178,12 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         // Esperar por la respuesta o el timeout
         await Promise.race([timeoutPromise, intervaloPromise]);
-        resolve();
+
+        // Si ya fue resuelta, no hacer más trabajo
+        if (!solicitudResuelta && index < conductores.length) {
+            // Continuar a otro conductor si no se resolvió aún
+            resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+        }
     });
 }
 
