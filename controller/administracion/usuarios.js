@@ -4,6 +4,7 @@ const isRouter = express.Router();
 
 const isUController = require('../../models/administracion/usuarios');
 const isCController = require('../../models/administracion/conductores');
+const isVController = require('../../models/administracion/viajes');
 
 isRouter.get('/usuarios/activos', async (req, res) => {
 
@@ -153,9 +154,9 @@ isRouter.get('/conductores/detalle_vehiculo/:id', async (req, res) => {
 
 isRouter.put('/conductor/update/:id', async (req, res) => {
     const { id } = req.params;
-    const { conductor, vehiculo } = req.body;
+    const { conductor, vehiculo, location } = req.body;
     // Verificamos que lleguen datos
-    if (!conductor || !vehiculo) {
+    if (!conductor || !vehiculo || !location) {
         return res.status(400).json({ success: false, message: "Datos incompletos" });
     }
     try {
@@ -167,7 +168,6 @@ isRouter.put('/conductor/update/:id', async (req, res) => {
                 msg: 'No se encontro data',
             });
         } else {
-
             const results = await isCController.updateVehiculoId(vehiculo, id);
             if (results === undefined) {
                 return res.status(200).send({
@@ -175,10 +175,19 @@ isRouter.put('/conductor/update/:id', async (req, res) => {
                     msg: 'No se encontro data',
                 });
             } else {
+
+                const resul = await isCController.updateLocationId(location, id);
+                if (resul === undefined) {
+                    return res.status(200).send({
+                        success: false,
+                        msg: 'No se encontro data',
+                    });
+                } else {
                 return res.status(200).send({
                     success: true,
                     msg: 'SUCCESSFULLY UPDATE'
                 });
+            }
             }
         }
     } catch (error) {
@@ -234,5 +243,25 @@ isRouter.get('/conductores/municipios/:id', async (req, res) => {
     }
 })
 
+isRouter.get('/viajes/activos', async (req, res) => {
+    try {
+        const result = await isVController.getActivos();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
 
 module.exports = isRouter;

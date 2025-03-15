@@ -62,7 +62,7 @@ const updateLocationId = (location, id) => {
             departamento= ?, 
             pais= ? 
             where idUser = ?`, 
-            [location.direccion, location.municipio, location.departamento, location.pais,  id], (err, result) => {
+            [location.direccion, location.municipio, location.departamento, 1,  id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -112,6 +112,8 @@ const getActivos = () => {
   ur.idrol, 
   ur.idservice, 
   s.nombre AS servicio,
+  (select nombre from  departamento where id = ul.departamento ) departamento,
+  ul.departamento ubicacion,
   CASE 
     WHEN COUNT(d.iduser) > 0 THEN 'true' 
     ELSE 'false' 
@@ -124,12 +126,14 @@ INNER JOIN
   servicios s ON ur.idservice = s.id
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 WHERE 
   u.estado = 1 
   AND u.estado_eliminacion = 1 
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
+
 `, (err, result) => {
             if (err) reject(err)
             resolve(result)

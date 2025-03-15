@@ -113,22 +113,22 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             fecha_hora
         });
 
-        /*    var timeout = setTimeout(async () => {
+         const timeout = setTimeout(async () => {
                  isController.updateEstadoUser(conductor.id, 'libre');
                  // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
                  resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-             }, 32000); */
+             }, 32000); 
 
         const intervalo = setInterval(async () => {
             if (respuestasSolicitudes[solicitudId]) {
 
-                //  clearTimeout(timeout);
+                 clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
                 if (data.estado === 'Aceptado') {
                     clearInterval(intervalo);
-                    //      clearTimeout(timeout);
+                          clearTimeout(timeout);
                     io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
 
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
@@ -149,7 +149,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
                 } else if (data.estado == 'Cancelado') {
                     console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
-                    // clearTimeout(timeout);
+                     clearTimeout(timeout);
 
                     await isController.updateEstadoUser(conductor.id, 'libre');
                     await isController.deleteSolicitud(solicitudId);
