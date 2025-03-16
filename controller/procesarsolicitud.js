@@ -53,9 +53,11 @@ async function obtenerConductores(lat, lon, idService) {
         .sort((a, b) => a.distancia - b.distancia);
 }
 
+
 // Función para asignar un conductor y actualizar la solicitud
 async function asignarConductor(solicitudId, conductores, index, idUser) {
     return new Promise(async (resolve) => {
+
         const {
             idService,
             start_lat,
@@ -70,7 +72,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             duration_unit,
             costo,
             fecha_hora,
-        } = soli;
+        } = soli
 
         if (index >= conductores.length) {
             await isController.deleteSolicitud(solicitudId);
@@ -111,79 +113,66 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             fecha_hora
         });
 
-        let timeout;
-        let intervalo;
-        let solicitudResuelta = false;  // Variable de control
+        const timeout = setTimeout(async () => {
+            if (!respuestasSolicitudes[solicitudId]) {
+                isController.updateEstadoUser(conductor.id, 'libre');
+                // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
+                resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+            } else {
+                return 0;
+            }
+        }, 32000);
 
-        const timeoutPromise = new Promise(async (resolveTimeout) => {
-            timeout = setTimeout(async () => {
-                if (!solicitudResuelta) {  // Solo reasignar si no se resolvió
-                    isController.updateEstadoUser(conductor.id, 'libre');
-                    console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
-                    resolveTimeout(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-                }
-            }, 32000); 
-        });
+        const intervalo = setInterval(async () => {
+            if (respuestasSolicitudes[solicitudId]) {
 
-        const intervaloPromise = new Promise((resolveInterval) => {
-            intervalo = setInterval(async () => {
-                if (respuestasSolicitudes[solicitudId]) {
+                clearTimeout(timeout);
+                const data = respuestasSolicitudes[solicitudId];
+                delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
+
+                if (data.estado === 'Aceptado') {
+                    clearInterval(intervalo);
                     clearTimeout(timeout);
-                    const data = respuestasSolicitudes[solicitudId];
-                    delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
+                    io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
 
-                    if (data.estado === 'Aceptado') {
-                        clearInterval(intervalo);
-                        clearTimeout(timeout);
-                        solicitudResuelta = true;  // Marca que la solicitud ya fue resuelta
-                        io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
+                    //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
+                    isController.updateEstadoUser(conductor.id, 'ocupado');
+                    await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
+                    io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
+                    soli = {};
+                    delete respuestasSolicitudes[solicitudId];
+                    return resolve({
+                        success: true,
+                        message: 'Solicitud aceptada.',
+                        solicitudId,
+                    });
+                } else if (data.estado == 'Rechazado') {
+                    delete respuestasSolicitudes[solicitudId];
+                    isController.updateEstadoUser(conductor.id, 'libre');
+                    //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
+                    //  asignarConductor(solicitudId, conductores, index + 1, idUser);
+                    resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+                } else if (data.estado == 'Cancelado') {
+                    console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
+                    clearTimeout(timeout);
+                    delete respuestasSolicitudes[solicitudId];
+                    await isController.updateEstadoUser(conductor.id, 'libre');
+                    await isController.deleteSolicitud(solicitudId);
+                    // Emitir una notificación al usuario
+                    io.to(connectedUsers[idUser]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
 
-                        // Actualizar estado del conductor
-                        isController.updateEstadoUser(conductor.id, 'ocupado');
-                        await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
-                        io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
-                        soli = {};
+                    // Emitir una notificación al conductor
+                    var estado_actual = 'Cancelado';
+                    var estado = true;
+                    io.to(connectedDrivers[conductor.id]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
 
-                        return resolve({
-                            success: true,
-                            message: 'Solicitud aceptada.',
-                            solicitudId,
-                        });
-                    } else if (data.estado == 'Rechazado') {
-                        isController.updateEstadoUser(conductor.id, 'libre');
-                        console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
-                        resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-                    } else if (data.estado == 'Cancelado') {
-                        console.log("Aquí hacer que la solicitud actual a conductor se le elimine ");
-                        clearTimeout(timeout);
-
-                        await isController.updateEstadoUser(conductor.id, 'libre');
-                        await isController.deleteSolicitud(solicitudId);
-                        // Emitir una notificación al usuario
-                        io.to(connectedUsers[idUser]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
-
-                        // Emitir una notificación al conductor
-                        var estado_actual = 'Cancelado';
-                        var estado = true;
-                        io.to(connectedDrivers[conductor.id]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
-
-                        return resolve({
-                            success: false,
-                            message: 'Se ha cancelado el viaje.',
-                        });
-                    }
+                    return resolve({
+                        success: false,
+                        message: 'Se ha cancelado el viaje.',
+                    });
                 }
-            }, 1000);
-        });
-
-        // Esperar por la respuesta o el timeout
-        await Promise.race([timeoutPromise, intervaloPromise]);
-
-        // Si ya fue resuelta, no hacer más trabajo
-        if (!solicitudResuelta && index < conductores.length) {
-            // Continuar a otro conductor si no se resolvió aún
-            resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-        }
+            }
+        }, 1000);
     });
 }
 

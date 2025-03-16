@@ -1,10 +1,13 @@
 const express = require('express');
+const { enviarCorreoActivacion } = require("../../utils/emailService"); // Importar el módulo
 
 const isRouter = express.Router();
 
 const isUController = require('../../models/administracion/usuarios');
 const isCController = require('../../models/administracion/conductores');
 const isVController = require('../../models/administracion/viajes');
+const isDController = require('../../models/administracion/documentacion');
+const isBController = require('../../models/administracion/boletasBilletera');
 
 isRouter.get('/usuarios/activos', async (req, res) => {
 
@@ -88,6 +91,16 @@ isRouter.get('/conductores/detalle-profile/:id', async (req, res) => {
                 msg: 'No se encontro data',
             });
         } else {
+            const billetera = {
+                saldo: results[0].saldo,
+                reserva: results[0].reserva
+            }
+
+            const rating = {
+                totalviajes: results[0].total_viajes,
+                punteo: results[0].rating,
+            }
+
             const conductor = {
                 id: results[0].id,
                 foto: results[0].foto,
@@ -117,9 +130,11 @@ isRouter.get('/conductores/detalle-profile/:id', async (req, res) => {
                 success: true,
                 msg: 'SUCCESSFULLY',
                 result: {
+                    rating: rating,
+                    billetera: billetera,
                     conductor: conductor,
                     vehiculo: vehiculo,
-                    ubicacion:ubicacion
+                    ubicacion: ubicacion
                 }
             });
         }
@@ -183,11 +198,11 @@ isRouter.put('/conductor/update/:id', async (req, res) => {
                         msg: 'No se encontro data',
                     });
                 } else {
-                return res.status(200).send({
-                    success: true,
-                    msg: 'SUCCESSFULLY UPDATE'
-                });
-            }
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'SUCCESSFULLY UPDATE'
+                    });
+                }
             }
         }
     } catch (error) {
@@ -263,5 +278,423 @@ isRouter.get('/viajes/activos', async (req, res) => {
         console.error(error)
     }
 })
+
+isRouter.delete('/viajes/delete/:id/:idUser', async (req, res) => {
+    try {
+        const result = await isVController.deleteViaje(req.params.id);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            const update = await isVController.liberarConductor(req.params.idUser);
+            if (update === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                });
+            }
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.get('/documentacion/activos', async (req, res) => {
+    try {
+        const results = await isDController.getActivos();
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.get('/documentacion/idUser/:id', async (req, res) => {
+    try {
+
+        const results = await isDController.getDocumentoId(req.params.id);
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+
+
+            const documentacion = {
+                iduser: results[0].iduser,
+                dpi_frontal: results[0].dpi_frontal,
+                dpi_inverso: results[0].dpi_inverso,
+                permiso_conducir: results[0].permiso_conducir,
+                licencia_frontal: results[0].licencia_inverso,
+                licencia_inverso: results[0].licencia_frontal,
+                tarjeta_frontal: results[0].tarjeta_frontal,
+                tarjeta_inverso: results[0].tarjeta_inverso,
+                policiales: results[0].policiales,
+                estado: results[0].estado,
+                fecha: results[0].fecha
+            }
+
+            const usuario = {
+                activacion: results[0].activacion,
+                telefono: results[0].telefono,
+                correo: results[0].correo,
+                nombre: results[0].nombre,
+                apellido: results[0].apellido,
+                estado: results[0].estado,
+                estado_usuario: results[0].estado_usuario
+            }
+
+            const billetera = {
+                saldo: results[0].saldo
+            }
+
+
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: {
+                    documentacion: documentacion,
+                    usuario: usuario,
+                    billetera: billetera
+                }
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.put('/activacion/conductor', async (req, res) => {
+    try {
+
+        const { id, correo, nombre } = req.body;
+
+
+        if (!correo) {
+            return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+        }
+
+        const results = await isDController.activarConductor(id);
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            await enviarCorreoActivacion(correo, nombre);
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.put('/documentacion/actualizar-estado/:id/:estado', async (req, res) => {
+    try {
+
+        const results = await isDController.actualizarEstadoDocumentacion(req.params.id, req.params.estado);
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.get('/conductor/all-historial-billetera', async (req, res) => {
+    const { id } = req.query;
+    if (!id) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isCController.getHistorialBilletera(id)
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.get('/conductor/historial-billetera', async (req, res) => {
+    const { id, fechaInicio, fechaFin, tipo, tipo_search } = req.query;
+
+    if (!id || !tipo_search) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+
+        if (tipo_search == 'tipo') {
+            const result = await isCController.getHistorialBilleteraTipo(id, tipo)
+            if (result === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
+
+        } else if (tipo_search == 'fecha') {
+            const result = await isCController.getHistorialBilleteraFecha(fechaInicio, fechaFin)
+            if (result === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
+
+        } else if (tipo_search == 'fecha_tipo') {
+            const result = await isCController.getHistorialBilleteraBusqueda(id, tipo, fechaInicio, fechaFin)
+            if (result === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
+        }
+
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/conductor/viajes', async (req, res) => {
+    const { id } = req.query;
+    if (!id) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isCController.getViajesConductor(id)
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.get('/conductor/viajes-fecha', async (req, res) => {
+    const { id, fechaini, fechafin } = req.query;
+
+    console.log(" d ", id, fechaini, fechafin)
+    if (!id || !fechaini || !fechafin) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isCController.getViajesConductorFecha(id, fechaini, fechafin)
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/boletas/activas', async (req, res) => {
+
+    try {
+        const result = await isBController.getActivos();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/boletas/filtrar', async (req, res) => {
+    const { fecha, boleta, tipo_search } = req.query;
+
+    if (!tipo_search) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+
+        if (tipo_search == 'boleta') {
+            const result = await isBController.getBoleta(boleta)
+            if (result === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
+
+        } else if (tipo_search == 'fecha') {
+            const result = await isBController.getFecha(fecha);
+            if (result === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se encontro data',
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
+
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/boletas/gestionar-id=:id', async (req, res) => {
+    if (!req.params.id) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isBController.getBoletaId (req.params.id);
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result[0]
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.put('/boletas/update', async (req, res) => {
+    const {id, estado} = req.body
+    if (!id || !estado) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isBController.updateBoletaId(id, estado);
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'UPDATE SUCCESSFULLY',
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 
 module.exports = isRouter;

@@ -5,6 +5,8 @@ const getActivos = () => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT 
 s.id,
+s.idUser,
+s.idConductor,
 s.start_direction,
 s.end_direction,
     s.costo,
@@ -25,6 +27,28 @@ ORDER BY fecha_hora desc`,
     });
 }
 
+const deleteViaje = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`delete from solicitudes WHERE id= ?`, [id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const liberarConductor = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update usuario set estado_usuario= 'libre' WHERE id= ?`, [id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 module.exports = {
-    getActivos
+    getActivos,
+    deleteViaje,
+    liberarConductor
 }

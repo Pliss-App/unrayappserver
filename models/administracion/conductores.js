@@ -25,14 +25,23 @@ const createTravelDetail = (data) => {
 
 const getConductorVehiculoId = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`select u.*, dv.id idVehiculo, dv.placas, dv.modelo, dv.color, ul.id idLocation, ul.direccion, ul.municipio, ul.departamento, ul.pais from 
+        connection.query(`select u.*, dv.id idVehiculo, 
+dv.placas, dv.modelo, 
+dv.color, ul.id idLocation, 
+ul.direccion, ul.municipio, 
+ul.departamento, ul.pais,
+bi.saldo,
+bi.reserva
+ from 
 usuario u
 LEFT JOIN
 detalle_vehiculo dv
 on u.id = dv.idUser
 left join usuario_location ul
 on u.id =  ul.idUser
-where u.id = ?`, [id], (err, result) => {
+left join billetera bi
+ON u.id = bi.iduser
+where u.id =?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -61,11 +70,11 @@ const updateLocationId = (location, id) => {
             municipio = ?, 
             departamento= ?, 
             pais= ? 
-            where idUser = ?`, 
-            [location.direccion, location.municipio, location.departamento, 1,  id], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
+            where idUser = ?`,
+            [location.direccion, location.municipio, location.departamento, 1, id], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
     });
 }
 
@@ -75,17 +84,17 @@ const updateProfileId = (conductor, id) => {
         connection.query(`UPDATE usuario 
       SET nombre = ?, apellido = ?, correo = ?, telefono = ?, estado = ?, 
           estado_usuario = ?, estado_eliminacion = ?
-      WHERE id = ? `, [    conductor.nombre,
+      WHERE id = ? `, [conductor.nombre,
         conductor.apellido,
         conductor.correo,
         conductor.telefono,
         conductor.estado,
         conductor.estado_usuario,
         conductor.estado_eliminacion,
-        id], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
+            id], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
     });
 }
 
@@ -163,12 +172,84 @@ const getDepartamentos = () => {
 
 const getMunicipios = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM municipalidad where departamento_id= ?`, [id] ,(err, result) => {
+        connection.query(`SELECT * FROM municipalidad where departamento_id= ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
     });
 }
+
+
+const getHistorialBilletera = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from movimiento_billetera
+                    where idUser= ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getHistorialBilleteraFecha = (id, feini, fefin) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from movimiento_billetera
+                    where idUser= ? and fecha BETWEEN ? AND ? order by fecha asc`, [id, feini, fefin], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getHistorialBilleteraTipo = (id, tipo) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from movimiento_billetera
+                    where idUser= ? and tipo= ? order by fecha asc`, [id, tipo], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getHistorialBilleteraBusqueda = (id, estado, fechaini, fechafin) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * 
+FROM movimiento_billetera
+WHERE 
+    idUser = ? 
+    AND tipo = ?  
+    AND fecha BETWEEN ? AND ?  order by fecha asc`, [id, estado, fechaini, fechafin], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
+const getViajesConductor = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM solicitudes
+WHERE idConductor = ? 
+AND MONTH(fecha_hora) = MONTH(CURDATE()) 
+AND YEAR(fecha_hora) = YEAR(CURDATE()) 
+ORDER BY fecha_hora ASC;`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getViajesConductorFecha = (id,  fechaini, fechafin) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM solicitudes
+WHERE idConductor = ? 
+AND fecha_hora BETWEEN ? AND ?
+ORDER BY fecha_hora ASC;`, [id, fechaini, fechafin], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 
 
 
@@ -180,6 +261,12 @@ module.exports = {
     updateVehiculoId,
     updateProfileId,
     updateLocationId,
-    getDepartamentos ,
-    getMunicipios
+    getDepartamentos,
+    getMunicipios,
+    getHistorialBilletera,
+    getHistorialBilleteraBusqueda,
+    getHistorialBilleteraFecha,
+    getHistorialBilleteraTipo,
+    getViajesConductor,
+    getViajesConductorFecha
 }
