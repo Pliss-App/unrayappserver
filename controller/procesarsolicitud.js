@@ -115,10 +115,12 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const timeout = setTimeout(async () => {
             if (!respuestasSolicitudes[solicitudId]) {
+
                 isController.updateEstadoUser(conductor.id, 'libre');
                 // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
                 resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
             } else {
+                clearTimeout(timeout);
                 return 0;
             }
         }, 32000);
@@ -131,22 +133,31 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
                 if (data.estado === 'Aceptado') {
+                    console.log("Condcutor ACEPTO ", conductor.id);
                     clearInterval(intervalo);
                     clearTimeout(timeout);
-                    io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
-
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
                     isController.updateEstadoUser(conductor.id, 'ocupado');
-                    await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
-                    io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
-                    soli = {};
-                    delete respuestasSolicitudes[solicitudId];
-                    return resolve({
-                        success: true,
-                        message: 'Solicitud aceptada.',
-                        solicitudId,
-                    });
+                    const atendio = await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
+
+                    if (atendio === undefined) {
+                        console.log("ERRRO AL ACTUALIZAR");
+                    } else {
+                  
+                        soli = {};
+                        delete respuestasSolicitudes[solicitudId];
+                        io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
+                        io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
+
+                        return resolve({
+                            success: true,
+                            message: 'Solicitud aceptada.',
+                            solicitudId,
+                        });
+                    }
+
                 } else if (data.estado == 'Rechazado') {
+                    console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                     delete respuestasSolicitudes[solicitudId];
                     isController.updateEstadoUser(conductor.id, 'libre');
                     //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
