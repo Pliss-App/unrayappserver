@@ -36,7 +36,7 @@ const createSolicitud = (
     duration,
     costo,
     fecha_hora,
-     estado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [idUser,
+     estado, estado_cancelacion, estado_viaje) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`, [idUser,
             idConductor,
             idService,
             start_lat,
@@ -51,7 +51,10 @@ const createSolicitud = (
             duration,
             costo,
             fecha_hora,
-            'Pendiente'], (err, result) => {
+            'Pendiente',
+             0,
+             'Pendiente de Iniciar'
+            ], (err, result) => {
                 if (err) reject(err)
                 resolve(result)
             })
