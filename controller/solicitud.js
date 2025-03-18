@@ -801,7 +801,9 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
     try {
         const io = getIO();
         const { id, estado, idUser, solicitudId } = req.body;
-        io.to(connectedUsers[idUser]).emit('alerta_llegada', { solicitudId: solicitudId, estado: 'Conductor Llego a Salida' });
+        if(estado == 'Conductor Llego a Salida'){
+            io.to(connectedUsers[idUser]).emit('alerta_llegada', { solicitudId: solicitudId, estado: 'Conductor Llego a Salida' });
+        } 
 
         const result = await isController.updateEstadoViaje(id, estado);
         if (result === undefined) {
