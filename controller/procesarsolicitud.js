@@ -143,7 +143,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     if (atendio === undefined) {
                         console.log("ERRRO AL ACTUALIZAR");
                     } else {
-                  
+
                         soli = {};
                         delete respuestasSolicitudes[solicitudId];
                         io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
@@ -186,6 +186,27 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         }, 1000);
     });
 }
+
+
+isRouter.put("/update-estado-usuario", async (req, res) => {
+    const { id } = req.body;
+    if (!id) {
+        return 0;
+    } else {
+        const result = await isController.updateEstadoUser(id, 'libre');
+        if (result === undefined) {
+            return res.status(200).json({
+                success: false,
+                message: 'ERROR AL ACTUALIZAR',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'UPDATE SUCCESSFULLY',
+            });
+        }
+    }
+})
 
 isRouter.post("/prueba_onesignal", async (req, res) => {
     const token = await tokeOne.getTokenOnesignal(1);
