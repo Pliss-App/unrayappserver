@@ -253,6 +253,15 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
     });
 };
 
+const obtSMSDefinido = () => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT * FROM mensajeDefinido`;
+        connection.query(query, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
 
 const obtenerSolicitudPendiente = (driverId) => {
     return new Promise((resolve, reject) => {
@@ -502,5 +511,6 @@ module.exports = {
     obtenerSolicitudPendiente,
     guardarCali_previa,
     updateCali_viaje,
-    obtLisCali
+    obtLisCali,
+    obtSMSDefinido
 }

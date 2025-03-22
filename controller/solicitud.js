@@ -680,7 +680,7 @@ isRouter.get('/soli/driver/:id', async (req, res) => {
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send/mensajes", async (req, res) => {
     try {
-        const {idViaje, emisor_id, receptor_id, mensaje } = req.body;
+        const { idViaje, emisor_id, receptor_id, mensaje } = req.body;
 
         if (!emisor_id || !receptor_id || !mensaje) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
@@ -704,11 +704,31 @@ isRouter.post("/send/mensajes", async (req, res) => {
     }
 });
 
+isRouter.get("/obtener-sms-definido", async (req, res) => {
+    try {
+
+        const mensajes = await isController.obtSMSDefinido();
+        if (mensajes === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Sin Mensajes',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Consulta Exitosa',
+                result: mensajes
+            });
+        }
+    } catch (error) {
+
+    }
+});
 
 
 isRouter.get("/obtener/mensajes", async (req, res) => {
     try {
-        const {idViaje, emisor_id, receptor_id } = req.query;
+        const { idViaje, emisor_id, receptor_id } = req.query;
         if (!emisor_id || !receptor_id) {
             return res.status(400).json({ error: 'emisor_id y receptor_id son obligatorios' });
         }
@@ -801,9 +821,9 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
     try {
         const io = getIO();
         const { id, estado, idUser, solicitudId } = req.body;
-        if(estado == 'Conductor Llego a Salida'){
+        if (estado == 'Conductor Llego a Salida') {
             io.to(connectedUsers[idUser]).emit('alerta_llegada', { solicitudId: solicitudId, estado: 'Conductor Llego a Salida' });
-        } 
+        }
 
         const result = await isController.updateEstadoViaje(id, estado);
         if (result === undefined) {
@@ -826,13 +846,13 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
-    const {userId, sonido, title, message } = req.body;
+    const { userId, sonido, title, message } = req.body;
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
 
     try {
-        const result = await OneSignal.sendNotification( userId, sonido, title, message);
+        const result = await OneSignal.sendNotification(userId, sonido, title, message);
         if (result.id === undefined || result.id == '') {
             return res.status(200).json({
                 success: false,
@@ -936,7 +956,7 @@ isRouter.post("/calificar", async (req, res) => {
                 await isController.updateCali_viaje(evaluador_id, id_viaje)
                 const resp = await isController.updateRanting(evaluado_id, promedio, totalViajes);
                 if (!resp) {
-                    
+
                     return res.status(200).json({
                         success: false,
                         message: 'Calificación  Error'
@@ -1013,7 +1033,7 @@ isRouter.post("/calificar", async (req, res) => {
 isRouter.put('/finalizar-viaje', async (req, res) => {
     const io = getIO();
     try {
-        const { idViaje, idUser,  idUserViaje, idDriver, costo } = req.body;
+        const { idViaje, idUser, idUserViaje, idDriver, costo } = req.body;
 
         if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
