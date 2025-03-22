@@ -253,10 +253,11 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
     });
 };
 
-const obtSMSDefinido = () => {
+const obtSMSDefinido = (rol) => {
     return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM mensajeDefinido`;
-        connection.query(query, (err, result) => {
+        const query = `SELECT * FROM mensajeDefinido 
+                       WHERE rol = ?`;
+        connection.query(query, [rol], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });

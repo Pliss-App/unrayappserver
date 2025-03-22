@@ -704,10 +704,10 @@ isRouter.post("/send/mensajes", async (req, res) => {
     }
 });
 
-isRouter.get("/obtener-sms-definido", async (req, res) => {
+isRouter.get("/obtener-sms-definido/:rol", async (req, res) => {
     try {
 
-        const mensajes = await isController.obtSMSDefinido();
+        const mensajes = await isController.obtSMSDefinido(req.params.rol);
         if (mensajes === undefined) {
             return res.status(200).send({
                 success: false,
