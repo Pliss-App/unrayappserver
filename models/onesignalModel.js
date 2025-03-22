@@ -11,7 +11,7 @@ const sendNotification = async (userId, sonido, title,  message) => {
     };
 
     const body = {
-     /*   app_id: ONE_id, // Reemplaza con tu App ID de OneSignal
+       app_id: ONE_id, // Reemplaza con tu App ID de OneSignal
         include_player_ids: [`${userId}`],
         headings: { en: title }, // Título de la notificación
         contents: { en: message },
@@ -19,20 +19,20 @@ const sendNotification = async (userId, sonido, title,  message) => {
         small_icon: "ic_stat_onesignal_default", // Ícono pequeño
         large_icon: "ic_large_icon", // Ícono grande
         sound:"notificacion_tono", 
-        android_channel_id: "mi_canal_noti",
+        android_channel_id: "c116f187-f8ea-4dbe-bd8c-6421c29b1e22",
         force_start: true,
         forceSound: true,
         // Para cambiar el ícono en Android
         android_small_icon: "ic_stat_onesignal_default", // Aquí se puede usar un ícono personalizado en tu app
         android_sound: "notificacion_tono", // Nombre del archivo de sonido de la notificación
-*/
-        "app_id": ONE_id,
+
+      /*  "app_id": ONE_id,
         "include_player_ids":  [`${userId}`],
         "headings":{ en: title },
         "contents": { en: message },
         "priority": 10,
         "android_channel_id": "c116f187-f8ea-4dbe-bd8c-6421c29b1e22",
-        "android_sound": "notificacion_tono"
+        "android_sound": "notificacion_tono"*/
     };
 
     try {
