@@ -19,7 +19,7 @@ const sendNotification = async (userId, sonido, title,  message) => {
         small_icon: "ic_stat_onesignal_default", // Ícono pequeño
         large_icon: "ic_large_icon", // Ícono grande
         sound:"notificacion_tono", 
-       // android_channel_id: "mi_canal_noti",
+        android_channel_id: "mi_canal_noti",
         force_start: true,
         forceSound: true,
         // Para cambiar el ícono en Android
