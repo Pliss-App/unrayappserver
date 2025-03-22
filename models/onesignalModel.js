@@ -31,7 +31,7 @@ const sendNotification = async (userId, sonido, title,  message) => {
         "headings":{ en: title },
         "contents": { en: message },
         "priority": 10,
-        "android_channel_id": "mi_canal_noti",
+        "android_channel_id": "c116f187-f8ea-4dbe-bd8c-6421c29b1e22",
         "android_sound": "notificacion_tono"
     };
 
