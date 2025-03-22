@@ -680,13 +680,13 @@ isRouter.get('/soli/driver/:id', async (req, res) => {
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send/mensajes", async (req, res) => {
     try {
-        const { emisor_id, receptor_id, mensaje } = req.body;
+        const {idViaje, emisor_id, receptor_id, mensaje } = req.body;
 
         if (!emisor_id || !receptor_id || !mensaje) {
             return res.status(400).json({ error: 'Todos los campos son obligatorios' });
         }
 
-        const mensajes = await isController.saveMessage(emisor_id, receptor_id, mensaje);
+        const mensajes = await isController.saveMessage(idViaje, emisor_id, receptor_id, mensaje);
         if (mensajes === undefined) {
             return res.status(200).send({
                 success: false,
@@ -708,12 +708,12 @@ isRouter.post("/send/mensajes", async (req, res) => {
 
 isRouter.get("/obtener/mensajes", async (req, res) => {
     try {
-        const { emisor_id, receptor_id } = req.query;
+        const {idViaje, emisor_id, receptor_id } = req.query;
         if (!emisor_id || !receptor_id) {
             return res.status(400).json({ error: 'emisor_id y receptor_id son obligatorios' });
         }
 
-        const mensajes = await isController.obtMessage(emisor_id, receptor_id);
+        const mensajes = await isController.obtMessage(idViaje, emisor_id, receptor_id);
         if (mensajes === undefined) {
             return res.status(200).send({
                 success: false,
@@ -826,13 +826,13 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
-    const { userId, sonido, title, message } = req.body;
+    const {userId, sonido, title, message } = req.body;
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
 
     try {
-        const result = await OneSignal.sendNotification(userId, sonido, title, message);
+        const result = await OneSignal.sendNotification( userId, sonido, title, message);
         if (result.id === undefined || result.id == '') {
             return res.status(200).json({
                 success: false,

@@ -23,6 +23,7 @@ const sendNotification = async (userId, sonido, title,  message) => {
         force_start: true,
         android_small_icon: "ic_stat_onesignal_default", // Aquí se puede usar un ícono personalizado en tu app
     };
+    
 
     try {
         const response = await axios.post(

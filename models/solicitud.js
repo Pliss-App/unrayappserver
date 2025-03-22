@@ -52,12 +52,12 @@ const createSolicitud = (
             costo,
             fecha_hora,
             'Pendiente',
-             0,
-             'Pendiente de Iniciar'
-            ], (err, result) => {
-                if (err) reject(err)
-                resolve(result)
-            })
+            0,
+            'Pendiente de Iniciar'
+        ], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
     });
 }
 
@@ -185,9 +185,9 @@ const updateEstadoSolicitud = (solicitudId, estado) => {
     });
 }
 
-const updateSolicitudConductor = (id,  time, idConductor,) => {
+const updateSolicitudConductor = (id, time, idConductor,) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE solicitudes SET idConductor = ?,  tiempoExpiracion = ? WHERE id = ?`, [idConductor,time, id], (err, result) => {
+        connection.query(`UPDATE solicitudes SET idConductor = ?,  tiempoExpiracion = ? WHERE id = ?`, [idConductor, time, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -230,23 +230,23 @@ const procesarSolicitud = (idsoli, idConductor, accion) => {
     });
 }
 
-const saveMessage = (emisor_id, receptor_id, mensaje) => {
+const saveMessage = (idViaje, emisor_id, receptor_id, mensaje) => {
     return new Promise((resolve, reject) => {
-        const query = 'INSERT INTO mensajes (emisor_id, receptor_id, mensaje) VALUES (?, ?, ?)';
-        connection.query(query, [emisor_id, receptor_id, mensaje], (err, result) => {
+        const query = 'INSERT INTO mensajes (idViaje, emisor_id, receptor_id, mensaje) VALUES (?, ?, ?, ?)';
+        connection.query(query, [idViaje, emisor_id, receptor_id, mensaje], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
     });
 };
 
-const obtMessage = (emisorId, receptorId) => {
+const obtMessage = (idViaje, emisorId, receptorId) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT * FROM mensajes 
-      WHERE (emisor_id = ? AND receptor_id = ?) 
+      WHERE idViaje= ? AND (emisor_id = ? AND receptor_id = ?) 
          OR (emisor_id = ? AND receptor_id = ?) 
       ORDER BY fecha ASC`;
-        connection.query(query, [emisorId, receptorId, receptorId, emisorId], (err, result) => {
+        connection.query(query, [idViaje, emisorId, receptorId, receptorId, emisorId], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -254,7 +254,7 @@ const obtMessage = (emisorId, receptorId) => {
 };
 
 
-const obtenerSolicitudPendiente = (driverId) =>{    
+const obtenerSolicitudPendiente = (driverId) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT * FROM solicitudes WHERE idConductor = ? AND estado= 'Pendiente'`;
         connection.query(query, [driverId], (err, result) => {
@@ -334,7 +334,7 @@ const guardarCali_previa = (idUser, idViaje) => {
         const query = `INSERT INTO cali_viaje
         (idUser, idViaje, estado)
          VALUES (?, ?, ?)`;
-        connection.query(query, [idUser,idViaje, 'A'], (err, result) => {
+        connection.query(query, [idUser, idViaje, 'A'], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -443,7 +443,7 @@ const historial = (id, role, offset) => {
 
 }
 
-const insertMoviBilletera=(id_user, monto, descripcion, tipo ) =>{
+const insertMoviBilletera = (id_user, monto, descripcion, tipo) => {
     return new Promise((resolve, reject) => {
         connection.query(`INSERT INTO movimiento_billetera (
     idUser, 
@@ -461,7 +461,7 @@ VALUES (
     ?,      
     ?        
 );
-`, [id_user, tipo,descripcion,monto, 'Realizado', 'A'], (err, result) => {
+`, [id_user, tipo, descripcion, monto, 'Realizado', 'A'], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -497,7 +497,7 @@ module.exports = {
     obtenerSolicitud,
     obtenerSoliSinCalificacionUsuario,
     obtenerSoliSinCalificacion,
-    historial,insertMoviBilletera,
+    historial, insertMoviBilletera,
     obtenerSiCalifico,
     obtenerSolicitudPendiente,
     guardarCali_previa,
