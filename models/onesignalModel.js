@@ -21,9 +21,11 @@ const sendNotification = async (userId, sonido, title,  message) => {
         sound:"notificacion_tono", 
        // android_channel_id: "mi_canal_noti",
         force_start: true,
+        forceSound: true,
+        android_sound: "default",
         // Para cambiar el ícono en Android
         android_small_icon: "ic_stat_onesignal_default", // Aquí se puede usar un ícono personalizado en tu app
-        android_sound: "notificacion_tono", // Nombre del archivo de sonido de la notificación
+       // android_sound: "notificacion_tono", // Nombre del archivo de sonido de la notificación
     };
 
     try {
