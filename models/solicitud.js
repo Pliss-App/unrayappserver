@@ -267,7 +267,10 @@ const obtSMSDefinido = (rol) => {
 
 const obtenerSolicitudPendiente = (driverId) => {
     return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM solicitudes WHERE idConductor = ? AND estado= 'Pendiente'`;
+        const query = `SELECT s.*, COALESCE(u.foto, '') AS foto
+FROM solicitudes s
+LEFT JOIN usuario u ON s.idUser = u.id
+WHERE s.idConductor = ? AND s.estado = 'Pendiente';`;
         connection.query(query, [driverId], (err, result) => {
             if (err) return reject(err);
             resolve(result[0]);

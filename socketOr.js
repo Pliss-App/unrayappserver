@@ -51,7 +51,8 @@ function initializeSocketOr(server) {
                      duration:        solicitudPendiente.duration,
                      costo:           solicitudPendiente.costo,
                      fecha_hora:      solicitudPendiente.fecha_hora,
-                     tiempoExpiracion: solicitudPendiente.tiempoExpiracion
+                     tiempoExpiracion: solicitudPendiente.tiempoExpiracion,
+                     foto : {foto : solicitudPendiente.foto }
                     });
 
                     // Si queda poco tiempo, configurar un timeout
