@@ -362,19 +362,16 @@ const getCalificacion = (idUser) => {
     });
 };
 
-const obtenerSiCalifico = async (idUser, idviaje) => {
-    const query = `
-        SELECT * FROM cali_viaje 
-        WHERE idUser = ? AND idViaje = ? AND estado = 'A'
-    `;
 
-    try {
-        const [rows] = await  connection.query(query, [idUser, idviaje]);
-        return rows;
-    } catch (error) {
-        console.error('Error en obtenerSiCalifico:', error);
-        throw new Error('Error al verificar la calificación');
-    }
+const obtenerSiCalifico = (idUser, idviaje) => {
+    return new Promise((resolve, reject) => {
+        const query = `select * from cali_viaje
+            where idUser = ? and idViaje= ? AND estado= 'A'`;
+        connection.query(query, [idUser, idviaje], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
 };
 
 const updateCali_viaje = (idUser, idViaje) => {

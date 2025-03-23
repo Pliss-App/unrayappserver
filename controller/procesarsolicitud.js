@@ -209,7 +209,7 @@ isRouter.put("/update-estado-usuario", async (req, res) => {
 })
 
 isRouter.post("/prueba_onesignal", async (req, res) => {
-    const token = await tokeOne.getTokenOnesignal(1);
+    const token = await tokeOne.getTokenOnesignal(6);
     if (!token) {
         return;
         // return res.json({ success: false, message: "Token no encontrado" });
