@@ -11,6 +11,7 @@ const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = requi
 const isRouter = express.Router();
 
 const isController = require('../models/solicitud');
+const isUserController = require('../models/usuario')
 const solicitudesActivas = new Map(); // Almacena solicitudes activas con su tiempo restante
 
 const io = getIO();
@@ -108,24 +109,35 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     message: 'Error al solicitar Viaje.',
                 });
             } else {
-                io.to(connectedDrivers[conductor.id]).emit('nueva_solicitud', {
-                    solicitudId,
-                    idUser,
-                    idService,
-                    start_lat,
-                    start_lng,
-                    start_direction,
-                    end_lat,
-                    end_lng,
-                    end_direction,
-                    distance,
-                    distance_unit,
-                    duration_unit,
-                    duration,
-                    costo,
-                    fecha_hora,
-                    tiempoExpiracion
-                });
+                const foto = await isUserController.getFoto(idUser);
+                if (foto === undefined) {
+                    return resolve({
+                        success: false,
+                        message: 'Error al solicitar Viaje.',
+                    });
+
+                 } else {
+                    io.to(connectedDrivers[conductor.id]).emit('nueva_solicitud', {
+                        solicitudId,
+                        idUser,
+                        idService,
+                        start_lat,
+                        start_lng,
+                        start_direction,
+                        end_lat,
+                        end_lng,
+                        end_direction,
+                        distance,
+                        distance_unit,
+                        duration_unit,
+                        duration,
+                        costo,
+                        fecha_hora,
+                        tiempoExpiracion,
+                        foto
+                    });
+                }
+
             }
 
         }
