@@ -103,42 +103,30 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         } else {
             const tiempoExpiracion = Date.now() + 30000;
             const udSolCon = await isController.updateSolicitudConductor(solicitudId, tiempoExpiracion, conductor.id);
-            if (udSolCon === undefined) {
-                return resolve({
-                    success: false,
-                    message: 'Error al solicitar Viaje.',
-                });
-            } else {
-                const foto = await isUserController.getFoto(idUser);
-                if (foto === undefined) {
-                    return resolve({
-                        success: false,
-                        message: 'Error al solicitar Viaje.',
-                    });
+            const foto = await isUserController.getFoto(idUser);
 
-                 } else {
-                    io.to(connectedDrivers[conductor.id]).emit('nueva_solicitud', {
-                        solicitudId,
-                        idUser,
-                        idService,
-                        start_lat,
-                        start_lng,
-                        start_direction,
-                        end_lat,
-                        end_lng,
-                        end_direction,
-                        distance,
-                        distance_unit,
-                        duration_unit,
-                        duration,
-                        costo,
-                        fecha_hora,
-                        tiempoExpiracion,
-                        foto
-                    });
-                }
+            io.to(connectedDrivers[conductor.id]).emit('nueva_solicitud', {
+                solicitudId,
+                idUser,
+                idService,
+                start_lat,
+                start_lng,
+                start_direction,
+                end_lat,
+                end_lng,
+                end_direction,
+                distance,
+                distance_unit,
+                duration_unit,
+                duration,
+                costo,
+                fecha_hora,
+                tiempoExpiracion,
+                foto
+            });
 
-            }
+
+
 
         }
 

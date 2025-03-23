@@ -54,7 +54,7 @@ const createSolicitud = (
             'Pendiente',
             0,
             'Pendiente de Iniciar',
-            Date.now() + 30000
+            Date.now() + 32000
         ], (err, result) => {
             if (err) reject(err)
             resolve(result)
