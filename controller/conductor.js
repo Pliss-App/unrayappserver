@@ -48,7 +48,7 @@ isRouter.post('/recargar-billetera', async (req, res) => {
                 msg: 'Error'
             });
         } else {
-            const insert = await isController.insertMoviBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
+            const insert = await isController.insertresultiBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
             if (insert === undefined) {
                 return res.status(200).send({
                     success: false,
@@ -95,13 +95,13 @@ isRouter.get('/saldo-billetera/:id', async (req, res) => {
     }
 })
 
-isRouter.get('/movimientos/:id', async (req, res) => {
+isRouter.get('/resultimientos/:id', async (req, res) => {
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        const mov = await isController.movimientos(req.params.id);
+        const result = await isController.resultimientos(req.params.id);
 
         // Verificar si se encontró el usuario o devolver saldo 0
-        if (!mov || Object.keys(mov).length === 0) {
+        if (!result || Object.keys(result).length === 0) {
             return res.status(200).send({
                 success: false,
                 msg: 'No existen registros',
@@ -112,7 +112,36 @@ isRouter.get('/movimientos/:id', async (req, res) => {
         return res.status(200).send({
             success: true,
             msg: 'SUCCESSFULLY',
-            result: mov
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
+
+
+isRouter.get('/detalle-vehiculo/:id', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await isController.getDetalleVehiculo (req.params.id);
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
         });
     } catch (error) {
         console.error(error);

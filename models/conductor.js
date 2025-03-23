@@ -104,6 +104,17 @@ const createTravelDetail = (data) => {
 }
 
 
+const getDetalleVehiculo = (uid) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT * FROM detalle_vehiculo
+WHERE idUser= ?`, [uid], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -111,5 +122,6 @@ module.exports = {
     recargarBilletera,
     insertMoviBilletera,
     movimientos,
-    getTokenOnesignal
+    getTokenOnesignal,
+    getDetalleVehiculo
 }
