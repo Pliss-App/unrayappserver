@@ -50,7 +50,8 @@ function initializeSocketOr(server) {
                      duration_unit:   solicitudPendiente.duration_unit,
                      duration:        solicitudPendiente.duration,
                      costo:           solicitudPendiente.costo,
-                     fecha_hora:      solicitudPendiente.fecha_hora
+                     fecha_hora:      solicitudPendiente.fecha_hora,
+                     tiempoExpiracion: solicitudPendiente.tiempoExpiracion
                     });
 
                     // Si queda poco tiempo, configurar un timeout
