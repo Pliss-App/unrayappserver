@@ -369,7 +369,7 @@ const obtenerSiCalifico = async (idUser, idviaje) => {
     `;
 
     try {
-        const [rows] = await connection.promise().query(query, [idUser, idviaje]);
+        const [rows] = await  connection.query(query, [idUser, idviaje]);
         return rows;
     } catch (error) {
         console.error('Error en obtenerSiCalifico:', error);
