@@ -159,7 +159,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                 } else if (data.estado == 'Rechazado') {
                     console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                     delete respuestasSolicitudes[solicitudId];
-                    isController.updateEstadoUser(conductor.id, 'libre');
+                 await  isController.updateEstadoUser(conductor.id, 'libre');
                     //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
                     //  asignarConductor(solicitudId, conductores, index + 1, idUser);
                     resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
