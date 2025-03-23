@@ -95,10 +95,10 @@ isRouter.get('/saldo-billetera/:id', async (req, res) => {
     }
 })
 
-isRouter.get('/resultimientos/:id', async (req, res) => {
+isRouter.get('/movimientos/:id', async (req, res) => {
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        const result = await isController.resultimientos(req.params.id);
+        const result = await isController.movimientos(req.params.id);
 
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
