@@ -5,7 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const usuarioRouter = express.Router();
-
+const OneSignal = require('../models/onesignalModel')
 const userController = require('../models/usuario');
 const connection = require('../config/conexion');
 
@@ -56,7 +56,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 from: process.env.GMAIL_USER,
                 to: correo,
                 subject: 'Código de Verificación',
-                html:`
+                html: `
     <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
         <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
             <h2 style="color: #333;">🔑 Código de Verificación</h2>
@@ -96,14 +96,14 @@ usuarioRouter.post('/registro', async (req, res) => {
         }
 
     } catch (error) {
-       // console.error('Error durante el registro:', error);  // Verificamos el código de error
+        // console.error('Error durante el registro:', error);  // Verificamos el código de error
         switch (error.code) {
             case 'ER_NO_SUCH_TABLE':
 
                 return res.status(200).json({
                     success: false,
                     error: error.sqlMessage,
-                    msg :  'ER_NO_SUCH_TABLE'
+                    msg: 'ER_NO_SUCH_TABLE'
                 });
             case 'ER_DUP_ENTRY':
                 // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
@@ -111,7 +111,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 return res.status(200).json({
                     success: false,
                     error: error.sqlMessage,
-                    msg : 'Correo o teléfono ya existe.'
+                    msg: 'Correo o teléfono ya existe.'
                 });
 
             case 'ER_BAD_FIELD_ERROR':
@@ -120,7 +120,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 return res.status(200).json({
                     success: false,
                     error: error.sqlMessage,
-                        msg :  'ER_BAD_FIELD_ERROR'
+                    msg: 'ER_BAD_FIELD_ERROR'
                 });
 
             case 'ER_NO_REFERENCED_ROW':
@@ -130,7 +130,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 return res.status(200).json({
                     success: false,
                     error: error.sqlMessage,
-                      msg :  'Violación de llave foránea'
+                    msg: 'Violación de llave foránea'
                 });
 
             case 'ER_DATA_TOO_LONG':
@@ -146,7 +146,7 @@ usuarioRouter.post('/registro', async (req, res) => {
                 return res.status(200).json({
                     success: false,
                     error: 'Ocurrió un error inesperado al crear tu cuenta.',
-                    msg :  error?.message || error
+                    msg: error?.message || error
                 });
         }
     }
@@ -666,9 +666,9 @@ usuarioRouter.get('/preguntasfrecuentes/:rol', async (req, res) => {
 })
 
 usuarioRouter.post('/insert-problema-sugerencia', async (req, res) => {
-    const {idUser, tipo,descripcion, imagen} = req.body;
+    const { idUser, tipo, descripcion, imagen } = req.body;
     try {
-        const user = await userController.insertProblemasSugerencia(idUser, tipo,descripcion, imagen);
+        const user = await userController.insertProblemasSugerencia(idUser, tipo, descripcion, imagen);
         if (user === undefined) {
             return res.status(200).send({
                 success: false,
@@ -776,6 +776,64 @@ usuarioRouter.put('/update-socket-io', async (req, res) => {
 
         return res.status(200).send({
             msg: 'SUCCESSFULLY UPDATE'
+        });
+    }
+})
+
+usuarioRouter.get('/notificaciones/:id', async (req, res) => {
+    try {
+  
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await OneSignal.getNotificacionesUser(req.params.id)
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
+
+usuarioRouter.put('/update-notificaciones', async (req, res) => {
+    try {
+   const { id, idVista, fecha } = req.body;
+
+   console.log("DTO  " , id, idVista, fecha )
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await OneSignal.updateNotificacionesUser ( id, idVista, fecha)
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
         });
     }
 })

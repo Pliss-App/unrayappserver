@@ -180,4 +180,7 @@ isRouter.get('/ganancias/:id/:fecha', async (req, res) => {
         });
     }
 })
+
+
+
 module.exports = isRouter;

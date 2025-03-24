@@ -92,7 +92,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
-            OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, hora)
+            OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');
@@ -251,12 +251,20 @@ isRouter.put("/update-estado-usuario", async (req, res) => {
 })
 
 isRouter.post("/prueba_onesignal", async (req, res) => {
-    const token = await tokeOne.getTokenOnesignal(6);
+    const token = await tokeOne.getTokenOnesignal(3);
     if (!token) {
         return;
         // return res.json({ success: false, message: "Token no encontrado" });
     } else {
-        const result = await OneSignal.sendNotification(token, null, 'Promoción Un Ray', 'Descuento del 50% en tu viaje hoy 23 de Marzo.')
+
+      const now = new Date();
+         now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now.getDate()).padStart(2, "0") + " " +
+            String(now.getHours()).padStart(2, "0") + ":" +
+            String(now.getMinutes()).padStart(2, "0") + ":" +
+            String(now.getSeconds()).padStart(2, "0");
+        const result = await OneSignal.sendNotificationPruebas(token, null, 'Promoción', 'Descuento del 50% en tu viaje hoy 23 de Marzo.', now ,3)
         if (result === undefined) {
             //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
             return res.status(200).json({
