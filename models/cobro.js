@@ -61,10 +61,21 @@ const agregarHistorialdebitos = (idUser, idViaje, costo, debitar, saldo_antes, s
     });
 };
 
+const insertGanaDriver = (idUser, idViaje, gana, fecha, hora) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO GanaDriver(idUser, idViaje, ganancia, fecha, hora) 
+                           VALUES (?, ?, ?, ?, ?);`, [idUser, idViaje, gana, fecha, hora], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 module.exports = {
     cobroApp,
     saldoBilletera,
     actualizarBilletera,
     agregarHistorialPagos,
-    agregarHistorialdebitos
+    agregarHistorialdebitos,
+    insertGanaDriver 
 }

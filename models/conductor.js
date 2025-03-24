@@ -34,8 +34,8 @@ const movimientos = (id_user) => {
 const getTokenOnesignal = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT onesignal_token AS token FROM usuario WHERE id = ?;`, 
-            [id], 
+            `SELECT onesignal_token AS token FROM usuario WHERE id = ?;`,
+            [id],
             (err, result) => {
                 if (err) {
                     console.error("Error al obtener el token:", err);
@@ -109,11 +109,21 @@ const getDetalleVehiculo = (uid) => {
         connection.query(
             `SELECT * FROM detalle_vehiculo
 WHERE idUser= ?`, [uid], (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
+            if (err) reject(err)
+            resolve(rows[0])
+        });
     });
 };
+
+const insertGanaDriver = (idUser, idViaje, gana, fecha, hora) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO  GanaDriver (idUser, idViaje, ganancia, fecha, hora) 
+                           VALUES (?, ?, ?, ?, ?);`, [idUser, idViaje, gana, fecha, hora], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
 module.exports = {
     createTravel,
@@ -123,5 +133,6 @@ module.exports = {
     insertMoviBilletera,
     movimientos,
     getTokenOnesignal,
-    getDetalleVehiculo
+    getDetalleVehiculo,
+    insertGanaDriver
 }

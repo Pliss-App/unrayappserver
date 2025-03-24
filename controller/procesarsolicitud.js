@@ -254,7 +254,7 @@ isRouter.post("/prueba_onesignal", async (req, res) => {
         return;
         // return res.json({ success: false, message: "Token no encontrado" });
     } else {
-        const result = await OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30seg para aceptar.')
+        const result = await OneSignal.sendNotification(token, null, 'Promoción Un Ray', 'Descuento del 50% en tu viaje hoy 23 de Marzo.')
         if (result === undefined) {
             //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
             return res.status(200).json({
