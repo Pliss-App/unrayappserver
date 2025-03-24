@@ -127,7 +127,7 @@ isRouter.get('/movimientos/:id', async (req, res) => {
 isRouter.get('/detalle-vehiculo/:id', async (req, res) => {
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        const result = await isController.getDetalleVehiculo (req.params.id);
+        const result = await isController.getDetalleVehiculo(req.params.id);
 
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
@@ -170,7 +170,7 @@ isRouter.get('/ganancias/:id/:fecha', async (req, res) => {
         return res.status(200).send({
             success: true,
             msg: 'SUCCESSFULLY',
-            result: result
+            result: result[0]
         });
     } catch (error) {
         console.error(error);
