@@ -125,6 +125,20 @@ const insertGanaDriver = (idUser, idViaje, gana, fecha, hora) => {
     });
 }
 
+
+
+const GananciasDriver = (idUser, fecha) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT SUM(ganancia) ganacia 
+                    FROM GanaDriver
+                    where idUser = ? and fecha = '23032025'`,
+            [idUser, fecha], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -134,5 +148,6 @@ module.exports = {
     movimientos,
     getTokenOnesignal,
     getDetalleVehiculo,
-    insertGanaDriver
+    insertGanaDriver,
+    GananciasDriver
 }

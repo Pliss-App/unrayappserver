@@ -151,4 +151,33 @@ isRouter.get('/detalle-vehiculo/:id', async (req, res) => {
         });
     }
 })
+
+
+isRouter.get('/ganancias/:id/:fecha', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await isController.GananciasDriver(req.params.id, req.params.fecha);
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
 module.exports = isRouter;
