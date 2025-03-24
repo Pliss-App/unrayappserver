@@ -129,7 +129,7 @@ const insertGanaDriver = (idUser, idViaje, gana, fecha, hora) => {
 
 const GananciasDriver = (idUser, fecha) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT SUM(ganancia) ganacia 
+        connection.query(`SELECT SUM(ganancia) ganancia 
                     FROM GanaDriver
                     where idUser = ? and fecha = '23032025'`,
             [idUser, fecha], (err, result) => {

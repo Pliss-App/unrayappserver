@@ -1066,7 +1066,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
         }
 
         const porcentaje = cobroResult.porApp / 100;
-        const totalDebitar = parseFloat((costo * porcentaje).toFixed(2));
+        const totalDebitar = Math.round(costo * porcentaje);
         const ganancia =  costo - totalDebitar;
 
         // Obtener saldo actual del conductor

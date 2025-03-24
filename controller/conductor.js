@@ -170,7 +170,7 @@ isRouter.get('/ganancias/:id/:fecha', async (req, res) => {
         return res.status(200).send({
             success: true,
             msg: 'SUCCESSFULLY',
-            result: result[0].ganancia
+            result: result[0]
         });
     } catch (error) {
         console.error(error);
