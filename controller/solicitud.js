@@ -1039,7 +1039,7 @@ isRouter.post("/calificar", async (req, res) => {
 isRouter.put('/finalizar-viaje', async (req, res) => {
     const io = getIO();
     try {
-        const { idViaje, idUser, idUserViaje, idDriver, costo } = req.body;
+        const { idViaje, idUser, idUserViaje, idDriver, costo, fecha, hora } = req.body;
 
         if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
@@ -1067,6 +1067,7 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
 
         const porcentaje = cobroResult.porApp / 100;
         const totalDebitar = Math.round(costo * porcentaje);
+        const ganancia =  costo - totalDebitar;
 
         // Obtener saldo actual del conductor
         const saldo = await cobro.saldoBilletera(idUser);
@@ -1097,8 +1098,8 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
         }
         const histpa = await cobro.agregarHistorialPagos(idViaje, totalDebitar);
         const histdeb = await cobro.agregarHistorialdebitos(idUser, idViaje, costo, totalDebitar, saldo.saldo, nuevoSaldo);
-
-        if (!histpa && !histdeb) {
+         const insetGanDriver = await cobro.insertGanaDriver(idUser, idViaje, ganancia, fecha, hora )
+        if (!histpa && !histdeb ) {
             return res.status(200).json({
                 success: false,
                 message: 'Error al actualizar el estado del usuario'
