@@ -73,6 +73,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             duration_unit,
             costo,
             fecha_hora,
+            fecha,
+            hora
         } = soli
 
         if (index >= conductores.length) {
@@ -90,7 +92,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
-            OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.')
+            OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, hora)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');
@@ -291,6 +293,8 @@ isRouter.post("/crear", async (req, res) => {
             duration_unit,
             costo,
             fecha_hora,
+            fecha,
+            hora
         } = req.body;
 
         const conductores = await findNearestDriver(start_lat, start_lng, idService);
@@ -317,7 +321,9 @@ isRouter.post("/crear", async (req, res) => {
             duration_unit,
             duration,
             costo,
-            fecha_hora
+            fecha_hora,
+            fecha,
+            hora
         }
         const result = await isController.createSolicitud(
             idUser,
