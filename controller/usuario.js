@@ -172,7 +172,8 @@ usuarioRouter.post('/login', async (req, res) => {
                         rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion
+                        verificacion: existingUser.verificacion,
+                        codigo:existingUser.codigo
                     }
                     const token = jwt.sign({
                         estado: existingUser.estado, marker: existingUser.marker,
@@ -180,7 +181,8 @@ usuarioRouter.post('/login', async (req, res) => {
                         idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion
+                        verificacion: existingUser.verificacion,
+                        codigo:existingUser.codigo
                     },
                         process.env.JWT_SECRET, {
                         expiresIn: '5h'
@@ -265,11 +267,11 @@ usuarioRouter.put('/verificar-cuenta', async (req, res) => {
         } else {
             const existingUser = await userController.refreshLogin(id);
             var _user = {
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
             }
 
             const token = jwt.sign({
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
             },
                 process.env.JWT_SECRET, {
             }
@@ -534,11 +536,11 @@ usuarioRouter.put('/updateUser/:id', async (req, res) => {
 
             const existingUser = await userController.refreshLogin(req.params.id);
             var _user = {
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
             }
 
             const token = jwt.sign({
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
             },
                 process.env.JWT_SECRET, {
             }
@@ -566,11 +568,11 @@ usuarioRouter.put('/updateFoto', async (req, res) => {
     } else {
         const existingUser = await userController.refreshLogin(user.id);
         var _user = {
-            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
         }
 
         const token = jwt.sign({
-            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion
+            foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
         },
             process.env.JWT_SECRET, {
         }
