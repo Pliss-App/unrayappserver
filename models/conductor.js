@@ -129,7 +129,7 @@ const insertGanaDriver = (idUser, idViaje, gana, fecha, hora) => {
 
 const GananciasDriver = (idUser, fecha) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT SUM(ganancia) ganancia 
+        connection.query(`SELECT COALESCE(SUM(ganancia), 0) AS ganancia 
                     FROM GanaDriver
                     where idUser = ? and fecha = ?`,
             [idUser, fecha], (err, result) => {
