@@ -20,11 +20,10 @@ const generateTemporaryPassword = () => {
     return password;
 };
 usuarioRouter.post('/registro', async (req, res) => {
-    const { nombre, apellido, telefono, correo, password } = req.body;
+    const { nombre, apellido, telefono, correo, password,  tieneCodigoReferido, codigo, fecha} = req.body;
     let db;
     const idService = 5;
-
-    const codigo = generateTemporaryPassword();
+   const codigoVer = generateTemporaryPassword();
 
     try {
 
@@ -37,7 +36,9 @@ usuarioRouter.post('/registro', async (req, res) => {
             const result = await userController.createUser({
                 nombre, apellido, telefono, correo,
                 password: hashedPassword,
-                codigo
+                codigoVer,
+                codigo,
+                fecha
             });
 
             const transporter = nodemailer.createTransport({
@@ -63,7 +64,7 @@ usuarioRouter.post('/registro', async (req, res) => {
             <p style="color: #555; font-size: 16px;">Te enviamos tu código para que puedas verificar tu cuenta:</p>
             
             <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
-                Código: <span style="color: #007bff;">${codigo}</span>
+                Código: <span style="color: #007bff;">${codigoVer}</span>
             </div>
 
             <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos no compartir tu código.</p>
@@ -80,7 +81,7 @@ usuarioRouter.post('/registro', async (req, res) => {
             await transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
                     console.log("EERO ", error)
-                    return res.status(500).send(error.toString());
+                    return;  //res.status(500).send(error.toString());
                 }
 
                 res.status(200).send('Correo enviado: ' + info.response);

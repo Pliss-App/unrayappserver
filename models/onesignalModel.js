@@ -13,10 +13,11 @@ const sendNotificationPruebas = async (userId, sonido, title, message, fecha, id
     data, 
     estado, 
      fecha_envio,
+  fecha_vista,
     plataforma, 
     token_dispositivo) 
 VALUES 
-(?,?,?,?, ?,?,?,?, ?);
+(?,?,?,?, ?,?,?,?, ?,?);
 `;
 
     try {
@@ -26,8 +27,8 @@ VALUES
         };
      console.log("FECHA ", fecha)
         // Ejecutar el INSERT en la base de datos
-        await connection.query(insertQuery, [userId, idUser, title, message, null, 'enviada', fecha, 'Android', userId]);
-
+    const resd =   await connection.query(insertQuery, [userId, idUser, title, message, null, 'enviada', 'null', fecha, 'Android', userId]);
+        console.log(resd)
         const body = {
             app_id: ONE_id, // Reemplaza con tu App ID de OneSignal
             include_player_ids: [`${userId}`],

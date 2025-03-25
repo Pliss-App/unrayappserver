@@ -260,17 +260,30 @@ const refreshLogin = (_valor) => { //getByEmail
 };
 
 const createUser = (userData) => { //getByEmail
-    const { nombre, apellido, telefono, correo, password, codigo } = userData;
-
-    return new Promise((resolve, reject) => {
+    const { nombre, apellido, telefono, correo, password,  codigoVer, codigo, fecha } = userData;
+  return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO usuario (nombre, 
-            apellido, telefono, correo, 
-            foto, password, reset_token, 
-            estado, total_viajes, rating, onesignal_token, estado_usuario, reset_token_expiration
-            , socket_id, codigo_verificacion)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)`,
-            [nombre.toUpperCase(),
+            `INSERT INTO usuario (
+            codigo_referido, 
+            nombre, 
+            apellido, 
+            telefono, 
+            correo, 
+            foto, 
+            password, 
+            reset_token, 
+            estado, 
+            total_viajes, 
+            rating, 
+            onesignal_token, 
+            estado_usuario, 
+            reset_token_expiration,
+            socket_id, 
+            codigo_verificacion, 
+            created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [codigo,
+                 nombre.toUpperCase(),
             apellido.toUpperCase(),
                 telefono,
             correo.toUpperCase(),
@@ -283,7 +296,9 @@ const createUser = (userData) => { //getByEmail
                 null,
                 'libre',
                 null,
-                null, codigo], (err, rows) => {
+                null,
+                codigoVer, 
+                fecha ], (err, rows) => {
                     if (err) {
                       //  console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                         return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
