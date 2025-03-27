@@ -139,6 +139,20 @@ const GananciasDriver = (idUser, fecha) => {
     });
 }
 
+const HistorialGananciasDriver = (idUser, fecha) => {
+    return new Promise((resolve, reject) => {
+
+        connection.query(`select s.start_direction, s.end_direction, s.costo, gd.ganancia, gd.fecha, gd.hora  from GanaDriver gd
+            inner join solicitudes s
+            on gd.idViaje = s.id 
+            WHERE gd.idUser= ? and gd.fecha = ?`,
+            [idUser, fecha], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -149,5 +163,6 @@ module.exports = {
     getTokenOnesignal,
     getDetalleVehiculo,
     insertGanaDriver,
-    GananciasDriver
+    GananciasDriver,
+    HistorialGananciasDriver
 }
