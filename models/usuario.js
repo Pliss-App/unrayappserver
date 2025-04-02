@@ -31,6 +31,37 @@ const getUserTelfonoEmail = (_valor) => {
 };
 
 
+const getRecuperarPassword= (_valor) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT correo, telefono FROM usuario WHERE UPPER(correo) = UPPER(?)", 
+            [_valor, _valor], 
+            (err, rows) => {
+                if (err) {
+                    console.error('Error obteniendo el registro:', err);
+                    return reject(new Error('Error al obtener el registro'));
+                }
+
+                if (rows.length > 0) {
+                    const existeCorreo = rows.some(row => row.correo === _valor);
+                    const existeTelefono = rows.some(row => row.telefono === _valor);
+                    
+                    if (existeCorreo && existeTelefono) {
+                        return reject(new Error('El correo y el teléfono ya están registrados en otra cuenta.'));
+                    } else if (existeCorreo) {
+                        return reject(new Error('El correo ya está registrado en otra cuenta.'));
+                    } else if (existeTelefono) {
+                        return reject(new Error('El teléfono ya está registrado en otra cuenta.'));
+                    }
+                }
+
+                resolve(null); // No hay registros encontrados
+            }
+        );
+    });
+};
+
+
 /*
 const verificarCuenta = (id, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
@@ -803,6 +834,7 @@ module.exports = {
     actualizarVerificacionCuenta,
     insertProblemasSugerencia,
     preguntasFrecuentes,
-    insertDireccion
+    insertDireccion,
+    getRecuperarPassword
 
 }

@@ -696,7 +696,7 @@ usuarioRouter.post('/recover', async (req, res) => {
     const { user } = req.body;
     try {
 
-        const results = await userController.getUserTelfonoEmail(user);
+        const results = await userController.getRecuperarPassword(user);
         if (results === undefined || results === null) {
             return res.status(404).send('Usuario no encontrado');
         } else {
