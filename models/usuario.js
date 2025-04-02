@@ -38,24 +38,10 @@ const getRecuperarPassword= (_valor) => {
             [_valor, _valor], 
             (err, rows) => {
                 if (err) {
-                    console.error('Error obteniendo el registro:', err);
-                    return reject(new Error('Error al obtener el registro'));
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
                 }
-
-                if (rows.length > 0) {
-                    const existeCorreo = rows.some(row => row.correo === _valor);
-                    const existeTelefono = rows.some(row => row.telefono === _valor);
-                    
-                    if (existeCorreo && existeTelefono) {
-                        return reject(new Error('El correo y el teléfono ya están registrados en otra cuenta.'));
-                    } else if (existeCorreo) {
-                        return reject(new Error('El correo ya está registrado en otra cuenta.'));
-                    } else if (existeTelefono) {
-                        return reject(new Error('El teléfono ya está registrado en otra cuenta.'));
-                    }
-                }
-
-                resolve(null); // No hay registros encontrados
+                resolve(rows);
             }
         );
     });
