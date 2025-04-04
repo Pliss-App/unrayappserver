@@ -88,6 +88,11 @@ usuarioRouter.post('/registro', async (req, res) => {
             });
 
             const permission = await userController.agregarRolUser(result.insertId, idService);
+
+            if(codigo!= null || codigo!= "" || codigo != undefined){
+                const referido =  await userController.insertDetalleReferido(codigo, result.insertId, fecha)
+            }
+
             return res.status(200).json({ success: true, msg: 'Cuenta Creada', status: 200 });
         } else {
             return res.status(200).json({

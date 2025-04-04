@@ -2,7 +2,7 @@ const express = require('express');
 const OneSignal = require('../../models/onesignalModel')
 const travelRouter = express.Router();
 
-const travelController = require('../../models/travel');
+const travelController = require('../../models/administracion/notificador');
 
 
 travelRouter.post('/enviar-campania', async (req, res) => {
@@ -26,6 +26,27 @@ travelRouter.post('/enviar-campania', async (req, res) => {
     }
 })
 
+travelRouter.get('/list-usuarios', async (req, res) => {
+    try {
+        const result = await travelController.getUsuarios()
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+
+})
 
 travelRouter.post('/create_travelDetail', async (req, res) => {
 

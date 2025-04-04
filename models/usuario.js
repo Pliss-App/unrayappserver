@@ -111,6 +111,19 @@ const insertProblemasSugerencia = (idUser, tipo,descripcion, imagen) => { //getB
     });
 };
 
+const insertDetalleReferido = (codigo, idUser, fecha) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `insert into detalleReferido (codigoReferidor, idReferido, fechahora ) values (?, ?, ? )`, [codigo, idUser, fecha], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
 const getRating = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -821,6 +834,7 @@ module.exports = {
     insertProblemasSugerencia,
     preguntasFrecuentes,
     insertDireccion,
-    getRecuperarPassword
+    getRecuperarPassword,
+    insertDetalleReferido
 
 }

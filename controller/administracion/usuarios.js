@@ -1,5 +1,6 @@
 const express = require('express');
 const { enviarCorreoActivacion } = require("../../utils/emailService"); // Importar el módulo
+const OneSignal = require('../../models/onesignalModel')
 
 const isRouter = express.Router();
 
@@ -8,7 +9,8 @@ const isCController = require('../../models/administracion/conductores');
 const isVController = require('../../models/administracion/viajes');
 const isDController = require('../../models/administracion/documentacion');
 const isBController = require('../../models/administracion/boletasBilletera');
-
+const isNotController = require('../../models/administracion/notificador');
+const isRefController = require('../../models/administracion/referidos');
 isRouter.get('/usuarios/activos', async (req, res) => {
 
     try {
@@ -644,6 +646,27 @@ isRouter.get('/boletas/filtrar', async (req, res) => {
     }
 })
 
+isRouter.get('/list-user-noti', async (req, res) => {
+    try {
+        const result = await isNotController.getUsuarios();
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 
 isRouter.get('/boletas/gestionar-id=:id', async (req, res) => {
     if (!req.params.id) {
@@ -696,5 +719,47 @@ isRouter.put('/boletas/update', async (req, res) => {
     }
 })
 
+
+isRouter.post('/enviar-campania', async (req, res) => {
+    const {userId, sonido, title, message, fecha, idUser} = req.body;
+    try {
+       const result = await OneSignal.sendNotificationAdmin(userId, sonido, title, message, fecha, idUser);
+       if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, no se pudo enviar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("EERROR ", error)
+    }
+})
+
+isRouter.get('/list-referidos', async (req, res) => {
+
+    try {
+       const result = await isRefController.getUsuarios();
+       if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, no se pudo enviar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("EERROR ", error)
+    }
+})
 
 module.exports = isRouter;

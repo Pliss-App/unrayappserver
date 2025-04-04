@@ -3,19 +3,20 @@ const bcrypt = require('bcrypt');
 
 const getUsuarios = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`select u.id as idUser, u.nombre, u.apellido, u.onesignal_token, 
-                            s.id as idServicio, s.nombre as nombreServicio,
-                            ur.idRol,
-                                CASE 
-                                    WHEN idRol = 1 THEN 'Usuario' 
-                                    ELSE 'Conductor' 
-                                END AS tipo_usuario
-                            from usuario u 
-                            inner join usuario_rol ur
-                            on u.id = ur.iduser
-                            inner join servicios s
-                            on ur.idservice = s.id
-                            WHERE u.estado_eliminacion!= 0;`,
+        connection.query(`SELECT 
+    u.codigo,
+ CONCAT(u.nombre, ' ', u.apellido) AS nombre,
+    u.telefono,
+    u.correo,
+    COUNT(r.codigo_referido) AS cantidad_referidos
+FROM 
+    usuario u
+JOIN 
+    usuario r ON u.codigo = r.codigo_referido
+GROUP BY 
+    u.codigo, u.nombre
+ORDER BY 
+    cantidad_referidos DESC;`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -81,9 +82,5 @@ const actualizarEstadoDocumentacion = (id, estado) => {
 
 module.exports = {
     getUsuarios,
-    deleteViaje,
-    liberarConductor,
-    getDocumentoId,
-    activarConductor,
-    actualizarEstadoDocumentacion
+
 }
