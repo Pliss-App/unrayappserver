@@ -51,7 +51,7 @@ const getBoletaId = (id) => {
 const updateBoletaId = (id, estado) => {
     return new Promise((resolve, reject) => {
         connection.query(`update transaccion_billetera set estado = ?
-                            where id = ?`, [id, estado],
+                            where id = ?`, [ estado, id],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
