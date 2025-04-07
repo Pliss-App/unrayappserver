@@ -1,10 +1,25 @@
 const connection = require('../../config/conexion');
 const bcrypt = require('bcrypt');
 
-const getActivos = () => {
+const getActivos = (item) => {
     return new Promise((resolve, reject) => {
-        connection.query(`select * from transaccion_billetera
-ORDER BY  fecha_carga asc`,
+        connection.query(`select * from transaccion_billetera where estado = ?
+ORDER BY  fecha_carga asc`, [item],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+
+const getTotal = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT 'Recibido' AS estado, COUNT(*) AS cantidad FROM documentacion WHERE estado = 'Recibido'
+UNION ALL
+SELECT 'Aprobado', COUNT(*) FROM documentacion WHERE estado = 'Aprobado'
+UNION ALL
+SELECT 'Rechazado', COUNT(*) FROM documentacion WHERE estado = 'Rechazado';`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -48,10 +63,10 @@ const getBoletaId = (id) => {
     });
 }
 
-const updateBoletaId = (id, estado) => {
+const updateBoletaId = (id, estado, comentario) => {
     return new Promise((resolve, reject) => {
-        connection.query(`update transaccion_billetera set estado = ?
-                            where id = ?`, [ estado, id],
+        connection.query(`update transaccion_billetera set estado = ?, comentario = ?
+                            where id = ?`, [estado, comentario, id],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -120,5 +135,6 @@ module.exports = {
     getBoleta,
     getFecha,
     getBoletaId,
-    updateBoletaId 
+    updateBoletaId,
+    getTotal
 }

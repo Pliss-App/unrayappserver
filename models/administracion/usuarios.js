@@ -37,6 +37,40 @@ and ur.idservice= 5`, (err, result) => {
     });
 }
 
+
+const actualizarReferencias= (nombrereferencia1,  nombrereferencia2, contactoreferencia1, contactoreferencia2, parentescoreferencia1, parentescoreferencia2, id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update documentacion set nombrereferencia1 = ?,  nombrereferencia2= ?, contactoreferencia1= ?, contactoreferencia2= ?, parentescoreferencia1= ?, parentescoreferencia2= ?  where id = ?`, [nombrereferencia1,  nombrereferencia2, contactoreferencia1, contactoreferencia2, parentescoreferencia1, parentescoreferencia2, id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const actualizarFotoConductor= (foto,   id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update usuario set foto = ? where id = ?`, [foto, id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const actualizarEstadoFotoConductor= (estado,   id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update documentacion set estado_perfil = ? where id = ?`, [estado, id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 module.exports = {
-    getUsuariosActivos
+    getUsuariosActivos,
+    actualizarReferencias,
+    actualizarFotoConductor,
+    actualizarEstadoFotoConductor
 }

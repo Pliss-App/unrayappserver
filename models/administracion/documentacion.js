@@ -17,6 +17,23 @@ ORDER BY  fecha asc`,
     });
 }
 
+
+const getTodas = (item) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select u.nombre, u.apellido, u.estado, u.estado_usuario, b.saldo, d.* from documentacion d
+INNER JOIN usuario u
+on d.iduser= u.id
+INNER JOIN billetera b
+ON d.iduser = b.idUser
+WHERE d.estado = ?
+ORDER BY  fecha asc`,[item],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 const getDocumentoId = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`select u.nombre, u.apellido, u.correo, u.telefono, u.activacion, u.estado_usuario, b.saldo, d.* from documentacion d
@@ -75,6 +92,7 @@ const actualizarEstadoDocumentacion = ( id, estado) => {
 
 module.exports = {
     getActivos,
+    getTodas,
     deleteViaje,
     liberarConductor,
     getDocumentoId,

@@ -177,25 +177,51 @@ isRouter.post('/insert', async (req, res) => {
     try {
         //
         const userData = req.body;
-        const { idUser} = userData;
-        const { dpi_frontal,
+        const { idUser } = userData;
+        const {
+            dpi_frontal,
             dpi_inverso,
             permiso_conducir,
             licencia_frontal,
             licencia_inverso,
             tarjeta_frontal,
             tarjeta_inverso,
-            policiales } = userData.documentacion;
-            console.log("DA ", idUser)
+            penales,
+            policiales,
+            nombrereferencia1,
+            parentescoreferencia1,
+            contactoreferencia1,
+            nombrereferencia2,
+            parentescoreferencia2,
+            contactoreferencia2,
+            servicio,
+            rostrodpi,
+            perfil,
+            vehiculo_frontal,
+            vehiculo_atras } = userData.documentacion;
+        console.log("DA ", idUser)
         //console.log(" data ", dpi_frontal, req.body)
-        const result = await isController.insert(idUser, dpi_frontal,
+        const result = await isController.insert(idUser,
+            dpi_frontal,
             dpi_inverso,
             permiso_conducir,
             licencia_frontal,
             licencia_inverso,
             tarjeta_frontal,
             tarjeta_inverso,
-            policiales);
+            penales,
+            policiales,
+            nombrereferencia1,
+            parentescoreferencia1,
+            contactoreferencia1,
+            nombrereferencia2,
+            parentescoreferencia2,
+            contactoreferencia2,
+            servicio,
+            rostrodpi,
+            perfil,
+            vehiculo_frontal,
+            vehiculo_atras);
         if (result === undefined) {
             res.json({
                 error: 'Error, Datos no encontrados'

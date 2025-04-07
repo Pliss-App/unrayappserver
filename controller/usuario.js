@@ -161,10 +161,11 @@ usuarioRouter.post('/registro', async (req, res) => {
 usuarioRouter.post('/login', async (req, res) => {
     try {
         if (!req.timedout) {
+           
             const { user, password } = req.body;
-
+            console.log("CARED ",  user, password)
             const existingUser = await userController.getLogin(user);
-
+        
             if (existingUser === undefined) {
                 res.json('Error, Correo o telefono no registrados.')
             } else {

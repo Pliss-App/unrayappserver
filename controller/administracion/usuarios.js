@@ -308,9 +308,18 @@ isRouter.delete('/viajes/delete/:id/:idUser', async (req, res) => {
     }
 })
 
-isRouter.get('/documentacion/activos', async (req, res) => {
+isRouter.get('/documentacion/todo-estado/:item', async (req, res) => {
     try {
-        const results = await isDController.getActivos();
+        const valor = req.params.item;
+        var item = null;
+        if (valor == 'recibido') {
+            item = 'Recibido'
+        } else if (valor == 'aprobado') {
+            item = 'Aprobado'
+        } else if (valor == 'rechazado') {
+            item = 'Rechazado'
+        }
+        const results = await isDController.getTodas(item);
         if (results === undefined) {
             return res.status(200).send({
                 success: false,
@@ -340,6 +349,16 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
         } else {
 
 
+            const referencias = {
+                nombrereferencia1: results[0].nombrereferencia1,
+                parentescoreferencia1: results[0].parentescoreferencia1,
+                contactoreferencia1: results[0].contactoreferencia1,
+                nombrereferencia2: results[0].nombrereferencia2,
+                parentescoreferencia2: results[0].parentescoreferencia2,
+                contactoreferencia2: results[0].contactoreferencia2,
+                fechaultactualizacion: results[0].fechaultactualizacion
+            };
+
             const documentacion = {
                 iduser: results[0].iduser,
                 dpi_frontal: results[0].dpi_frontal,
@@ -350,9 +369,15 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
                 tarjeta_frontal: results[0].tarjeta_frontal,
                 tarjeta_inverso: results[0].tarjeta_inverso,
                 policiales: results[0].policiales,
+                penales: results[0].penales,
+                servicio: results[0].servicio,
+                rostrodpi: results[0].rostrodpi,
+                vehiculo_frontal: results[0].vehiculo_frontal,
+                vehiculo_atras: results[0].vehiculo_atras,
                 estado: results[0].estado,
-                fecha: results[0].fecha
-            }
+                fecha: results[0].fecha,
+                comentario: results[0].comentario
+            };
 
             const usuario = {
                 activacion: results[0].activacion,
@@ -361,12 +386,14 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
                 nombre: results[0].nombre,
                 apellido: results[0].apellido,
                 estado: results[0].estado,
-                estado_usuario: results[0].estado_usuario
-            }
+                estado_usuario: results[0].estado_usuario,
+                perfil: results[0].perfil,
+                estado_perfil:   results[0].estado_perfil,
+            };
 
             const billetera = {
                 saldo: results[0].saldo
-            }
+            };
 
 
             return res.status(200).send({
@@ -375,7 +402,8 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
                 result: {
                     documentacion: documentacion,
                     usuario: usuario,
-                    billetera: billetera
+                    billetera: billetera,
+                    referencias: referencias
                 }
             });
         }
@@ -413,6 +441,9 @@ isRouter.put('/activacion/conductor', async (req, res) => {
         console.error(error)
     }
 })
+
+
+
 
 isRouter.put('/documentacion/actualizar-estado/:id/:estado', async (req, res) => {
     try {
@@ -577,10 +608,45 @@ isRouter.get('/conductor/viajes-fecha', async (req, res) => {
 })
 
 
-isRouter.get('/boletas/activas', async (req, res) => {
+isRouter.get('/boletas/total', async (req, res) => {
 
     try {
-        const result = await isBController.getActivos();
+
+        const result = await isBController.getTotal();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/boletas/listar/:item', async (req, res) => {
+
+    try {
+        const item = req.params.item;
+        var valor = null
+
+        if (item == 'validacion') {
+            valor = 'Validación'
+        } else if (item == 'aprobado') {
+            valor = 'Aprobado'
+        } else {
+            valor = 'Rechazado'
+        }
+
+        const result = await isBController.getActivos(valor);
         if (result === undefined) {
             return res.status(200).send({
                 success: false,
@@ -674,7 +740,7 @@ isRouter.get('/boletas/gestionar-id=:id', async (req, res) => {
     }
 
     try {
-        const result = await isBController.getBoletaId (req.params.id);
+        const result = await isBController.getBoletaId(req.params.id);
         if (!result || result.length === 0) {
             return res.status(200).send({
                 success: false,
@@ -695,13 +761,13 @@ isRouter.get('/boletas/gestionar-id=:id', async (req, res) => {
 
 
 isRouter.put('/boletas/update', async (req, res) => {
-    const {id, estado} = req.body
+    const { id, estado, comentario } = req.body
     if (!id || !estado) {
         return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
     }
 
     try {
-        const result = await isBController.updateBoletaId(id, estado);
+        const result = await isBController.updateBoletaId(id, estado, comentario);
         if (!result || result.length === 0) {
             return res.status(200).send({
                 success: false,
@@ -721,10 +787,10 @@ isRouter.put('/boletas/update', async (req, res) => {
 
 
 isRouter.post('/enviar-campania', async (req, res) => {
-    const {userId, sonido, title, message, fecha, idUser} = req.body;
+    const { userId, sonido, title, message, fecha, idUser } = req.body;
     try {
-       const result = await OneSignal.sendNotificationAdmin(userId, sonido, title, message, fecha, idUser);
-       if (result === undefined) {
+        const result = await OneSignal.sendNotificationAdmin(userId, sonido, title, message, fecha, idUser);
+        if (result === undefined) {
             return res.status(200).send({
                 success: false,
                 msg: 'Error, no se pudo enviar',
@@ -744,8 +810,8 @@ isRouter.post('/enviar-campania', async (req, res) => {
 isRouter.get('/list-referidos', async (req, res) => {
 
     try {
-       const result = await isRefController.getUsuarios();
-       if (result === undefined) {
+        const result = await isRefController.getUsuarios();
+        if (result === undefined) {
             return res.status(200).send({
                 success: false,
                 msg: 'Error, no se pudo enviar',
@@ -761,5 +827,77 @@ isRouter.get('/list-referidos', async (req, res) => {
         console.log("EERROR ", error)
     }
 })
+
+isRouter.put('/referencias-actualizacion', async (req, res) => {
+    try {
+
+        const { nombrereferencia1, nombrereferencia2, contactoreferencia1, contactoreferencia2, parentescoreferencia1, parentescoreferencia2, id } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+        }
+
+        const results = await isUController.actualizarReferencias(nombrereferencia1, nombrereferencia2, contactoreferencia1, contactoreferencia2, parentescoreferencia1, parentescoreferencia2, id)
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+isRouter.put('/update-foto-perfil-conductor', async (req, res) => {
+    try {
+
+        const { foto, estado, idDoc, idUser } = req.body;
+
+        if (!idDoc || !idUser) {
+            return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+        }
+
+        const results = await isUController.actualizarEstadoFotoConductor(estado, idDoc);
+        if (results === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+
+            if (estado == 'Aprobado') {
+                const results = await isUController.actualizarFotoConductor(foto, idUser);
+                if (results === undefined) {
+                    return res.status(200).send({
+                        success: false,
+                        msg: 'No se encontro data',
+                    });
+                } else {
+
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'SUCCESSFULLY'
+                    });
+                }
+
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY'
+                });
+            }
+
+        }
+    } catch (error) {
+        console.error(error)
+    }
+})
+
 
 module.exports = isRouter;
