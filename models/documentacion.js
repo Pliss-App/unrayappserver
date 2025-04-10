@@ -10,7 +10,8 @@ const documentacion = () => {
     });
 }
 
-const insert = (           iduser, 
+const insert = (           
+    iduser, 
     dpi_frontal, 
     dpi_inverso, 
     permiso_conducir, 

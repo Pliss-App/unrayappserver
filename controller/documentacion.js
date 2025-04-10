@@ -199,9 +199,9 @@ isRouter.post('/insert', async (req, res) => {
             perfil,
             vehiculo_frontal,
             vehiculo_atras } = userData.documentacion;
-        console.log("DA ", idUser)
         //console.log(" data ", dpi_frontal, req.body)
-        const result = await isController.insert(idUser,
+        const result = await isController.insert(
+            idUser,
             dpi_frontal,
             dpi_inverso,
             permiso_conducir,
@@ -223,12 +223,16 @@ isRouter.post('/insert', async (req, res) => {
             vehiculo_frontal,
             vehiculo_atras);
         if (result === undefined) {
-            res.json({
-                error: 'Error, Datos no encontrados'
-            })
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, No se pudo guardar el documento.',
+                message: 'Error, No se pudo guardar el documento.'
+            });
         } else {
             return res.status(200).send({
+                success: true,
                 msg: 'SUCCESSFULLY',
+                message: 'Documentación enviada correctamente.',
                 result: result
             });
         }
