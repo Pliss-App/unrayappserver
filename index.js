@@ -16,6 +16,25 @@ initializeSocketOr(server);
 
 app.use(express.json({ limit: '990mb' }));
 app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900000 }));
+app.use("/uploads", express.static("uploads"));
+
+/*
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    const origin = req.get("Origin");
+
+    // Solo permitir acceso desde tu dominio
+    if (origin && origin.includes("tudominio.com")) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      next();
+    } else {
+      res.status(403).send("No autorizado");
+    }
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
+*/
 
 var corsOptions = {
   origin: '*',

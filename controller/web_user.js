@@ -1,10 +1,13 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
+const multer = require("multer");
 const isRouter = express.Router();
 const nodemailer = require('nodemailer');
+const isServicio = require('../models/services')
 const isController = require('../models/web_user');
 const isUserController = require('../models/usuario');
-
+const { saveBase64File } = require("../utils/saveBase64File");
+const storage = require("../config/cloudinaryStorage");
 const generateTemporaryPassword = () => {
     const length = 8; // Longitud de la contraseña
     const characters = '0123456789'; // Solo números
@@ -15,6 +18,22 @@ const generateTemporaryPassword = () => {
     }
     return password;
 };
+
+const upload = multer({ storage: storage });
+
+isRouter.post("/upload", upload.single("archivo"), (req, res) => {
+    if (!req.file || !req.file.path) {
+        return res.status(400).json({ message: "No se subió ningún archivo" });
+    }
+
+    return res.status(200).json({
+        success: true,
+        message: "Archivo subido correctamente",
+        url: req.file.path, // esta es la URL pública de Cloudinary
+        nombre: req.file.originalname,
+        public_id: req.file.filename,
+    });
+});
 
 isRouter.post('/pruebas', async (req, res) => {
 
@@ -232,6 +251,328 @@ isRouter.get('/requisitos', async (req, res) => {
             msg: 'SUCCESSFULLY',
             result: result
         });
+    }
+})
+
+
+isRouter.get('/banners', async (req, res) => {
+
+    const result = await isController.banners();
+    if (result === undefined) {
+        return res.status(200).send({
+            success: false,
+            msg: 'Erro, durante la operación'
+        });
+    } else {
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
+
+isRouter.get('/banners-identificador=:id', async (req, res) => {
+
+    const result = await isController.bannersId(req.params.id);
+    if (result === undefined) {
+        return res.status(200).send({
+            success: false,
+            msg: 'Erro, durante la operación'
+        });
+    } else {
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
+
+
+isRouter.put('/banners-update', async (req, res) => {
+    try {
+        //
+        const userData = req.body;
+        const { id, datos } = userData;
+
+        const result = await isController.actualizarBanner(id, datos);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR EN ACTUALIZACIÓN")
+    }
+})
+
+isRouter.post('/insert-pasosrequisitosafiliacion', async (req, res) => {
+    const { paso, titulo, descripcion } = req.body;
+    console.log(paso, titulo, descripcion)
+    try {
+
+        const result = await isController.insertPasosAfiliacion(paso, titulo, descripcion);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR EN ACTUALIZACIÓN")
+    }
+})
+
+isRouter.put('/update-pasosrequisitosafiliacion', async (req, res) => {
+    const { paso, titulo, descripcion, id } = req.body;
+    console.log("DAF ", paso, titulo, descripcion, id)
+    try {
+        const result = await isController.updatePasosAfiliacion(paso, titulo, descripcion, id);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA GESTIÓN")
+    }
+})
+
+isRouter.get('/obtener-pasosrequisitosafiliacion', async (req, res) => {
+    try {
+
+        const result = await isController.getPasosAfiliacion();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.get('/servicios', async (req, res) => {
+    try {
+        const result = await isController.getServices();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.put('/update-servicios', async (req, res) => {
+
+    const { descuento, estado, foto, id, nombre, precio, total_costo } = req.body;
+
+    try {
+        const result = await isController.updateServicios(nombre, precio, foto, descuento, total_costo, estado, id);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA GESTIÓN")
+    }
+})
+
+
+isRouter.get('/crearcuenta', async (req, res) => {
+    try {
+        const result = await isController.getCrearCuenta();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.post('/insert-indicacionescuenta', async (req, res) => {
+    const { titulo, descripcion, indicaciones, src } = req.body;
+    try {
+        console.log("E ", titulo, descripcion, indicaciones, src);
+
+        const result = await isController.insertIndicaCuenta(titulo, descripcion, indicaciones, src);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.get('/obtenerIndicacionesCuenta', async (req, res) => {
+    try {
+        const result = await isController.getIndicacionesCuenta();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result[0]
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
+
+isRouter.put('/update-indicacionescuenta', async (req, res) => {
+
+    const { titulo, descripcion, indicaciones, src, id } = req.body;
+
+    try {
+        const result = await isController.updateIndicacionesCuenta(titulo, descripcion, indicaciones, src, id)
+            ;
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA GESTIÓN")
+    }
+})
+
+isRouter.get('/obtenerBeneficios/:modulo', async (req, res) => {
+
+    try {
+        const result = await isController.getBeneficios(req.params.modulo);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.put('/updateBeneficios', async (req, res) => {
+    const { titulo, descripcion, url, tamanio_columna, id, modulo } = req.body;
+    try {
+        const result = await isController.updateBeneficios(titulo, descripcion, url, tamanio_columna, id, modulo);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.post('/insertBeneficios', async (req, res) => {
+    const { modulo, titulo, descripcion, url, tamanio_columna} = req.body;
+    try {
+        const result = await isController.insertBeneficios(modulo, titulo, descripcion, url, tamanio_columna);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
     }
 })
 
