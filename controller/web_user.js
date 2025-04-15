@@ -660,4 +660,29 @@ isRouter.put('/updateSeguridad', async (req, res) => {
     }
 })
 
+
+isRouter.post('/insertInquietud', async (req, res) => {
+
+    
+    const { nombre, correo, telefono, mensaje, fecha, hora } = req.body;
+    try {
+        const result = await isController.insertInquietud(nombre, correo, telefono, mensaje, fecha, hora);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
 module.exports = isRouter;

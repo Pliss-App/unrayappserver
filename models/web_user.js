@@ -268,6 +268,22 @@ const updateSeguridad = (modulo, titulo, descripcion, icon, img, id) => { //getB
 };
 
 
+const insertInquietud = (nombre, correo, telefono, mensaje, fecha, hora) => {
+    return new Promise((resolve, reject) => {
+      connection.query(
+        `INSERT INTO inquietudes (nombre, correo, telefono, mensaje, fecha, hora, estado)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [nombre, correo, telefono, mensaje, fecha, hora, 'Nuevo'],
+        (err, rows) => {
+          if (err) return reject(err);
+          resolve(rows);
+        }
+      );
+    });
+  };
+  
+
+
 module.exports = {
     beneficios,
     requisitos,
@@ -290,5 +306,6 @@ module.exports = {
     insertBeneficios,
     getSeguridad,
     insertSeguridad,
-    updateSeguridad
+    updateSeguridad,
+    insertInquietud
 }
