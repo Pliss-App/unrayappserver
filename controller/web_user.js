@@ -21,19 +21,37 @@ const generateTemporaryPassword = () => {
 
 const upload = multer({ storage: storage });
 
-isRouter.post("/upload", upload.single("archivo"), (req, res) => {
-    if (!req.file || !req.file.path) {
-        return res.status(400).json({ message: "No se subió ningún archivo" });
-    }
-
-    return res.status(200).json({
+isRouter.post("/upload", upload.single("archivo"), async (req, res) => {
+    try {
+      if (!req.file || !req.file.path) {
+        console.error("No se recibió el archivo o no tiene path");
+        return res.status(400).json({ 
+          success: false,
+          message: "No se subió ningún archivo" 
+        });
+      }
+  
+      console.log("Archivo recibido:", req.file);
+  
+      return res.status(200).json({
         success: true,
         message: "Archivo subido correctamente",
-        url: req.file.path, // esta es la URL pública de Cloudinary
+        url: req.file.path, // URL pública (Cloudinary, S3, etc.)
         nombre: req.file.originalname,
         public_id: req.file.filename,
-    });
-});
+      });
+  
+    } catch (error) {
+      console.error("Error al subir archivo:", error);
+  
+      return res.status(500).json({
+        success: false,
+        message: "Ocurrió un error al subir el archivo",
+        error: error.message, // Esto te mostrará el mensaje específico
+      });
+    }
+  });
+  
 
 isRouter.post('/pruebas', async (req, res) => {
 
@@ -559,6 +577,72 @@ isRouter.post('/insertBeneficios', async (req, res) => {
     const { modulo, titulo, descripcion, url, tamanio_columna} = req.body;
     try {
         const result = await isController.insertBeneficios(modulo, titulo, descripcion, url, tamanio_columna);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
+isRouter.get('/obtenerSeguridad/:modulo', async (req, res) => {
+
+    try {
+        const result = await isController.getSeguridad(req.params.modulo);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.post('/insertSeguridad', async (req, res) => {
+
+    console.log(req.body)
+    const { id, modulo, titulo, descripcion, icon, img } = req.body;
+    try {
+        const result = await isController.insertSeguridad(modulo, titulo, descripcion, icon, img);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.put('/updateSeguridad', async (req, res) => {
+    const {modulo, titulo, descripcion, icon, img , id} = req.body;
+    try {
+        const result = await isController.updateSeguridad(modulo, titulo, descripcion, icon, img , id);
         if (result === undefined) {
             return res.status(200).send({
                 success: false,

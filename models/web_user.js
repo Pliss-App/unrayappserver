@@ -231,6 +231,43 @@ const insertBeneficios = (modulo, titulo, descripcion, url, tamanio_columna) => 
 };
 
 
+const getSeguridad = (modulo) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM seguridadweb WHERE modulo= ?;", [modulo], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+const insertSeguridad = (modulo, titulo, descripcion, icon, img) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "INSERT INTO seguridadweb  (modulo, titulo, descripcion, icon, img) VALUES (?, ?, ?, ?, ?);", [modulo, titulo, descripcion, icon, img], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+const updateSeguridad = (modulo, titulo, descripcion, icon, img, id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `update seguridadweb set
+                titulo=?, 
+                descripcion=?,
+                icon=?, 
+                img=?  
+                WHERE id= ? and modulo= ?`, 
+            [modulo, titulo, descripcion, icon, img, id], (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
+
 module.exports = {
     beneficios,
     requisitos,
@@ -250,5 +287,8 @@ module.exports = {
     updateIndicacionesCuenta,
     getBeneficios,
     updateBeneficios,
-    insertBeneficios
+    insertBeneficios,
+    getSeguridad,
+    insertSeguridad,
+    updateSeguridad
 }
