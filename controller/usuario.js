@@ -45,7 +45,7 @@ const mul = multer({
 
 
 const generateTemporaryPassword = () => {
-    const length = 6; // Longitud de la contraseña
+    const length = 4; // Longitud de la contraseña
     const characters = '0123456789'; // Solo números
     let password = '';
     for (let i = 0; i < length; i++) {
@@ -896,7 +896,7 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
                     msg: 'El código ha expirado.'
                 });
             }
-            let codigo = Number(codigoIngreso);
+            let codigo = codigoIngreso;
 
             if (usuario[0].codigo_verificacion === codigo) {
                 await userController.verificacionCuentaTelefono(telefono);
@@ -952,7 +952,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
         } else {
 
             try {
-                   await sendSMS(`502${telefono}`, message, 'Un Ray');
+                   //await sendSMS(`502${telefono}`, message, 'Un Ray');
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',
@@ -971,5 +971,75 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
 
     }
 })
+
+
+usuarioRouter.put('/logout', async (req, res) => {
+    try {
+        const { telefono } = req.body;
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await userController.estadoVerificacion(telefono);
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
+
+
+usuarioRouter.put('/update-nombre-apellido', async (req, res) => {
+    const {id, telefono, nombre, apellido} = req.body;
+
+    try {
+        const usuario = await userController. updateNombreApellido(id, telefono, nombre, apellido);
+        if (usuario === undefined) {
+
+            return res.status(200).send({
+                success: false,
+                msg: 'Teléfono no registrado.'
+            });
+        } else {
+                const existingUser = await userController.refreshLoginTelefono(telefono);
+                var _user = {
+                    foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+                }
+    
+                const token = jwt.sign({
+                    foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+                },
+                    process.env.JWT_SECRET, {
+                });
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    token,
+                    result: true,
+                    user: _user
+                });
+            
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(200).send({
+            success: false,
+            msg: error,
+        });
+    }
+})
+
 
 module.exports = usuarioRouter;

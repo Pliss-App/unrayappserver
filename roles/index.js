@@ -7,6 +7,8 @@ const carouselRouter = require('../controller/carousel');
 const docRouter = require('../controller/documentacion');
 const condRouter = require('../controller/conductor');
 const soliRouter = require('../controller/solicitud');
+
+const cuentaRouter = require('../controller/registro');
 //const comercioRouter = require('../controller/comercio');
 const locationRouter = require('../controller/location')
 const firebRouter = require('../controller/firebase')
@@ -29,6 +31,7 @@ apiRouter.use('/carousel', carouselRouter);
 apiRouter.use('/conductor', condRouter);
 apiRouter.use('/documentacion', docRouter);
 apiRouter.use('/viaje', soliRouter);
+apiRouter.use('/cuenta',cuentaRouter);
 //apiRouter.use('/comercio', comercioRouter);
 apiRouter.use('/servicios', servicesRouter);
 apiRouter.use('/solicitudes', solicitudes);
