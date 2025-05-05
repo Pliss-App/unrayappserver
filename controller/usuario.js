@@ -952,7 +952,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
         } else {
 
             try {
-                   //await sendSMS(`502${telefono}`, message, 'Un Ray');
+                   await sendSMS(`502${telefono}`, message, 'Un Ray');
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',
