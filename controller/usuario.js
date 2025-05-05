@@ -887,7 +887,7 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
             });
         } else {
 
-            const tiempoExpirado = Date.now() - new Date(usuario[0].codigoVerTimestamp).getTime() > 9 * 60 * 1000;
+            /*const tiempoExpirado = Date.now() - new Date(usuario[0].codigoVerTimestamp).getTime() > 9 * 60 * 1000;
             if (tiempoExpirado) {
                 //  return res.status(400).json({ success: false, msg: 'El código ha expirado.' });
 
@@ -895,7 +895,7 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
                     success: false,
                     msg: 'El código ha expirado.'
                 });
-            }
+            }*/
             let codigo = codigoIngreso;
 
             if (usuario[0].codigo_verificacion === codigo) {
