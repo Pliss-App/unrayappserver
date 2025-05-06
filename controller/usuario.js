@@ -913,7 +913,7 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
                 });
                 return res.status(200).send({
                     success: true,
-                    msg: 'SUCCESSFULLY',
+                    msg: 'Cuenta verificada correctamente.',
                     token,
                     result: true,
                     user: _user
