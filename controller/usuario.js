@@ -115,15 +115,15 @@ usuarioRouter.post('/registro', async (req, res) => {
         }
 
         // Enviar SM
-         try {
-              await sendSMS(`${codigoPais}${telefono}`, message, 'Un Ray');
-          } catch (smsError) {
-              console.error('Error al enviar SMS:', smsError);
-              return res.status(200).json({
-                  success: false,
-                  msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
-              });
-          }
+        try {
+            await sendSMS(`${codigoPais}${telefono}`, message, 'Un Ray');
+        } catch (smsError) {
+            console.error('Error al enviar SMS:', smsError);
+            return res.status(200).json({
+                success: false,
+                msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
+            });
+        }
 
         // Si hay código de referido válido
         if (tieneCodigoReferido && codigo) {
@@ -299,6 +299,22 @@ usuarioRouter.put('/verificar-cuenta', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/linkapp', async (req, res) => {
+    const result = await userController.linkDescargaApp()
+    if (result === undefined) {
+        return res.status(200).send({
+            success: false,
+            msg: 'Error: No se pudo obtener el link de descarga',
+
+        });
+    } else {
+        return res.status(200).send({
+            success: true,
+            msg: 'Satisfactorio',
+            result: result[0]
+        });
+    }
+})
 
 usuarioRouter.get('/userId/:id', async (req, res) => {
     const getUserby = await userController.getUserBy(user.uid)
@@ -905,7 +921,7 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
                 var _user = {
                     foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
                 }
-    
+
                 const token = jwt.sign({
                     foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
                 },
@@ -952,7 +968,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
         } else {
 
             try {
-                   await sendSMS(`502${telefono}`, message, 'Un Ray');
+                await sendSMS(`502${telefono}`, message, 'Un Ray');
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',
@@ -1002,10 +1018,10 @@ usuarioRouter.put('/logout', async (req, res) => {
 
 
 usuarioRouter.put('/update-nombre-apellido', async (req, res) => {
-    const {id, telefono, nombre, apellido} = req.body;
+    const { id, telefono, nombre, apellido } = req.body;
 
     try {
-        const usuario = await userController. updateNombreApellido(id, telefono, nombre, apellido);
+        const usuario = await userController.updateNombreApellido(id, telefono, nombre, apellido);
         if (usuario === undefined) {
 
             return res.status(200).send({
@@ -1013,24 +1029,24 @@ usuarioRouter.put('/update-nombre-apellido', async (req, res) => {
                 msg: 'Teléfono no registrado.'
             });
         } else {
-                const existingUser = await userController.refreshLoginTelefono(telefono);
-                var _user = {
-                    foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
-                }
-    
-                const token = jwt.sign({
-                    foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
-                },
-                    process.env.JWT_SECRET, {
-                });
-                return res.status(200).send({
-                    success: true,
-                    msg: 'SUCCESSFULLY',
-                    token,
-                    result: true,
-                    user: _user
-                });
-            
+            const existingUser = await userController.refreshLoginTelefono(telefono);
+            var _user = {
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+            }
+
+            const token = jwt.sign({
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+            },
+                process.env.JWT_SECRET, {
+            });
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                token,
+                result: true,
+                user: _user
+            });
+
         }
     } catch (error) {
         console.error(error);
@@ -1042,4 +1058,60 @@ usuarioRouter.put('/update-nombre-apellido', async (req, res) => {
 })
 
 
+usuarioRouter.post('/insertar-referido', async (req, res) => {
+    const { codigo, idUser, fecha, hora, razonreferencia } = req.body;
+
+    try {
+        const result = await userController.getValidarExistenciaCodigo(codigo);
+        if (!result || result.length === 0) {
+            return res.status(200).send({
+                msg: 'El código de referido ingresado no existe.',
+                success: false
+            });
+        }
+
+        const user = await userController.insertDetalleReferido(codigo, idUser, fecha, hora, razonreferencia);
+        if (user === undefined) {
+            return res.status(200).send({
+                msg: 'No se pudo agregar el código de referido. Intenta más tarde.',
+                success: false
+            });
+        }
+        return res.status(200).send({
+            msg: '¡Felicidades, hemos agregado el código de referido.',
+            success: true
+        });
+        // res.send('Contraseña actualizada correctamente');
+    } catch (err) {
+        console.error(err);
+        return res.status(200).send({
+            msg: 'Error, ocurrio un error en el servidor. Intenta más tarde.',
+            success: false
+        });
+    }
+});
+
+
+
+usuarioRouter.get('/get-referido/:id', async (req, res) => {
+
+    try {
+        const user = await userController.getDetalleReferido(req.params.id);
+        if (!user || user.length === 0) {
+            return res.status(200).send({
+                msg: 'Usuario no ha referido',
+                success: false
+            });
+        }
+        return res.status(200).send({
+            msg: 'Usuario ya refirio.',
+            success: true,
+            result: user[0]
+        });
+        // res.send('Contraseña actualizada correctamente');
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Error interno del servidor');
+    }
+});
 module.exports = usuarioRouter;

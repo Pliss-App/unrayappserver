@@ -28,6 +28,21 @@ const getUserTelfonoEmail = (_valor) => {
 };
 
 
+const linkDescargaApp = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT link FROM descargapp where id= 1 and estado= 'A'",
+            (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            }
+        );
+    });
+};
+
 const getRecuperarPassword = (_valor) => {
     return new Promise((resolve, reject) => {
         connection.query(
@@ -139,10 +154,36 @@ const insertProblemasSugerencia = (idUser, tipo, descripcion, imagen) => { //get
     });
 };
 
-const insertDetalleReferido = (codigo, idUser, fecha) => { //getByEmail
+const insertDetalleReferido = (codigo, idUser, fecha, hora, razonreferencia) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `insert into detalleReferido (codigoReferidor, idReferido, fechahora ) values (?, ?, ? )`, [codigo, idUser, fecha], (err, rows) => {
+            `insert into detalleReferido (codigoReferidor, idReferido, fecha, hora, razonreferencia ) values (?, ?, ?, ?, ?)`, [codigo, idUser, fecha, hora, razonreferencia], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+
+const getValidarExistenciaCodigo = (codigo) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select codigo from usuario where codigo= ?`, [codigo], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+const getDetalleReferido = (idUser) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select codigoReferidor from detalleReferido where idReferido= ? `, [idUser], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -1052,5 +1093,8 @@ module.exports = {
     refreshLoginTelefono,
     getLoginTelefono,
     estadoVerificacion,
-    updateNombreApellido
+    updateNombreApellido,
+    linkDescargaApp,
+    getDetalleReferido,
+    getValidarExistenciaCodigo
 }
