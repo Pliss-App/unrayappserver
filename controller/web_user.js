@@ -94,7 +94,7 @@ isRouter.post('/pruebas', async (req, res) => {
     const mailOptions = {
         from: process.env.GMAIL_DRIVER,
         to: 'perezlib49@gmail.com',
-        subject: '✅ Afiliación Completada',
+        subject: '✅ Afiliación Iniciada',
         html: `
     <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
         <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
