@@ -19,35 +19,40 @@ app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900
 app.use("/uploads", express.static("uploads"));
 
 /*
-app.use(
-  "/uploads",
-  (req, res, next) => {
-    const origin = req.get("Origin");
-
-    // Solo permitir acceso desde tu dominio
-    if (origin && origin.includes("tudominio.com")) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      next();
-    } else {
-      res.status(403).send("No autorizado");
-    }
-  },
-  express.static(path.join(__dirname, "uploads"))
-);
-*/
-
 var corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-}
+} */
 
-app.use(cors(corsOptions));
+  const allowedOrigins = [
+  'http://localhost:3000',       // desarrollo local
+  'http://127.0.0.1:3000',
+  'https://unrayappserver.onrender.com',
+  'http://localhost:8080',
+  'http://localhost:8100',
+  'https://unraylatinoamerica.com'        // tu dominio en producción
+];
+
+app.use(cors({
+  origin: function (origin, callback) {
+    // Permitir requests sin origin (como Postman) o si está en la lista
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('No autorizado por CORS'));
+    }
+  }
+}));
+
+
+//app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 const apiRoutes = require('./roles/index');
 
-app.use('/api', apiRoutes)
+app.use('/api', apiRoutes);
+
 
 
 app.get('/api/conection', (req, res) => {

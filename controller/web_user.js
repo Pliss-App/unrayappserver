@@ -1,6 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const multer = require("multer");
+const connection = require('../config/conexion');
 const isRouter = express.Router();
 const nodemailer = require('nodemailer');
 const isServicio = require('../models/services')
@@ -8,6 +9,32 @@ const isController = require('../models/web_user');
 const isUserController = require('../models/usuario');
 const { saveBase64File } = require("../utils/saveBase64File");
 const storage = require("../config/cloudinaryStorage");
+const rateLimit = require('express-rate-limit');
+const CryptoJS = require('crypto-js');  // Instalar crypto-js
+
+const SECRET_KEY = process.env.WEB_USER_API_KEY;
+// Configuración de rate limiting
+const publicLimiter = rateLimit({
+    windowMs: 1 * 60 * 1000,  // 1 minuto
+    max: 100,  // máximo 10 peticiones por IP
+    message: 'Demasiadas peticiones, inténtalo más tarde.'
+});
+
+// Middleware para proteger la ruta con rate limiting
+isRouter.use(publicLimiter);
+
+// Middleware de seguridad "oculta"
+isRouter.use((req, res, next) => {
+    const token = process.env.WEB_USER_API_KEY;
+    if (!token) {
+        return res.status(500).json({ error: 'Token no encontrado' });
+    }
+    req.apiKey = token;  // Almacenar la clave en la request
+    next();
+
+});
+
+
 const generateTemporaryPassword = () => {
     const length = 8; // Longitud de la contraseña
     const characters = '0123456789'; // Solo números
@@ -23,35 +50,34 @@ const upload = multer({ storage: storage });
 
 isRouter.post("/upload", upload.single("archivo"), async (req, res) => {
     try {
-      if (!req.file || !req.file.path) {
-        console.error("No se recibió el archivo o no tiene path");
-        return res.status(400).json({ 
-          success: false,
-          message: "No se subió ningún archivo" 
+        if (!req.file || !req.file.path) {
+            console.error("No se recibió el archivo o no tiene path");
+            return res.status(400).json({
+                success: false,
+                message: "No se subió ningún archivo"
+            });
+        }
+
+
+        return res.status(200).json({
+            success: true,
+            message: "Archivo subido correctamente",
+            url: req.file.path, // URL pública (Cloudinary, S3, etc.)
+            nombre: req.file.originalname,
+            public_id: req.file.filename,
         });
-      }
-  
-      console.log("Archivo recibido:", req.file);
-  
-      return res.status(200).json({
-        success: true,
-        message: "Archivo subido correctamente",
-        url: req.file.path, // URL pública (Cloudinary, S3, etc.)
-        nombre: req.file.originalname,
-        public_id: req.file.filename,
-      });
-  
+
     } catch (error) {
-      console.error("Error al subir archivo:", error);
-  
-      return res.status(500).json({
-        success: false,
-        message: "Ocurrió un error al subir el archivo",
-        error: error.message, // Esto te mostrará el mensaje específico
-      });
+        console.error("Error al subir archivo:", error);
+
+        return res.status(500).json({
+            success: false,
+            message: "Ocurrió un error al subir el archivo",
+            error: error.message, // Esto te mostrará el mensaje específico
+        });
     }
-  });
-  
+});
+
 
 isRouter.post('/pruebas', async (req, res) => {
 
@@ -68,19 +94,20 @@ isRouter.post('/pruebas', async (req, res) => {
     const mailOptions = {
         from: process.env.GMAIL_DRIVER,
         to: 'perezlib49@gmail.com',
-        subject: 'Credenciales de Usuario',
+        subject: '✅ Afiliación Completada',
         html: `
     <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
         <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
-            <h2 style="color: #333;">🔑 Credenciales de Usuario</h2>
-            <p style="color: #555; font-size: 16px;">Te enviamos tus datos para que puedas logearte como conductor:</p>
-            
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
-                Contraseña Temporal: <span style="color: #007bff;">123232323</span>
-            </div>
+            <h2 style="color: #333;">👋 ¡Bienvenido a bordo!</h2>
+            <p style="text-align: left; color: #555; font-size: 16px;">Nos alegra tenerte como nuevo afiliado conductor. Has dado el primer paso al crear tu cuenta, y eso ya te acerca a nuevas oportunidades de crecimiento e ingresos.</p>
+        
 
-            <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos cambiar esta contraseña después de iniciar sesión.</p>
+            <p style=" text-align: left; color: #555; font-size: 16px;">✅ Muy pronto, nuestro equipo se estará comunicando contigo para completar el proceso de afiliación y brindarte toda la información que necesitas para comenzar a conducir con nosotros.</p>
+   <p style=" text-align: left; color: #555; font-size: 16px;">Gracias por confiar en nosotros. Estamos emocionados de que formes parte de esta comunidad comprometida con el servicio, la seguridad y la excelencia.</p>
 
+
+       <p style="text-align: left;  color: #555; font-size: 16px;">¡Nos vemos en el camino!</p>
+         
             <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
 
             <p style="color: #555; font-size: 14px;">Atentamente,</p>
@@ -108,53 +135,77 @@ isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
         const { idservicio, nombre, apellido, telefono, correo } = req.body;
+
         const idService = 1;
 
-        const results = await isUserController.getUserTelfonoEmail(telefono);
-        if (results === undefined) {
+        const results = await isUserController.getUserTelefono(telefono, correo);
 
-            const temporaryPassword = generateTemporaryPassword();
-            const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+        if (results.length > 0 || results === undefined) {
 
-            const result = await isUserController.createUserDriver({
-                nombre, apellido, telefono, correo,
-                password: hashedPassword
+            const conflicto = [];
+
+            results.forEach((row) => {
+                if (row.telefono === telefono) conflicto.push('Teléfono');
+                if (row.correo === correo.toUpperCase()) conflicto.push('Correo');
             });
 
-            const permission = await isUserController.agregarRol(result.insertId, idservicio);
-            const usDet = await isUserController.insertLocation(result.insertId);
-            const usDire = await isUserController.insertDireccion(result.insertId);
-            const usBillerea = await isUserController.insertBilletera(result.insertId);
-            const usVechiculo = await isUserController.insertVehiculo(result.insertId);
-
-            const transporter = nodemailer.createTransport({
-                host: 'smtp.hostinger.com',
-                port: 465,
-                secure: true,
-                auth: {
-                    user: process.env.GMAIL_DRIVER, // Tu correo
-                    pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
-                },
+            return res.status(200).send({
+                success: false,
+                msg: `Ya existe un usuario con el mismo ${conflicto.join(' y ')}`
             });
+        }
 
-            // Enviar el correo con el enlace de restablecimiento
-            // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
-            const mailOptions = {
-                from: process.env.GMAIL_DRIVER,
-                to: correo,
-                subject: 'Credenciales de Usuario | Conductor',
-                html: `
-    <div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+        const temporaryPassword = generateTemporaryPassword();
+        const hashedPassword = await bcrypt.hash(temporaryPassword, 10);
+
+        const result = await isUserController.createUserDriver({
+            nombre, apellido, telefono, correo,
+            password: hashedPassword
+        });
+
+
+        if (result.length > 0 || result === undefined || result === null) {
+            return res.status(200).send({
+                success: false,
+                msg: `No se pudo aplicar la afiliciación, intenta más tarde.`
+            });
+        }
+
+
+        const permission = await isUserController.agregarRol(result.insertId, idservicio);
+        const usDet = await isUserController.insertLocation(result.insertId);
+        const usDire = await isUserController.insertDireccion(result.insertId);
+        const usBillerea = await isUserController.insertBilletera(result.insertId);
+        const usVechiculo = await isUserController.insertVehiculo(result.insertId);
+
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.hostinger.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.GMAIL_DRIVER, // Tu correo
+                pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+            },
+        });
+
+        // Enviar el correo con el enlace de restablecimiento
+        // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
+        const mailOptions = {
+            from: process.env.GMAIL_DRIVER,
+            to: correo,
+            subject: '✅ Afiliación Completada',
+            html: `<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
         <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
-            <h2 style="color: #333;">🔑 Credenciales de Usuario</h2>
-            <p style="color: #555; font-size: 16px;">Te enviamos tus datos para que puedas logearte como conductor:</p>
-            
-            <div style="background: #f8f9fa; padding: 10px; border-radius: 5px; margin: 15px 0; font-size: 18px; font-weight: bold; color: #333;">
-                Contraseña Temporal: <span style="color: #007bff;">${temporaryPassword}</span>
-            </div>
+            <h2 style="color: #333;">👋 ¡Bienvenido a bordo!</h2>
+            <p style="text-align: left; color: #555; font-size: 16px;">Nos alegra tenerte como nuevo afiliado conductor. Has dado el primer paso al crear tu cuenta, y eso ya te acerca a nuevas oportunidades de crecimiento e ingresos.</p>
+        
 
-            <p style="color: #777; font-size: 14px;">Por razones de seguridad, te recomendamos cambiar esta contraseña después de iniciar sesión.</p>
+            <p style=" text-align: left; color: #555; font-size: 16px;">✅ Muy pronto, nuestro equipo se estará comunicando contigo para completar el proceso de afiliación y brindarte toda la información que necesitas para comenzar a conducir con nosotros.</p>
+   <p style=" text-align: left; color: #555; font-size: 16px;">Gracias por confiar en nosotros. Estamos emocionados de que formes parte de esta comunidad comprometida con el servicio, la seguridad y la excelencia.</p>
 
+
+       <p style="text-align: left;  color: #555; font-size: 16px;">¡Nos vemos en el camino!</p>
+         
             <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
 
             <p style="color: #555; font-size: 14px;">Atentamente,</p>
@@ -162,23 +213,18 @@ isRouter.post('/registro_conductor', async (req, res) => {
             <p style="color: #777; font-size: 13px;">📧 soporteconductor@unraylatinoamerica.com</p>
         </div>
     </div>`,
-            };
+        };
 
-            await transporter.sendMail(mailOptions, (error, info) => {
-                if (error) {
-                    console.log("EERO ", error)
-                    return res.status(500).send(error.toString());
-                }
+        await transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return res.status(500).send(error.toString());
+            }
 
-                res.status(200).send('Correo enviado: ' + info.response);
-            });
+            res.status(200).send('Correo enviado: ' + info.response);
+        });
 
-            return res.status(200).json({ msg: 'Cuenta Creada', status: 200 });
-        } else {
-            return res.status(200).json({
-                msg: 'Teléfono o correo, vinculados a otra cuenta existente.',
-            });
-        }
+        return res.status(200).json({ success: true, msg: 'Cuenta Creada', status: 200 });
+
 
     } catch (error) {
         console.error('Error durante el registro:', error);  // Verificamos el código de error
@@ -250,6 +296,9 @@ isRouter.get('/nosotros', async (req, res) => {
             error: 'Error, Datos no encontrados'
         })
     } else {
+        // Encriptar los datos usando AES (simétrico)
+        //const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(result), SECRET_KEY).toString();
+
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
             result: result
@@ -574,7 +623,7 @@ isRouter.put('/updateBeneficios', async (req, res) => {
 })
 
 isRouter.post('/insertBeneficios', async (req, res) => {
-    const { modulo, titulo, descripcion, url, tamanio_columna} = req.body;
+    const { modulo, titulo, descripcion, url, tamanio_columna } = req.body;
     try {
         const result = await isController.insertBeneficios(modulo, titulo, descripcion, url, tamanio_columna);
         if (result === undefined) {
@@ -638,9 +687,9 @@ isRouter.post('/insertSeguridad', async (req, res) => {
 })
 
 isRouter.put('/updateSeguridad', async (req, res) => {
-    const {modulo, titulo, descripcion, icon, img , id} = req.body;
+    const { modulo, titulo, descripcion, icon, img, id } = req.body;
     try {
-        const result = await isController.updateSeguridad(modulo, titulo, descripcion, icon, img , id);
+        const result = await isController.updateSeguridad(modulo, titulo, descripcion, icon, img, id);
         if (result === undefined) {
             return res.status(200).send({
                 success: false,
@@ -661,7 +710,7 @@ isRouter.put('/updateSeguridad', async (req, res) => {
 
 isRouter.post('/insertInquietud', async (req, res) => {
 
-    
+
     const { nombre, correo, telefono, mensaje, fecha, hora } = req.body;
     try {
         const result = await isController.insertInquietud(nombre, correo, telefono, mensaje, fecha, hora);
@@ -705,7 +754,7 @@ isRouter.get('/nosotros', async (req, res) => {
 
 isRouter.post('/nosotros', async (req, res) => {
 
-    
+
     const { titulo, descripcion, url, text_column, url_column } = req.body;
     try {
         const result = await isController.insertNosotros(titulo, descripcion, url, text_column, url_column);
@@ -727,7 +776,7 @@ isRouter.post('/nosotros', async (req, res) => {
 })
 
 isRouter.put('/updateNosotros', async (req, res) => {
-    const {titulo, descripcion, url, text_column, url_column, id} = req.body;
+    const { titulo, descripcion, url, text_column, url_column, id } = req.body;
     try {
         const result = await isController.updateNosotros(titulo, descripcion, url, text_column, url_column, id);
         if (result === undefined) {
@@ -746,6 +795,49 @@ isRouter.put('/updateNosotros', async (req, res) => {
         console.log("ERROR DURANTE LA OPERACIÓN")
     }
 })
+
+isRouter.post('/visitas', async (req, res) => {
+    const { session_id,
+        ip_address,
+        latitud,
+        longitud,
+        user_agent,
+        sistema_operativo,
+        navegador,
+        dispositivo,
+        ultima_visita } = req.body;
+
+    try {
+        const existing = await isController.checkExistingVisit(ip_address, user_agent, sistema_operativo, navegador, dispositivo);
+
+
+        if (existing.length > 0) {
+            const cantidad = Number(existing[0].visitas);
+            const total = cantidad + 1;
+            // Puedes solo registrar una nueva visita vinculada al ID del visitante
+            await connection.query("update visitas_web set visitas= ?, latitud=?, longitud=?,  ultima_visita= ? where ip_address = ? and id = ?", [total, latitud,
+                longitud, ultima_visita, ip_address, existing[0].id]);
+            return res.status(200).send({ msg: "Visitante recurrente registrado" });
+        } else {
+
+            // Nuevo visitante
+            await isController.insertVisitas(session_id,
+                ip_address,
+                latitud,
+                longitud,
+                user_agent,
+                sistema_operativo,
+                navegador,
+                dispositivo,
+                ultima_visita);
+            res.status(201).send({ msg: "Nuevo visitante registrado" });
+        }
+    } catch (error) {
+        console.error("Error registrando visita:", error);
+        res.status(500).send({ error: "Error al registrar la visita" });
+    }
+});
+
 
 
 module.exports = isRouter;

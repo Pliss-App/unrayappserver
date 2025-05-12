@@ -259,68 +259,122 @@ const updateSeguridad = (modulo, titulo, descripcion, icon, img, id) => { //getB
                 descripcion=?,
                 icon=?, 
                 img=?  
-                WHERE id= ? and modulo= ?`, 
+                WHERE id= ? and modulo= ?`,
             [modulo, titulo, descripcion, icon, img, id], (err, rows) => {
-            if (err) reject(err)
-            resolve(rows)
-        });
+                if (err) reject(err)
+                resolve(rows)
+            });
     });
 };
 
 
 const insertInquietud = (nombre, correo, telefono, mensaje, fecha, hora) => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `INSERT INTO inquietudes (nombre, correo, telefono, mensaje, fecha, hora, estado)
+        connection.query(
+            `INSERT INTO inquietudes (nombre, correo, telefono, mensaje, fecha, hora, estado)
          VALUES (?, ?, ?, ?, ?, ?, ?)`,
-        [nombre, correo, telefono, mensaje, fecha, hora, 'Nuevo'],
-        (err, rows) => {
-          if (err) return reject(err);
-          resolve(rows);
-        }
-      );
+            [nombre, correo, telefono, mensaje, fecha, hora, 'Nuevo'],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
     });
-  };
-  
+};
 
-  const insertNosotros= (titulo, descriocion, url, text_column, url_column) => {
+
+const insertNosotros = (titulo, descriocion, url, text_column, url_column) => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `INSERT INTO nosotros (titulo, descripcion, url, text_column, url_column)
+        connection.query(
+            `INSERT INTO nosotros (titulo, descripcion, url, text_column, url_column)
          VALUES (?, ?, ?, ?, ?)`,
-        [titulo, descriocion, url, text_column, url_column],
-        (err, rows) => {
-          if (err) return reject(err);
-          resolve(rows);
-        }
-      );
+            [titulo, descriocion, url, text_column, url_column],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
     });
-  };
+};
 
 
-  const getNosotros= () => {
+const getNosotros = () => {
     return new Promise((resolve, reject) => {
-      connection.query(
-        `select * from nosotros;`,
-        (err, rows) => {
-          if (err) return reject(err);
-          resolve(rows);
-        }
-      );
+        connection.query(
+            `select * from nosotros;`,
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
     });
-  };
+};
 
-  const updateNosotros = (titulo, descriocion, url, text_column, url_column, id) => { //getByEmail
+const updateNosotros = (titulo, descriocion, url, text_column, url_column, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             `update nosotros set  titulo=?, descripcion=?, url=?, text_column=?, url_column=?  
-                WHERE id= ?`, 
+                WHERE id= ?`,
             [titulo, descriocion, url, text_column, url_column, id], (err, rows) => {
-            if (err) reject(err)
-            resolve(rows)
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+// Verifica si ese dispositivo ya está registrado
+const checkExistingVisit = async (ip, userAgent, so, navegador, dispositivo) => {
+    const query = `
+    SELECT id, visitas 
+    FROM visitas_web 
+    WHERE ip_address = ? AND user_agent = ? 
+    AND sistema_operativo = ? AND navegador = ? 
+    AND dispositivo = ? 
+    ORDER BY created_at DESC 
+    LIMIT 1
+  `;
+    return new Promise((resolve, reject) => {
+        connection.query(query, [ip, userAgent, so, navegador, dispositivo], (err, rows) => {
+            if (err) return reject(err);
+            resolve( rows);
         });
     });
 };
+
+
+
+const insertVisitas = (session_id,
+    ip_address,
+    latitud,
+    longitud,
+    user_agent,
+    sistema_operativo,
+    navegador,
+    dispositivo,
+    ultima_visita, ) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO visitas_web 
+        (session_id, ip_address, latitud, longitud,  user_agent, sistema_operativo, navegador, dispositivo, ultima_visita, created_at) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            [session_id,
+                ip_address,
+                latitud,
+                longitud,
+                user_agent,
+                sistema_operativo,
+                navegador,
+                dispositivo,
+                ultima_visita, ultima_visita],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
+    });
+};
+
+
 
 module.exports = {
     beneficios,
@@ -348,5 +402,7 @@ module.exports = {
     insertInquietud,
     insertNosotros,
     getNosotros,
-    updateNosotros
+    updateNosotros,
+    checkExistingVisit,
+    insertVisitas
 }

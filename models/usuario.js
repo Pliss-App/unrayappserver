@@ -1,5 +1,22 @@
 const connection = require('../config/conexion');
 
+const getUserTelefono = (telefono, correo) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      "SELECT telefono, correo FROM usuario WHERE telefono = ? OR correo = ?",
+      [telefono, correo],
+      (err, rows) => {
+        if (err) {
+          console.error('Error al buscar usuario:', err);
+          return reject(new Error('Error al verificar existencia de usuario'));
+        }
+        resolve(rows);
+      }
+    );
+  });
+};
+
+
 const getUserTelfonoEmail = (_valor) => {
     return new Promise((resolve, reject) => {
         connection.query(
@@ -654,12 +671,12 @@ const createUserDriver = (userData) => { //getByEmail
             apellido, telefono, correo, 
             foto, password, reset_token, 
             estado, total_viajes, rating, onesignal_token, estado_usuario, reset_token_expiration
-            , socket_id, codigo_verificacion)
-               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)`,
+            , socket_id, codigo_verificacion, aceptaTerminos)
+               VALUES (?, ?, ?, ?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [nombre.toUpperCase(), apellido.toUpperCase(),
                 telefono, correo.toUpperCase(), null,
-                password, null,
-                false, 0, 0, null, 'libre', null, null, 0], (err, rows) => {
+                null, null,
+                false, 0, 0, null, 'libre', null, null, null,1], (err, rows) => {
                     if (err) {
                         console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                         return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -1096,5 +1113,6 @@ module.exports = {
     updateNombreApellido,
     linkDescargaApp,
     getDetalleReferido,
-    getValidarExistenciaCodigo
+    getValidarExistenciaCodigo,
+    getUserTelefono
 }
