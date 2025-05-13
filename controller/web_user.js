@@ -16,7 +16,7 @@ const SECRET_KEY = process.env.WEB_USER_API_KEY;
 // Configuración de rate limiting
 const publicLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,  // 1 minuto
-    max: 100,  // máximo 10 peticiones por IP
+    max: 550,  // máximo 10 peticiones por IP
     message: 'Demasiadas peticiones, inténtalo más tarde.'
 });
 
@@ -838,6 +838,27 @@ isRouter.post('/visitas', async (req, res) => {
     }
 });
 
+
+isRouter.get('/listado-afiliados-conductor', async (req, res) => {
+
+    const result = await isController.getListadoAfiliado();
+    if (result === undefined) {
+
+        return res.status(200).send({
+            success: false,
+            msg: 'Error, no se pudo obtener registros',
+        });
+    } else {
+        // Encriptar los datos usando AES (simétrico)
+        //const encryptedData = CryptoJS.AES.encrypt(JSON.stringify(result), SECRET_KEY).toString();
+
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
 
 
 module.exports = isRouter;

@@ -310,6 +310,8 @@ const getNosotros = () => {
     });
 };
 
+
+
 const updateNosotros = (titulo, descriocion, url, text_column, url_column, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -375,6 +377,22 @@ const insertVisitas = (session_id,
 };
 
 
+const getListadoAfiliado = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select u.id , u.nombre, u.apellido, u.telefono, u.correo,  s.nombre servicio from usuario u 
+inner join usuario_rol ur
+on u.id = ur.iduser
+inner join servicios s
+on ur.idservice=  s.id`,
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows);
+            }
+        );
+    });
+};
+
 
 module.exports = {
     beneficios,
@@ -404,5 +422,6 @@ module.exports = {
     getNosotros,
     updateNosotros,
     checkExistingVisit,
-    insertVisitas
+    insertVisitas,
+    getListadoAfiliado
 }
