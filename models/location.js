@@ -39,12 +39,22 @@ const obtenerLocationUserIsSharing = (id) => {
 const obtenerLocationUser = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT lat  latitude, lon  longitude FROM location WHERE iduser=?`, [id], (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
+            `SELECT lat AS latitude, lon AS longitude FROM location WHERE iduser = ?`, [id],
+            (err, rows) => {
+                if (err) {
+                    return reject(err);
+                }
+
+                if (rows && rows.length > 0) {
+                    resolve(rows[0]);
+                } else {
+                    resolve(null); // Puedes devolver null o un objeto vacío si no hay datos
+                }
+            }
+        );
     });
 };
+
 
 
 const updateLocationUser = (id, lat, lng, angle) => { //getByEmail

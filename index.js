@@ -31,6 +31,7 @@ var corsOptions = {
   'http://127.0.0.1:3000',
   'https://unrayappserver.onrender.com',
   'http://localhost:8080',
+  'http://localhost:8081',
   'http://localhost:8100',
   'https://unraylatinoamerica.com'        // tu dominio en producción
 ];

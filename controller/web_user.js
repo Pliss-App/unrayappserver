@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const isServicio = require('../models/services')
 const isController = require('../models/web_user');
 const isUserController = require('../models/usuario');
+const isConductorController = require('../models/administracion/conductores')
 const { saveBase64File } = require("../utils/saveBase64File");
 const storage = require("../config/cloudinaryStorage");
 const rateLimit = require('express-rate-limit');
@@ -134,7 +135,7 @@ isRouter.post('/pruebas', async (req, res) => {
 isRouter.post('/registro_conductor', async (req, res) => {
 
     try {
-        const { idservicio, nombre, apellido, telefono, correo } = req.body;
+        const { idservicio, nombre, apellido, telefono, correo, placas, modelo, color } = req.body;
 
         const idService = 1;
 
@@ -171,12 +172,12 @@ isRouter.post('/registro_conductor', async (req, res) => {
             });
         }
 
-
+        const usVechiculo = await isUserController.insertVehiculo(result.insertId);
         const permission = await isUserController.agregarRol(result.insertId, idservicio);
         const usDet = await isUserController.insertLocation(result.insertId);
         const usDire = await isUserController.insertDireccion(result.insertId);
         const usBillerea = await isUserController.insertBilletera(result.insertId);
-        const usVechiculo = await isUserController.insertVehiculo(result.insertId);
+
 
         const transporter = nodemailer.createTransport({
             host: 'smtp.hostinger.com',
@@ -222,9 +223,18 @@ isRouter.post('/registro_conductor', async (req, res) => {
 
             res.status(200).send('Correo enviado: ' + info.response);
         });
+        const veh = {
+            placas: placas,
+            modelo: modelo,
+            color: color,
+        }
+
+        setTimeout(async () => {
+            const vehi = await isConductorController.updateVehiculoId(veh, result.insertId);
+        }, 1500)
+
 
         return res.status(200).json({ success: true, msg: 'Cuenta Creada', status: 200 });
-
 
     } catch (error) {
         console.error('Error durante el registro:', error);  // Verificamos el código de error
