@@ -181,4 +181,63 @@ isRouter.post('/login-register', async (req, res) => {
 
 })
 
+
+isRouter.post('/login-modo', async (req, res) => {
+    const { telefono } = req.body;
+    if (!telefono) {
+        return res.status(400).json({
+            success: false,
+            message: 'Faltan datos obligatorios Telefono'
+        });
+    }
+    try {
+
+        console.log("USER ", telefono)
+
+        const existingUser = await userController.getLoginTelefono(telefono);
+
+        if (existingUser === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'Error, Teléfono no registrados.'
+            });
+        }
+
+        var _user = {
+            estado: existingUser.estado, marker: existingUser.marker,
+            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
+            rol: existingUser.rol, nombre: existingUser.nombre,
+            apellido: existingUser.apellido, correo: existingUser.correo,
+            telefono: existingUser.telefono,
+            verificacion: existingUser.verificacion,
+            codigo: existingUser.codigo
+        }
+        const token = jwt.sign({
+            estado: existingUser.estado, marker: existingUser.marker,
+            foto: existingUser.foto, idUser: existingUser.idUser,
+            idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
+            apellido: existingUser.apellido, correo: existingUser.correo,
+            telefono: existingUser.telefono,
+            verificacion: existingUser.verificacion,
+            codigo: existingUser.codigo
+        },
+            process.env.JWT_SECRET
+        );
+
+        return res.status(200).send({
+            msg: 'Logged in!',
+            token,
+            result: true,
+            user: _user
+        });
+
+    } catch (error) {
+        return res.status(400).json({
+            success: false,
+            message: error
+        });
+    }
+})
+
+
 module.exports = isRouter;

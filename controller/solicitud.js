@@ -940,6 +940,47 @@ isRouter.post("/calificar", async (req, res) => {
             message: 'Ya calificó'
         });
     } else {
+        const respuesta = await isController.consultarCalificacion({ id_viaje, evaluador_id, evaluado_id });
+
+        if (respuesta?.length > 0) {
+
+                    console.log("EXISTe : ", respuesta)
+            const update = await isController.updateCali_viaje(evaluador_id, id_viaje);
+            if (!update || update.length === 0) {
+                return res.status(200).json({
+                    success: false,
+                    message: 'Calificación  Update Error',
+                    mos: result,
+                });
+            }
+            else {
+                const repromedio = await isController.getCalificacion(evaluado_id);
+                if (!repromedio?.length) {
+                    return res.status(200).json({
+                        success: false,
+                        message: 'Calificación  Error'
+                    });
+                } else {
+                    const promedio = parseFloat(repromedio[0].promedio).toFixed(1);
+                    const totalViajes = repromedio[0].total_viajes;
+                    const resp = await isController.updateRanting(evaluado_id, promedio, totalViajes);
+                    if (!resp) {
+
+                        return res.status(200).json({
+                            success: false,
+                            message: 'Calificación  Error'
+                        });
+                    } else {
+                        return res.status(200).json({
+                            success: true,
+                            message: 'Calificación enviada correctamente'
+                        });
+                    }
+                }
+            }
+
+        }
+
         const result = await isController.guardarCalificacion({ id_viaje, evaluador_id, evaluado_id, calificacion, comentario });
         if (!result || result.length === 0) {
             return res.status(200).json({
@@ -984,8 +1025,6 @@ isRouter.post("/calificar", async (req, res) => {
 
         }
     }
-
-
 }
 )
 

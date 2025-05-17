@@ -9,7 +9,7 @@ const { initializeSocket } = require('./socket'); // Importa el inicializador de
 const {initializeSocketOr} = require('./socketOr');
 const app = express();
 // 👇 Solución al error
-app.set('trust proxy', true);
+app.set('trust proxy',1);
 
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
  // 👈 Iniciamos el socket aquí

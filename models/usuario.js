@@ -1,19 +1,19 @@
 const connection = require('../config/conexion');
 
 const getUserTelefono = (telefono, correo) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      "SELECT telefono, correo FROM usuario WHERE telefono = ? OR correo = ?",
-      [telefono, correo],
-      (err, rows) => {
-        if (err) {
-          console.error('Error al buscar usuario:', err);
-          return reject(new Error('Error al verificar existencia de usuario'));
-        }
-        resolve(rows);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT telefono, correo FROM usuario WHERE telefono = ? OR correo = ?",
+            [telefono, correo],
+            (err, rows) => {
+                if (err) {
+                    console.error('Error al buscar usuario:', err);
+                    return reject(new Error('Error al verificar existencia de usuario'));
+                }
+                resolve(rows);
+            }
+        );
+    });
 };
 
 
@@ -676,7 +676,7 @@ const createUserDriver = (userData) => { //getByEmail
             [nombre.toUpperCase(), apellido.toUpperCase(),
                 telefono, correo.toUpperCase(), null,
                 null, null,
-                false, 0, 0, null, 'libre', null, null, null,1], (err, rows) => {
+                false, 0, 0, null, 'libre', null, null, null, 1], (err, rows) => {
                     if (err) {
                         console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                         return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -1022,7 +1022,7 @@ const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
 };
 
 
-const estadoVerificacion= (telefono) => { //getByEmail
+const estadoVerificacion = (telefono) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             "update usuario set verificacion= 0, codigo_verificacion= null, codigoVerTimestamp=0 where telefono = ?", [telefono], (err, rows) => {
@@ -1049,6 +1049,42 @@ const updateNombreApellido = (id, telefono, nombre, apellido) => { //getByEmail
     });
 };
 
+const getServices = () => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM servicios WHERE id != 5 and estado =1 ", (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
+const updateRol = (idUser, rol, idService) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario_rol set idrol = ?, idservice= ? where iduser= ? ", [rol, idService, idUser], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+
+const getDocumentacionAfiliacion = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select idservicio from documentacion
+            where iduser = ?
+            limit 1;`, [id], (err, rows) => {
+                        if (err) reject(err)
+                        resolve(rows)
+                    });
+                });
+    };
 
 
 module.exports = {
@@ -1114,5 +1150,8 @@ module.exports = {
     linkDescargaApp,
     getDetalleReferido,
     getValidarExistenciaCodigo,
-    getUserTelefono
+    getUserTelefono,
+    getServices,
+    updateRol,
+    getDocumentacionAfiliacion
 }

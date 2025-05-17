@@ -48,7 +48,8 @@ isRouter.post('/recargar-billetera', async (req, res) => {
                 msg: 'Error'
             });
         } else {
-            const insert = await isController.insertresultiBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
+
+            const insert = await  isController.insertMoviBilletera (iduser, monto, 'Recarga a Billetera', 'crédito');
             if (insert === undefined) {
                 return res.status(200).send({
                     success: false,
@@ -206,6 +207,66 @@ isRouter.get('/historial-ganancias/:id/:fecha', async (req, res) => {
         // Manejar errores
         return res.status(500).send({
             error: 'Internal Server Error'
+        });
+    }
+})
+
+
+isRouter.get('/metodospagos', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await isController.metodopago();
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'En este momento no podemos mostrarte  la información de la cuenta.',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result[0]
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            success: false,
+            msg: 'No pudimos completar la operación debido a un problema de comunicación con el servidor. Te sugerimos intentar nuevamente en unos momentos.'
+        });
+    }
+})
+
+
+isRouter.get('/callsecurity', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await isController.callSecurity();
+
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'En este momento no podemos brindarte los número de seguridad',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            success: false,
+            msg: 'No pudimos completar la operación debido a un problema de comunicación con el servidor. Te sugerimos intentar nuevamente en unos momentos.'
         });
     }
 })

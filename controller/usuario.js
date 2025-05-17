@@ -1,6 +1,6 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { uploadImage } = require('../firebase');
+const { uploadImage, uploadDocumentacion } = require('../firebase');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -10,6 +10,7 @@ const { sendSMS } = require('../utils/sendSMS');
 const usuarioRouter = express.Router();
 const OneSignal = require('../models/onesignalModel')
 const userController = require('../models/usuario');
+const condController = require('../models/conductor')
 const connection = require('../config/conexion');
 const { enviarCorreoRegistroUsuario } = require('../utils/emailService')
 const multer = require('multer')
@@ -69,6 +70,21 @@ usuarioRouter.post('/upload_profile', uploadImage, async (req, res) => {
         data: url
     })
 })
+
+
+usuarioRouter.post('/upload_documentacion', uploadDocumentacion, async (req, res) => {
+    const url = {
+        url: req.file.firebaseUrl,
+        id: req.body.id_photo,
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'IMAGE UPLOADED SUCCESSFULLY',
+        data: url
+    })
+})
+
 
 usuarioRouter.post('/registro', async (req, res) => {
     const {
@@ -1114,4 +1130,164 @@ usuarioRouter.get('/get-referido/:id', async (req, res) => {
         res.status(500).send('Error interno del servidor');
     }
 });
+
+usuarioRouter.post('/insert-afiliacion', async (req, res) => {
+    const { idUser, documentacion, fecha, idservicio } = req.body;
+    console.log("ID USER ", idUser, documentacion, fecha)
+    // Validar los datos requeridos
+    if (!idUser || !documentacion || !fecha) {
+        return res.status(400).json({
+            success: false,
+            message: 'Faltan datos obligatorios (idUser, documentacion o fecha).'
+        });
+    }
+
+    try {
+        const result = await condController.insertAfiliacion(idUser, documentacion, fecha, idservicio)
+        if (!result || result.affectedRows === 0) {
+            return res.status(500).json({
+                success: false,
+                message: 'No se pudo insertar la afiliación. Intenta de nuevo.'
+            });
+        }
+
+        // const usDire = await userController.insertDireccion(result.insertId);
+        // const usBillerea = await userController.insertBilletera(result.insertId);
+        //  const usVechiculo = await userController.insertVehiculo(result.insertId);
+
+        const create = await condController.recargarBilletera(idUser, 'BONO01BI', '50','https://firebasestorage.googleapis.com/v0/b/un-ray-app-a606c/o/BONOS%2FBONOBIENVENIDA.jpg?alt=media&token=a5a68dd5-9f25-493e-aff5-82fef5586d4d');
+        if (create === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error'
+            });
+        } else {
+            const insert = await condController.insertMoviBilletera(idUser, '50', 'Bono de Bienvenida.', 'crédito');
+            if (insert === undefined) {
+                return res.status(200).send({
+                    success: false,
+                    msg: 'Error'
+                });
+            } else {
+                res.status(200).json({
+                    success: true,
+                    message: 'Afiliación insertada correctamente',
+                    result
+                });
+            }
+
+        }
+
+
+        /*      res.status(201).json({
+                  success: true,
+                  message: 'Afiliación insertada correctamente',
+                  result
+              }); */
+    } catch (error) {
+        console.error('Error al insertar afiliación:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno al insertar afiliación',
+            error: error.message
+        });
+    }
+
+})
+
+
+usuarioRouter.get('/servicios', async (req, res) => {
+    try {
+        const result = await userController.getServices();
+        if (result === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'No existen registros.'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
+usuarioRouter.put('/update-rol', async (req, res) => {
+    const { idUser, rol, idService } = req.body;
+
+    if (!idUser || !rol || !idService) {
+        return res.status(400).json({
+            success: false,
+            message: 'No se ha brindado correctamente los parametros necesarios.'
+        });
+    }
+
+    try {
+        const result = await userController.updateRol(idUser, rol, idService);
+        if (result === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'No existen registros.'
+            });
+        }
+
+        return res.status(200).send({
+            success: true,
+            msg: 'Actualizado Correctamente',
+        });
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error
+        });
+    }
+})
+
+
+usuarioRouter.post('/login-modo-conductor', async (req, res) => {
+    const { idUser, telefono } = req.body;
+    console.log("Modoc ", idUser, telefono)
+
+    if (!telefono || !idUser) {
+        return res.status(400).json({
+            success: false,
+            message: 'No se ha brindado correctamente los parámetros necesarios.'
+        });
+    }
+
+
+    try {
+        const result = await userController.getDocumentacionAfiliacion(idUser);
+
+        if (result.length == 0 || result == undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'No se encuentra afiliado a este servicio. Crea tu cuenta primero para poder disfrutar de los beneficios como conductor.'
+            });
+        }
+
+
+        return res.status(200).send({
+            success: true,
+            msg: 'Actualizado Correctamente',
+            result: result[0]
+        });
+
+
+
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: error
+        });
+    }
+})
+
+
 module.exports = usuarioRouter;

@@ -347,6 +347,17 @@ const guardarCalificacion = (data) => {
     });
 };
 
+const consultarCalificacion = (data) => {
+    return new Promise((resolve, reject) => {
+        const query = `select * from calificaciones where id_viaje = ?  and  evaluador_id= ? and evaluado_id = ?`;
+        connection.query(query, [data.id_viaje, data.evaluador_id, data.evaluado_id], (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
+
 const guardarCali_previa = (idUser, idViaje) => {
     return new Promise((resolve, reject) => {
         const query = `INSERT INTO cali_viaje
@@ -533,5 +544,6 @@ module.exports = {
     updateCali_viaje,
     obtLisCali,
     obtSMSDefinido,
-    updateEstado
+    updateEstado,
+    consultarCalificacion
 }

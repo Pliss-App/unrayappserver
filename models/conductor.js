@@ -12,6 +12,17 @@ const saldoBilletera = (id) => { //getByEmail
     });
 };
 
+const metodopago= () => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM metodopago limit 1", (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
 const recargarBilletera = (id_user, boleta, monto, url) => {
     return new Promise((resolve, reject) => {
         connection.query(`CALL recargar_billetera(?, ?, ?, ?, NOW());`, [id_user, boleta, monto, url], (err, result) => {
@@ -24,7 +35,7 @@ const recargarBilletera = (id_user, boleta, monto, url) => {
 const movimientos = (id_user) => {
     return new Promise((resolve, reject) => {
         connection.query(`select * from movimiento_billetera 
-       where idUser = ?;`, [id_user], (err, result) => {
+       where idUser = ? order by fecha desc`, [id_user], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -153,6 +164,80 @@ const HistorialGananciasDriver = (idUser, fecha) => {
     });
 }
 
+
+const cargaDocumentacion = (idUser, fecha) => {
+    return new Promise((resolve, reject) => {
+
+        connection.query(`select s.start_direction, s.end_direction, s.costo, gd.ganancia, gd.fecha, gd.hora  from GanaDriver gd
+            inner join solicitudes s
+            on gd.idViaje = s.id 
+            WHERE gd.idUser= ? and gd.fecha = ?`,
+            [idUser, fecha], (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+
+const insertAfiliacion = (userId, data,  fecha, idservicio) => {
+  return new Promise((resolve, reject) => {
+    const {
+      perfil,
+      dpi,
+      vehiculo,
+      licencia
+    } = data;
+
+    const sql = `
+      INSERT INTO documentacion (
+        iduser,
+        dpi_frontal,
+        dpi_inverso,
+        licencia_frontal,
+        licencia_inverso,
+        tarjeta_frontal,
+        tarjeta_inverso,
+        rostrodpi,
+        perfil,
+        vehiculo_frontal,
+        fecha,
+        idservicio
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      userId ,
+      dpi?.dpi_frontal || null,
+      dpi?.dpi_inverso || null,
+      licencia?.licencia_frontal || null,
+      licencia?.licencia_inverso || null,
+      vehiculo?.tarjeta_frontal || null,
+      vehiculo?.tarjeta_inverso || null,
+      dpi?.rostrodpi || null,
+       perfil?.photo || null,
+     vehiculo?.vehiculo_frontal || null,
+      fecha,
+      idservicio
+    ];
+
+    connection.query(sql, values, (err, result) => {
+      if (err) return reject(err);
+      resolve(result);
+    });
+  });
+};
+
+const callSecurity= () => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM callSecurity ", (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -164,5 +249,8 @@ module.exports = {
     getDetalleVehiculo,
     insertGanaDriver,
     GananciasDriver,
-    HistorialGananciasDriver
+    HistorialGananciasDriver,
+    insertAfiliacion,
+    metodopago,
+    callSecurity
 }
