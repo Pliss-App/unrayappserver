@@ -27,13 +27,17 @@ var corsOptions = {
 } */
 
   const allowedOrigins = [
-  'http://localhost:3000',       // desarrollo local
+  'http://localhost:3000',    
   'http://127.0.0.1:3000',
   'https://unrayappserver.onrender.com',
   'http://localhost:8080',
   'http://localhost:8081',
   'http://localhost:8100',
-  'https://unraylatinoamerica.com'        // tu dominio en producción
+  'https://unraylatinoamerica.com',
+  'capacitor://localhost',
+  'http://localhost',
+  'http://192.168.1.10:3000', 
+    'file://', // apps móviles usando Capacitor// tu IP local con puerto de backend
 ];
 
 app.use(cors({
