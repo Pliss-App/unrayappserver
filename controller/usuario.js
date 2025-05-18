@@ -943,6 +943,10 @@ usuarioRouter.post('/verificacion-cuenta', async (req, res) => {
                 },
                     process.env.JWT_SECRET, {
                 });
+
+
+                await userController.estadoVerificacion(telefono);
+                
                 return res.status(200).send({
                     success: true,
                     msg: 'Cuenta verificada correctamente.',
@@ -1155,7 +1159,7 @@ usuarioRouter.post('/insert-afiliacion', async (req, res) => {
         // const usBillerea = await userController.insertBilletera(result.insertId);
         //  const usVechiculo = await userController.insertVehiculo(result.insertId);
 
-        const create = await condController.recargarBilletera(idUser, 'BONO01BI', '50','https://firebasestorage.googleapis.com/v0/b/un-ray-app-a606c/o/BONOS%2FBONOBIENVENIDA.jpg?alt=media&token=a5a68dd5-9f25-493e-aff5-82fef5586d4d');
+        const create = await condController.recargarBilletera(idUser, 'BONO01BI', '50', 'https://firebasestorage.googleapis.com/v0/b/un-ray-app-a606c/o/BONOS%2FBONOBIENVENIDA.jpg?alt=media&token=a5a68dd5-9f25-493e-aff5-82fef5586d4d');
         if (create === undefined) {
             return res.status(200).send({
                 success: false,
