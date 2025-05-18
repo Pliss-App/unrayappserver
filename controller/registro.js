@@ -81,7 +81,7 @@ isRouter.post('/login-register', async (req, res) => {
                             process.env.JWT_SECRET
                         );
 
-                      await userController.estadoVerificacion(telefono);
+
 
 
                         return res.status(200).send({
@@ -165,9 +165,7 @@ isRouter.post('/login-register', async (req, res) => {
             );
 
 
-                       await userController.estadoVerificacion(telefono);
-
-                      
+            
             return res.status(200).send({
                 msg: 'Logged in!',
                 token,
