@@ -25,6 +25,15 @@ isRouter.post('/login-register', async (req, res) => {
         fecha
     } = req.body;
 
+    // Validar que el teléfono tenga exactamente 8 dígitos numéricos
+    if (!/^\d{8}$/.test(telefono)) {
+        return res.status(400).json({
+            success: false,
+            msg: 'Número de teléfono inválido. Debe contener exactamente 8 dígitos (solo números).'
+        });
+    }
+
+
 
     const idService = 5;
     const codigoVer = generateTemporaryPassword();
