@@ -34,6 +34,7 @@ var corsOptions = {
   'http://localhost:8081',
   'http://localhost:8100',
   'https://unraylatinoamerica.com',
+  'https://dashboard.unraylatinoamerica.com',
   'capacitor://localhost',
   'http://localhost',
   'http://192.168.1.10:3000', 
