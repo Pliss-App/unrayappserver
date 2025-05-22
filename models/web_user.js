@@ -338,7 +338,7 @@ const checkExistingVisit = async (ip, userAgent, so, navegador, dispositivo) => 
     return new Promise((resolve, reject) => {
         connection.query(query, [ip, userAgent, so, navegador, dispositivo], (err, rows) => {
             if (err) return reject(err);
-            resolve( rows);
+            resolve(rows);
         });
     });
 };
@@ -353,7 +353,7 @@ const insertVisitas = (session_id,
     sistema_operativo,
     navegador,
     dispositivo,
-    ultima_visita, ) => {
+    ultima_visita,) => {
     return new Promise((resolve, reject) => {
         connection.query(
             `INSERT INTO visitas_web 
@@ -396,6 +396,45 @@ on u.id = dv.idUser`,
 };
 
 
+const addComunity = (correo, telefono, modulo, terminos, fecha) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`INSERT INTO comunity (correo, telefono, modulo, terminos, fecha) values (?,?,?,?,?) `, [correo, telefono, modulo, terminos, fecha], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+/*
+const getValidaComunity = (correo, telefono) => {
+  return new Promise((resolve, reject) => {
+    if (!correo || !telefono) {
+      return reject(new Error('Correo y teléfono son requeridos'));
+    }
+
+    const query = `SELECT * FROM comunity WHERE correo = ? OR telefono = ? LIMIT 1`;
+    connection.query(query, [correo, telefono], (err, rows) => {
+      if (err) {
+        console.error('Error al validar correo o teléfono:', err);
+        return reject(err);
+      }
+      resolve(rows);
+    });
+  });
+};
+*/
+
+
+const getValidaComunity = (correo, telefono) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM comunity WHERE correo = ? OR telefono = ? LIMIT 1`, [correo, telefono], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
 module.exports = {
     beneficios,
     requisitos,
@@ -425,5 +464,7 @@ module.exports = {
     updateNosotros,
     checkExistingVisit,
     insertVisitas,
-    getListadoAfiliado
+    getListadoAfiliado,
+    addComunity,
+    getValidaComunity
 }

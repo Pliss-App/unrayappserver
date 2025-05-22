@@ -20,7 +20,7 @@ const publicidad = require('../controller/administracion/publicidad')
 
 // ####################################admin
 const adminRouter = require('../controller/administracion/usuarios');
-
+const afiRouter = require('../controller/administracion/documentacion');
 
 const apiRouter = express.Router();
 
@@ -41,5 +41,9 @@ apiRouter.use('/auth', firebRouter);
 apiRouter.use('/sms', brevoRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/publicidad', publicidad);
+
+apiRouter.use('/afiliacion', afiRouter);
+
+
 
 module.exports = apiRouter;

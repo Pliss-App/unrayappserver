@@ -900,5 +900,27 @@ isRouter.put('/update-foto-perfil-conductor', async (req, res) => {
     }
 })
 
+isRouter.get('/costo/viajes', async (req, res) => {
+
+    try {
+        const result = await isUController.listCostoViajes();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+
+})
 
 module.exports = isRouter;

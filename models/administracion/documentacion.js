@@ -18,6 +18,92 @@ ORDER BY  fecha asc`,
 }
 
 
+const getListEnviado = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+INNER JOIN usuario u
+on d.iduser= u.id
+INNER JOIN usuario_rol ur
+on u.id = ur.iduser
+INNER JOIN servicios s
+on ur.idservice = s.id
+INNER JOIN roles ro
+on ur. idrol = ro.id
+WHERE d.estado = 'Enviado'
+ORDER BY  fecha asc`,
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+
+
+const getListAprobado = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+INNER JOIN usuario u
+on d.iduser= u.id
+INNER JOIN usuario_rol ur
+on u.id = ur.iduser
+INNER JOIN servicios s
+on ur.idservice = s.id
+INNER JOIN roles ro
+on ur. idrol = ro.id
+WHERE d.estado = 'Aprobado'
+ORDER BY  fecha asc`,
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const getListRechazadas = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+INNER JOIN usuario u
+on d.iduser= u.id
+INNER JOIN usuario_rol ur
+on u.id = ur.iduser
+INNER JOIN servicios s
+on ur.idservice = s.id
+INNER JOIN roles ro
+on ur. idrol = ro.id
+WHERE d.estado = 'Rechazada'
+ORDER BY  fecha asc`,
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const getListPendientes = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+INNER JOIN usuario u
+on d.iduser= u.id
+INNER JOIN usuario_rol ur
+on u.id = ur.iduser
+INNER JOIN servicios s
+on ur.idservice = s.id
+INNER JOIN roles ro
+on ur. idrol = ro.id
+WHERE d.estado = 'Pendiente'
+ORDER BY  fecha asc`,
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 const getTodas = (item) => {
     return new Promise((resolve, reject) => {
         connection.query(`select u.nombre, u.apellido, u.estado, u.estado_usuario, b.saldo, d.* from documentacion d
@@ -26,7 +112,7 @@ on d.iduser= u.id
 INNER JOIN billetera b
 ON d.iduser = b.idUser
 WHERE d.estado = ?
-ORDER BY  fecha asc`,[item],
+ORDER BY  fecha asc`, [item],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -42,6 +128,16 @@ on d.iduser= u.id
 INNER JOIN billetera b
 ON d.iduser = b.idUser
 WHERE  d.iduser = ?`, [id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const getDatosVehiculoId = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from detalle_vehiculo where idUser = ?`, [id],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -80,7 +176,7 @@ const activarConductor = (id) => {
     });
 }
 
-const actualizarEstadoDocumentacion = ( id, estado) => {
+const actualizarEstadoDocumentacion = (id, estado) => {
     return new Promise((resolve, reject) => {
         connection.query(`update documentacion set estado = ? where iduser = ?`, [estado, id],
             (err, result) => {
@@ -90,6 +186,17 @@ const actualizarEstadoDocumentacion = ( id, estado) => {
     });
 }
 
+const actualizarFotoDocumento = (key, foto, id, iduser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update documentacion set ${key}= ? WHERE id= ? and iduser= ?`, [foto, id, iduser],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+
 module.exports = {
     getActivos,
     getTodas,
@@ -97,5 +204,11 @@ module.exports = {
     liberarConductor,
     getDocumentoId,
     activarConductor,
-    actualizarEstadoDocumentacion
+    actualizarEstadoDocumentacion,
+    getListEnviado,
+    getDatosVehiculoId,
+    actualizarFotoDocumento,
+    getListAprobado,
+    getListRechazadas,
+    getListPendientes 
 }

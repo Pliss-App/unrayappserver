@@ -871,4 +871,100 @@ isRouter.get('/listado-afiliados-conductor', async (req, res) => {
 })
 
 
+isRouter.post('/insertInquietud', async (req, res) => {
+
+
+    const { nombre, correo, telefono, mensaje, fecha, hora } = req.body;
+    try {
+        const result = await isController.insertInquietud(nombre, correo, telefono, mensaje, fecha, hora);
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+isRouter.get('/nosotros', async (req, res) => {
+
+    try {
+        const result = await isController.getNosotros();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Erro, durante la operación'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
+isRouter.post('/add-comunity', async (req, res) => {
+    const { correo, telefono, modulo, terminos, fecha } = req.body;
+    // Validaciones básicas
+    if (!correo || typeof correo !== 'string' || !/.+@.+\..+/.test(correo)) {
+        return res.status(400).json({
+            success: false,
+            msg: 'Correo electrónico inválido o no proporcionado.',
+        });
+    }
+
+    if (!telefono || typeof telefono !== 'string' || !/^\d{8}$/.test(telefono)) {
+        return res.status(400).json({
+            success: false,
+            msg: 'Teléfono inválido o no proporcionado.',
+        });
+    }
+
+    try {
+        // Validar si ya existe correo o teléfono
+        const existing = await isController.getValidaComunity(correo, telefono);
+
+        if (existing.length > 0) {
+            return res.status(409).json({
+                success: false,
+                msg: 'Ya existe un registro con ese correo o teléfono.',
+            });
+        }
+
+        // Insertar solo si no existe
+        const result = await isController.addComunity(correo, telefono, modulo, terminos, fecha);
+
+        if (!result) {
+            return res.status(500).send({
+                success: false,
+                msg: 'Error, no pudimos guardar tu registro. Intenta más tarde.',
+            });
+        }
+
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+        });
+    } catch (error) {
+        console.error('ERROR DURANTE LA OPERACIÓN', error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error interno del servidor.',
+        });
+    }
+});
+
 module.exports = isRouter;
