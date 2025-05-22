@@ -137,7 +137,7 @@ LEFT JOIN
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 WHERE 
-  u.estado = 1 
+  u.estado = 0
   AND u.estado_eliminacion = 1 
   AND ur.idservice != 5
 GROUP BY 
