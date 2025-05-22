@@ -389,7 +389,7 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
                 estado: results[0].estado,
                 estado_usuario: results[0].estado_usuario,
                 perfil: results[0].perfil,
-                estado_perfil:   results[0].estado_perfil,
+                estado_perfil: results[0].estado_perfil,
             };
 
             const billetera = {
@@ -904,6 +904,58 @@ isRouter.get('/costo/viajes', async (req, res) => {
 
     try {
         const result = await isUController.listCostoViajes();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+
+})
+
+//    updatePreciosKM,
+
+isRouter.put('/updatePreciosKM', async (req, res) => {
+    const { min_km, max_km, costo_base, precio_km, id, idservicio } = req.body
+    if (!id || !idservicio) {
+        return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+    }
+
+    try {
+        const result = await isUController.updatePreciosKM(min_km, max_km, costo_base, precio_km, id, idservicio);
+        if (!result || result.length === 0) {
+            return res.status(400).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'UPDATE SUCCESSFULLY',
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+
+isRouter.get('/comunity', async (req, res) => {
+
+    try {
+        const result = await isUController.getComunity();
         if (result === undefined) {
             return res.status(200).send({
                 success: false,

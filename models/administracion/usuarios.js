@@ -97,7 +97,15 @@ const updatePreciosKM = (min_km, max_km, costo_base, precio_km, id, idservicio) 
     });
 }
 
-
+const getComunity = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from comunity order by fecha desc`,
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
 
 
 module.exports = {
@@ -107,5 +115,6 @@ module.exports = {
     actualizarEstadoFotoConductor,
     listCostoViajes,
     updatePreciosKM,
+    getComunity
 
 }
