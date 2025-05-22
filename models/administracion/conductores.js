@@ -109,7 +109,7 @@ const getConductorVehiculoId=(id) =>{
 } */
 
 
-
+// LIBNI CAMBIA PORFA ESTO LUEGO  PARA QUE SOLO VENA LOS CONDUTORES ACTIVOS PORFA
 const getActivos = () => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id,

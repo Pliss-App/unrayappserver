@@ -20,12 +20,12 @@ app.use(express.json({ limit: '990mb' }));
 app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900000 }));
 app.use("/uploads", express.static("uploads"));
 
-/*
+
 var corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-} */
-
+} 
+/*
   const allowedOrigins = [
   'http://localhost:3000',    
   'http://127.0.0.1:3000',
@@ -50,10 +50,10 @@ app.use(cors({
       callback(new Error('No autorizado por CORS'));
     }
   }
-}));
+}));*/
 
 
-//app.use(cors(corsOptions));
+app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
