@@ -13,6 +13,7 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
                 const distancia = haversine(origen, destino); // Calcula la distancia
                 return { ...conductor, distancia };
             })
+            .filter(conductor => conductor.distancia < 3)
             .sort((a, b) => a.distancia - b.distancia);
 
             return conductoresFiltrados;
