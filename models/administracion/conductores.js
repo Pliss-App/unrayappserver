@@ -136,9 +136,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE 
-
-  AND u.estado_eliminacion = 1 
+WHERE u.estado_eliminacion = 1 
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
