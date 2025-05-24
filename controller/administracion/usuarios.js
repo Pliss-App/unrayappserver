@@ -973,6 +973,33 @@ isRouter.get('/comunity', async (req, res) => {
         console.error(error)
     }
 
+});
+
+isRouter.get('/getPerfilUsuario/:id', async (req, res) => {
+
+    try {
+        const result = await isUController.getPerfilUsuario(req.params.id);
+        if (result === undefined) {
+            return res.status(400).send({
+                success: false,
+                msg: 'En este momento no podemos brindarte información de este perfil. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result[0]
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+
 })
 
 module.exports = isRouter;

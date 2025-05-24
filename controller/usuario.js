@@ -1133,7 +1133,6 @@ usuarioRouter.get('/get-referido/:id', async (req, res) => {
 
 usuarioRouter.post('/insert-afiliacion', async (req, res) => {
     const { idUser, documentacion, fecha, idservicio } = req.body;
-    console.log("ID USER ", idUser, documentacion, fecha)
     // Validar los datos requeridos
     if (!idUser || !documentacion || !fecha) {
         return res.status(400).json({
