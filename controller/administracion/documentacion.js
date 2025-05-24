@@ -71,7 +71,7 @@ isRouter.get('/afiliaciones-rechazadas', async (req, res) => {
 
 isRouter.get('/afiliaciones-pendientes', async (req, res) => {
     try {
-        const result = await isController.getListPendientes;
+        const result = await isController.getListPendientes();
         if (result === undefined) {
             return res.status(200).send({
                 success: false,
