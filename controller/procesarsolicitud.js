@@ -126,10 +126,6 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                 tiempoExpiracion,
                 foto
             });
-
-
-
-
         }
 
         const timeout = setTimeout(async () => {
