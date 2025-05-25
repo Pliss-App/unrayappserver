@@ -21,7 +21,7 @@ function initializeSocketOr(server) {
         console.log(`🔗 Nueva conexión: ${socket.id}`);
 
 
-   console.log(`🔗Listado de conductores : ${connectedDrivers}`);
+console.log("🔗Listado de conductores:", JSON.stringify(connectedDrivers, null, 2));
         // ✅ Registrar conductor
         socket.on('registrar_conductor', async (driverId) => {
             connectedDrivers[driverId] = socket.id;
