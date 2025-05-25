@@ -21,7 +21,7 @@ function initializeSocketOr(server) {
         console.log(`🔗 Nueva conexión: ${socket.id}`);
 
 
-
+   console.log(`🔗Listado de conductores : ${connectedDrivers}`);
         // ✅ Registrar conductor
         socket.on('registrar_conductor', async (driverId) => {
             connectedDrivers[driverId] = socket.id;
@@ -126,7 +126,7 @@ function initializeSocketOr(server) {
             if (userId) {
                 console.log(`🛑 Usuario ${userId} se desconectó.`);
                 delete connectedUsers[userId]; // Eliminar usuario siempre
-            }
+            } 
         });
     });
 }
