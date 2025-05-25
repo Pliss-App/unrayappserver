@@ -15,7 +15,7 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
             })
             .filter(conductor => conductor.distancia < 3)
             .sort((a, b) => a.distancia - b.distancia);
-
+console.log("LISTADO CONDUCTORES PARA VIAJE ", conductoresFiltrados)
             return conductoresFiltrados;
 }
 
