@@ -110,7 +110,7 @@ console.log("🔗Listado de conductores:", JSON.stringify(connectedDrivers, null
         socket.on('disconnect', () => {
             let userId = Object.keys(connectedUsers).find(key => connectedUsers[key] === socket.id);
             let driverId = Object.keys(connectedDrivers).find(key => connectedDrivers[key] === socket.id);
-
+/*
             if (driverId) {
                 if (driverStatus[driverId] !== 0) {
                     // Si el conductor sigue en línea, lo volvemos a registrar
@@ -122,7 +122,7 @@ console.log("🔗Listado de conductores:", JSON.stringify(connectedDrivers, null
                     delete connectedDrivers[driverId];
                 }
             }
-
+*/
             if (userId) {
                 console.log(`🛑 Usuario ${userId} se desconectó.`);
                 delete connectedUsers[userId]; // Eliminar usuario siempre
