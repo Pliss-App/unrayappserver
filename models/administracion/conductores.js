@@ -112,9 +112,8 @@ const getConductorVehiculoId=(id) =>{
 // LIBNI CAMBIA PORFA ESTO LUEGO  PARA QUE SOLO VENA LOS CONDUTORES ACTIVOS PORFA
 const getActivos = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id,
-  u.nombre, 
-  u.apellido, 
+        connection.query(`SELECT u.id, u.codigo,
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
   u.estado_usuario, 
@@ -137,6 +136,156 @@ LEFT JOIN
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 WHERE u.estado_eliminacion = 1 
+  AND ur.idservice != 5
+GROUP BY 
+  u.id, ur.idrol, ur.idservice, s.nombre;
+
+`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
+const getConductoresActivados = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.codigo,
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
+  u.telefono, 
+  u.correo, 
+  u.estado_usuario, 
+  ur.idrol, 
+  ur.idservice, 
+  s.nombre AS servicio,
+  (select nombre from  departamento where id = ul.departamento ) departamento,
+  ul.departamento ubicacion,
+  CASE 
+    WHEN COUNT(d.iduser) > 0 THEN 'true' 
+    ELSE 'false' 
+  END AS documentacion
+FROM 
+  usuario u
+INNER JOIN 
+  usuario_rol ur ON u.id = ur.iduser
+INNER JOIN 
+  servicios s ON ur.idservice = s.id
+LEFT JOIN 
+  documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
+WHERE u.estado_eliminacion = 1 and u.activacion = 1
+  AND ur.idservice != 5
+GROUP BY 
+  u.id, ur.idrol, ur.idservice, s.nombre;
+
+`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getConductoresNoActivados = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.codigo,
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
+  u.telefono, 
+  u.correo, 
+  u.estado_usuario, 
+  ur.idrol, 
+  ur.idservice, 
+  s.nombre AS servicio,
+  (select nombre from  departamento where id = ul.departamento ) departamento,
+  ul.departamento ubicacion,
+  CASE 
+    WHEN COUNT(d.iduser) > 0 THEN 'true' 
+    ELSE 'false' 
+  END AS documentacion
+FROM 
+  usuario u
+INNER JOIN 
+  usuario_rol ur ON u.id = ur.iduser
+INNER JOIN 
+  servicios s ON ur.idservice = s.id
+LEFT JOIN 
+  documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
+WHERE u.estado_eliminacion = 1 and u.activacion = 0
+  AND ur.idservice != 5
+GROUP BY 
+  u.id, ur.idrol, ur.idservice, s.nombre;
+
+`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getConductoresEnLinea = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.codigo,
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
+  u.telefono, 
+  u.correo, 
+  u.estado_usuario, 
+  ur.idrol, 
+  ur.idservice, 
+  s.nombre AS servicio,
+  (select nombre from  departamento where id = ul.departamento ) departamento,
+  ul.departamento ubicacion,
+  CASE 
+    WHEN COUNT(d.iduser) > 0 THEN 'true' 
+    ELSE 'false' 
+  END AS documentacion
+FROM 
+  usuario u
+INNER JOIN 
+  usuario_rol ur ON u.id = ur.iduser
+INNER JOIN 
+  servicios s ON ur.idservice = s.id
+LEFT JOIN 
+  documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
+WHERE u.estado_eliminacion = 1 and u.activacion = 1 and u.estado = 1
+  AND ur.idservice != 5
+GROUP BY 
+  u.id, ur.idrol, ur.idservice, s.nombre;
+
+`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
+const getConductoresFueradeLinea = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.codigo,
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
+  u.telefono, 
+  u.correo, 
+  u.estado_usuario, 
+  ur.idrol, 
+  ur.idservice, 
+  s.nombre AS servicio,
+  (select nombre from  departamento where id = ul.departamento ) departamento,
+  ul.departamento ubicacion,
+  CASE 
+    WHEN COUNT(d.iduser) > 0 THEN 'true' 
+    ELSE 'false' 
+  END AS documentacion
+FROM 
+  usuario u
+INNER JOIN 
+  usuario_rol ur ON u.id = ur.iduser
+INNER JOIN 
+  servicios s ON ur.idservice = s.id
+LEFT JOIN 
+  documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
+WHERE u.estado_eliminacion = 1 and u.activacion = 1 and u.estado = 0
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -236,7 +385,7 @@ ORDER BY fecha_hora ASC;`, [id], (err, result) => {
     });
 }
 
-const getViajesConductorFecha = (id,  fechaini, fechafin) => {
+const getViajesConductorFecha = (id, fechaini, fechafin) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT * FROM solicitudes
 WHERE idConductor = ? 
@@ -249,7 +398,46 @@ ORDER BY fecha_hora ASC;`, [id, fechaini, fechafin], (err, result) => {
 }
 
 
+const updateDatoVehiculo = (id, placas, modelo, color) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update detalle_vehiculo set placas = ?, modelo = ?, color= ? where idUser= ?`, [placas, modelo, color, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
+
+const getMovimientosConductores = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.codigo,
+ CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
+  s.nombre AS servicio,
+  u.estado,
+  l.lat latitude,
+  l.lon longitude,
+  l.angle
+FROM 
+  usuario u
+INNER JOIN 
+  usuario_rol ur ON u.id = ur.iduser
+INNER JOIN 
+  servicios s ON ur.idservice = s.id
+LEFT JOIN 
+  documentacion d ON u.id = d.iduser
+  LEFT JOIN  usuario_location ul ON u.id = ul.idUser
+inner join location l
+on u.id = l.iduser
+WHERE u.estado_eliminacion = 1 and activacion= 1
+  AND ur.idservice != 5
+GROUP BY 
+  u.id, ur.idrol, ur.idservice, s.nombre;
+`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
 module.exports = {
     getActivos,
@@ -266,5 +454,11 @@ module.exports = {
     getHistorialBilleteraFecha,
     getHistorialBilleteraTipo,
     getViajesConductor,
-    getViajesConductorFecha
+    getViajesConductorFecha,
+    updateDatoVehiculo,
+    getConductoresActivados,
+    getConductoresNoActivados,
+    getConductoresFueradeLinea,
+    getConductoresEnLinea,
+    getMovimientosConductores
 }

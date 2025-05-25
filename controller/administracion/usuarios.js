@@ -418,14 +418,13 @@ isRouter.get('/documentacion/idUser/:id', async (req, res) => {
 isRouter.put('/activacion/conductor', async (req, res) => {
     try {
 
-        const { id, correo, nombre } = req.body;
-
+        const { id, correo, nombre, estado } = req.body;
 
         if (!correo) {
             return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
         }
 
-        const results = await isDController.activarConductor(id);
+        const results = await isDController.activarConductor(id, estado);
         if (results === undefined) {
             return res.status(200).send({
                 success: false,
@@ -446,10 +445,15 @@ isRouter.put('/activacion/conductor', async (req, res) => {
 
 
 
-isRouter.put('/documentacion/actualizar-estado/:id/:estado', async (req, res) => {
+isRouter.put('/documentacion/actualizar-estado', async (req, res) => {
     try {
 
-        const results = await isDController.actualizarEstadoDocumentacion(req.params.id, req.params.estado);
+        const { id, estado, comentario } = req.body;
+
+        if (!id || !estado) {
+            return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+        }
+        const results = await isDController.actualizarEstadoDocumentacion(id, estado, comentario);
         if (results === undefined) {
             return res.status(200).send({
                 success: false,
@@ -1002,4 +1006,202 @@ isRouter.get('/getPerfilUsuario/:id', async (req, res) => {
 
 })
 
+
+isRouter.get('/estadoActivacionConductor/:id', async (req, res) => {
+
+    try {
+
+        const result = await isDController.estadoActivacionConductor(req.params.id)
+        console.log("Estado ", result)
+        if (result === undefined || result.length == 0) {
+            return res.status(404).send({
+                success: false,
+                msg: 'No se puedo recuperar la información de Estado de Activación del CONDUCTOR. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result[0]
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Ocurrió un error inesperado en el servidor.',
+        });
+    }
+
+});
+
+
+
+
+
+isRouter.put('/updateVehiculo', async (req, res) => {
+    const { id, placas, modelo, color } = req.body;
+
+    if (!id || !placas || !modelo || !color) {
+        return res.status(400).json({ success: false, message: "Faltan datos del vehiculo" });
+    }
+    try {
+        const result = await isCController.updateDatoVehiculo(id, placas, modelo, color);
+        if (!result || result.length === 0) {
+            return res.status(400).send({
+                success: false,
+                msg: 'No pudimos encontrar el registro indicado. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'UPDATE SUCCESSFULLY',
+            });
+        }
+
+    } catch (error) {
+        console.error(error)
+    }
+})
+
+
+isRouter.get('/conductores/activados', async (req, res) => {
+
+    try {
+        const result = await isCController.getConductoresActivados();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+                result: result
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error, intenta más tarde...',
+        });
+    }
+})
+
+
+isRouter.get('/conductores/noactivados', async (req, res) => {
+
+    try {
+        const result = await isCController.getConductoresNoActivados();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+                result: result
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error, intenta más tarde...',
+        });
+    }
+})
+
+
+isRouter.get('/conductores/enlinea', async (req, res) => {
+
+    try {
+        const result = await isCController.getConductoresEnLinea();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+                result: result
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error, intenta más tarde...',
+        });
+    }
+})
+
+
+isRouter.get('/conductores/fueradelinea', async (req, res) => {
+
+    try {
+        const result = await isCController.getConductoresFueradeLinea();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+                result: result
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error, intenta más tarde...',
+        });
+    }
+})
+
+
+isRouter.get('/conductores/seguimientoCoordenadas', async (req, res) => {
+
+    try {
+        const result = await isCController.getMovimientosConductores();
+        if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontro data',
+                result: result
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error, intenta más tarde...',
+        });
+    }
+})
 module.exports = isRouter;

@@ -166,9 +166,9 @@ const liberarConductor = (id) => {
 }
 
 
-const activarConductor = (id) => {
+const activarConductor = (id, estado) => {
     return new Promise((resolve, reject) => {
-        connection.query(`update usuario set activacion= true WHERE id= ?`, [id],
+        connection.query(`update usuario set activacion=? WHERE id= ?`, [estado, id],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -176,9 +176,20 @@ const activarConductor = (id) => {
     });
 }
 
-const actualizarEstadoDocumentacion = (id, estado) => {
+
+const estadoActivacionConductor = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`update documentacion set estado = ? where iduser = ?`, [estado, id],
+        connection.query(`select activacion from usuario WHERE id= ?`, [id],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
+const actualizarEstadoDocumentacion = (id, estado, comentario) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update documentacion set estado = ?, comentario = ? where iduser = ?`, [estado, comentario, id],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -210,5 +221,6 @@ module.exports = {
     actualizarFotoDocumento,
     getListAprobado,
     getListRechazadas,
-    getListPendientes 
+    getListPendientes ,
+    estadoActivacionConductor
 }
