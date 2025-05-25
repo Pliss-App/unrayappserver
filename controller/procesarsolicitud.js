@@ -81,7 +81,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             await isController.deleteSolicitud(solicitudId);
             return resolve({
                 success: false,
-                message: 'No hay conductores disponibles.',
+                message: 'No hay conductores disponibles. Intenta más tarde.',
             });
         }
 
@@ -306,7 +306,7 @@ isRouter.post("/crear", async (req, res) => {
         if (conductores.length === 0) {
             return res.status(200).json({
                 success: false,
-                message: 'No hay conductores disponibles.',
+                message: 'No hay conductores disponibles. Inte más tarde.',
             });
         }
 
