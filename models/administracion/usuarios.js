@@ -111,7 +111,7 @@ const getComunity = () => {
 const getPerfilUsuario = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`select * from usuario where id = ? and estado_eliminacion = 1 ;`, [id]
-,            (err, result) => {
+            , (err, result) => {
                 if (err) reject(err)
                 resolve(result)
             })

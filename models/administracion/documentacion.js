@@ -21,7 +21,7 @@ ORDER BY  fecha asc`,
 const getListEnviado = () => {
     return new Promise((resolve, reject) => {
         connection.query(`
-select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, u.telefono, u.correo, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
 INNER JOIN usuario u
 on d.iduser= u.id
 INNER JOIN usuario_rol ur
@@ -44,7 +44,7 @@ ORDER BY  fecha asc`,
 const getListAprobado = () => {
     return new Promise((resolve, reject) => {
         connection.query(`
-select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, u.telefono, u.correo, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
 INNER JOIN usuario u
 on d.iduser= u.id
 INNER JOIN usuario_rol ur
@@ -65,7 +65,7 @@ ORDER BY  fecha asc`,
 const getListRechazadas = () => {
     return new Promise((resolve, reject) => {
         connection.query(`
-select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, u.telefono, u.correo, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
 INNER JOIN usuario u
 on d.iduser= u.id
 INNER JOIN usuario_rol ur
@@ -86,7 +86,7 @@ ORDER BY  fecha asc`,
 const getListPendientes = () => {
     return new Promise((resolve, reject) => {
         connection.query(`
-select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
+select u.id, s.id idservicio, u.codigo, u.nombre, u.apellido, u.telefono, u.correo, ro.nombre rol,  s.nombre servicio, d.estado, d.fecha from documentacion d
 INNER JOIN usuario u
 on d.iduser= u.id
 INNER JOIN usuario_rol ur
@@ -106,7 +106,7 @@ ORDER BY  fecha asc`,
 
 const getTodas = (item) => {
     return new Promise((resolve, reject) => {
-        connection.query(`select u.nombre, u.apellido, u.estado, u.estado_usuario, b.saldo, d.* from documentacion d
+        connection.query(`select u.nombre, u.apellido, u.telefono, u.correo, u.estado, u.estado_usuario, b.saldo, d.* from documentacion d
 INNER JOIN usuario u
 on d.iduser= u.id
 INNER JOIN billetera b
