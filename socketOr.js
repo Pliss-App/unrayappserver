@@ -14,8 +14,12 @@ const redis = createClient({
     url: process.env.REDIS_URL,
 });
 
+let warned = false;
 redis.on("error", function (err) {
+     if (!warned) {
     console.warn("Redis warning:", err.message);
+    warned = true;
+  }
 });
 
 (async () => {
