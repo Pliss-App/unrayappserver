@@ -11,6 +11,7 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
         .map(conductor => {
             const destino = { lat: parseFloat(conductor.lat), lng: parseFloat(conductor.lon) };
             const distancia = haversine(origen, destino); // Calcula la distancia
+            console.log("Distancia del USUARIO A CONDUCTOR : ", distancia);
             return { ...conductor, distancia };
         })
         .filter(conductor => conductor.distancia < 3)
