@@ -253,14 +253,14 @@ isRouter.post("/prueba_onesignal", async (req, res) => {
         // return res.json({ success: false, message: "Token no encontrado" });
     } else {
 
-      const now = new Date();
-         now.getFullYear() + "-" +
+        const now = new Date();
+        now.getFullYear() + "-" +
             String(now.getMonth() + 1).padStart(2, "0") + "-" +
             String(now.getDate()).padStart(2, "0") + " " +
             String(now.getHours()).padStart(2, "0") + ":" +
             String(now.getMinutes()).padStart(2, "0") + ":" +
             String(now.getSeconds()).padStart(2, "0");
-        const result = await OneSignal.sendNotificationPruebas(token, null, 'Promoción', 'Descuento del 50% en tu viaje hoy 23 de Marzo.', now ,3)
+        const result = await OneSignal.sendNotificationPruebas(token, null, 'Promoción', 'Descuento del 50% en tu viaje hoy 23 de Marzo.', now, 3)
         if (result === undefined) {
             //return res.status(400).json({ mensaje: "No hay conductores disponibles" });
             return res.status(200).json({
@@ -302,7 +302,7 @@ isRouter.post("/crear", async (req, res) => {
         } = req.body;
 
         const conductores = await findNearestDriver(start_lat, start_lng, idService);
-
+        console.log("CONDCUTOERES ACTIVOS: ", conductores);
         if (conductores.length === 0) {
             return res.status(200).json({
                 success: false,
