@@ -199,7 +199,7 @@ const actualizarEstadoDocumentacion = (id, estado, comentario) => {
 
 const actualizarFotoDocumento = (key, foto, id, iduser) => {
     return new Promise((resolve, reject) => {
-        connection.query(`update documentacion set ${key}= ? WHERE id= ? and iduser= ?`, [foto, id, iduser],
+        connection.query(`update documentacion set ${key}= ? WHERE id= ? and iduser= ?`, [ foto, id, iduser],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)

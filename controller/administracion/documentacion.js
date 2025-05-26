@@ -124,9 +124,11 @@ isRouter.put('/actualizar-documento', async (req, res) => {
             message: 'Faltan datos obligatorios.'
         });
     }
-
+      console.log("DATOS SUBIR FOTO ",  key, foto, id, iduser)
     try {
-        const result = await isController.actualizarFotoDocumento(key, foto, id, iduser)
+        const result = await isController.actualizarFotoDocumento(key, foto, id, iduser);
+
+              console.log("DATOS SUBIR FOTO  result ",  result)
         if (result === undefined) {
             return res.status(200).send({
                 success: false,

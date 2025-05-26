@@ -1012,7 +1012,6 @@ isRouter.get('/estadoActivacionConductor/:id', async (req, res) => {
     try {
 
         const result = await isDController.estadoActivacionConductor(req.params.id)
-        console.log("Estado ", result)
         if (result === undefined || result.length == 0) {
             return res.status(404).send({
                 success: false,

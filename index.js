@@ -6,15 +6,16 @@ const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
 const { initializeSocket } = require('./socket'); // Importa el inicializador de Socket.IO
-const {initializeSocketOr} = require('./socketOr');
+const { initializeSocketOr } = require('./socketOr');
 const app = express();
 // 👇 Solución al error
-app.set('trust proxy',1);
+app.set('trust proxy', 1);
 
 const server = http.createServer(app); // Crea el servidor HTTP usando Express
- // 👈 Iniciamos el socket aquí
+// 👈 Iniciamos el socket aquí
 // Inicializa Socket.IO con el servidor
-initializeSocketOr(server);
+const PORT = process.env.PORT || 3000;
+
 
 app.use(express.json({ limit: '990mb' }));
 app.use(express.urlencoded({ limit: '990mb', extended: true, parameterLimit: 900000 }));
@@ -24,7 +25,7 @@ app.use("/uploads", express.static("uploads"));
 var corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
-} 
+}
 /*
   const allowedOrigins = [
   'http://localhost:3000',    
@@ -57,9 +58,6 @@ app.use(cors(corsOptions));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-const apiRoutes = require('./roles/index');
-
-app.use('/api', apiRoutes);
 
 
 
@@ -69,11 +67,19 @@ app.get('/api/conection', (req, res) => {
 
 //module.exports = { io };
 
-const PORT = process.env.PORT || 3000;
 
-const ser = server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
-});
+initializeSocketOr(server).then(() => {
+  const apiRoutes = require('./roles/index');
 
+  app.use('/api', apiRoutes);
+
+  const ser = server.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}.`);
+  });
+
+})
+  .catch(err => {
+    console.error('❌ Error al inicializar sockets:', err);
+  });
 //initializeSocket(ser);
 //initializeSocketOr(ser);
