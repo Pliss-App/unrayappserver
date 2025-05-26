@@ -11,11 +11,13 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
         .map(conductor => {
             const destino = { lat: parseFloat(conductor.lat), lng: parseFloat(conductor.lon) };
             const distancia = haversine(origen, destino); // Calcula la distancia
-            console.log("Distancia del USUARIO A CONDUCTOR : ", distancia);
-            return { ...conductor, distancia };
+            const distanciaKm = distancia / 1000;
+            const km = distanciaKm.toFixed(2);
+            console.log("Distancia del USUARIO A CONDUCTOR : ", km);
+            return { ...conductor, km };
         })
-        .filter(conductor => conductor.distancia < 3)
-        .sort((a, b) => a.distancia - b.distancia);
+        .filter(conductor => conductor.km < 3)
+        .sort((a, b) => a.km - b.km);
     console.log("LISTADO CONDUCTORES PARA VIAJE ", conductoresFiltrados)
     return conductoresFiltrados;
 }
