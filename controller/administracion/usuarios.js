@@ -115,6 +115,7 @@ isRouter.get('/conductores/detalle-profile/:id', async (req, res) => {
                 estado: results[0].estado,
                 estado_usuario: results[0].estado_usuario,
                 estado_eliminacion: results[0].estado_eliminacion,
+                activacion: results[0].activacion
             };
 
             const vehiculo = {
