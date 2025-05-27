@@ -83,7 +83,7 @@ const updateProfileId = (conductor, id) => {
     return new Promise((resolve, reject) => {
         connection.query(`UPDATE usuario 
       SET nombre = ?, apellido = ?, correo = ?, telefono = ?, estado = ?, 
-          estado_usuario = ?, estado_eliminacion = ?
+          estado_usuario = ?, estado_eliminacion = ?, activacion= ?
       WHERE id = ? `, [conductor.nombre,
         conductor.apellido,
         conductor.correo,
@@ -91,6 +91,7 @@ const updateProfileId = (conductor, id) => {
         conductor.estado,
         conductor.estado_usuario,
         conductor.estado_eliminacion,
+        conductor.activacion,
             id], (err, result) => {
                 if (err) reject(err)
                 resolve(result)

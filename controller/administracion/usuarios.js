@@ -14,25 +14,27 @@ const isNotController = require('../../models/administracion/notificador');
 const isRefController = require('../../models/administracion/referidos');
 
 isRouter.get('/usuarios/activos', async (req, res) => {
-
     try {
-        const result = await isUController.getUsuariosActivos();
-        if (result === undefined) {
-            return res.status(200).send({
+        const resultado = await isUController.getUsuariosActivos();
+        if (resultado === undefined || resultado.length== 0) {
+            return res.status(401).send({
                 success: false,
                 msg: 'No se encontro data',
-                result: result
             });
         } else {
             return res.status(200).send({
                 success: true,
                 msg: 'SUCCESSFULLY',
-                result: result
+                result: resultado
             });
         }
 
     } catch (error) {
-        console.error(error)
+        console.error(error);
+                    return res.status(500).send({
+                success: false,
+                msg: 'Error en el servidor. Intenta más tarde',
+            });
     }
 
 })
