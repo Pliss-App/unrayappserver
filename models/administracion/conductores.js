@@ -439,6 +439,27 @@ GROUP BY
     });
 }
 
+
+const getPorcentajes = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(`select * from porapps`, (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
+const updatePorcentajes = (app, cond, id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update porapps set porApp = ?, porCond= ? where id = ?`, [app, cond, id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
 module.exports = {
     getActivos,
     getServicios,
@@ -460,5 +481,7 @@ module.exports = {
     getConductoresNoActivados,
     getConductoresFueradeLinea,
     getConductoresEnLinea,
-    getMovimientosConductores
+    getMovimientosConductores,
+    getPorcentajes,
+    updatePorcentajes
 }

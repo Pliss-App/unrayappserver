@@ -6,6 +6,7 @@ const isRouter = express.Router();
 
 const isUController = require('../../models/administracion/usuarios');
 const isCController = require('../../models/administracion/conductores');
+const isSController = require('../../models/administracion/soporte');
 const isVController = require('../../models/administracion/viajes');
 const isDController = require('../../models/administracion/documentacion');
 const isBController = require('../../models/administracion/boletasBilletera');
@@ -1200,6 +1201,139 @@ isRouter.get('/conductores/seguimientoCoordenadas', async (req, res) => {
         return res.status(500).send({
             success: false,
             msg: 'Error, intenta más tarde...',
+        });
+    }
+})
+
+
+isRouter.put('/porcentajes/app', async (req, res) => {
+    try {
+
+        const { porApp, porCond, id } = req.body;
+
+        if (!id) {
+            return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
+        }
+
+        const results = await isCController.updatePorcentajes(porApp, porCond, id);
+        if (results === undefined) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+
+isRouter.get('/porcentajes/app', async (req, res) => {
+    try {
+
+        const results = await isCController.getPorcentajes();
+        if (results === undefined || results.length == 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+isRouter.get('/soporte/revision', async (req, res) => {
+    try {
+        const results = await isSController.getSoporteUsuario();
+        if (results === undefined || results.length == 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+isRouter.get('/soporte/:id', async (req, res) => {
+    try {
+
+        const results = await isSController.getSoporteUsuarioId(req.params.id);
+        if (results === undefined || results.length == 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results[0]
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+
+isRouter.put('/soporte/update', async (req, res) => {
+    const { estado, id, idUser } = req.body;
+    try {
+
+        console.log("ENTRA ", estado, id, idUser  )
+        const results = await isSController.updateSoporteUsuario(estado, id, idUser);
+        if (results === undefined || results.length == 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
         });
     }
 })

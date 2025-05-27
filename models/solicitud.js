@@ -1,6 +1,7 @@
 const connection = require('../config/conexion');
 const bcrypt = require('bcrypt');
 
+
 const createSolicitud = (
     idUser,
     idConductor,
@@ -316,6 +317,19 @@ const obtMotCancelar = () => {
 };
 
 
+
+const buscarConductorViaje = (id) => {
+    return new Promise((resolve, reject) => {
+        const query = `select idConductor from  solicitudes  where id= ?`;
+        connection.query(query, [id], (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
+};
+
+
+
 const cancelarViaje = (id, option) => {
     return new Promise((resolve, reject) => {
         const query = `update solicitudes set estado = 'Cancelado', estado_cancelacion = ?  where id= ?`;
@@ -545,5 +559,6 @@ module.exports = {
     obtLisCali,
     obtSMSDefinido,
     updateEstado,
-    consultarCalificacion
+    consultarCalificacion,
+    buscarConductorViaje
 }

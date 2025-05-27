@@ -6,6 +6,7 @@ const OneSignal = require('../models/onesignalModel')
 const userController = require('../models/usuario')
 const cobro = require('../models/cobro')
 const connection = require('../config/conexion');
+
 //const io = socketIo(server);
 const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
@@ -799,6 +800,8 @@ isRouter.get('/motivos_cancelacion', async (req, res) => {
 isRouter.put('/cancelar-viaje', async (req, res) => {
     try {
         const { id, option } = req.body;
+        const cond = await isController.buscarConductorViaje(id);
+        const update = await isController.updateEstadoUser(cond[0].idConductor, 'libre');
         const result = await isController.cancelarViaje(id, option);
         if (result === undefined) {
             return res.status(200).send({
@@ -813,7 +816,10 @@ isRouter.put('/cancelar-viaje', async (req, res) => {
             });
         }
     } catch (error) {
-
+        return res.status(500).send({
+            success: false,
+            msg: 'Ocurrio un error en el servidor. Intenta más tarde.',
+        });
     }
 })
 
@@ -944,7 +950,7 @@ isRouter.post("/calificar", async (req, res) => {
 
         if (respuesta?.length > 0) {
 
-                    console.log("EXISTe : ", respuesta)
+            console.log("EXISTe : ", respuesta)
             const update = await isController.updateCali_viaje(evaluador_id, id_viaje);
             if (!update || update.length === 0) {
                 return res.status(200).json({
