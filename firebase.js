@@ -331,8 +331,10 @@ async function enviarNotificacionFCM(token) {
   try {
     const response = await admin.messaging().send(message);
     console.log("✅ Notificación enviada:", response);
+    return response; // <- Aquí devuelves el resultado
   } catch (error) {
     console.error("❌ Error al enviar la notificación:", error);
+    return null; // <- O podrías `throw error` si prefieres
   }
 }
 

@@ -1344,23 +1344,28 @@ isRouter.put('/soporte/update', async (req, res) => {
 
 
 isRouter.post('/enviar-campania-prueba', async (req, res) => {
-    const {userId, sonido, title, message, fecha, idUser} = req.body;
-    try {   const result = await enviarNotificacionFCM("cQ90K36oRPuH2WR_1fZ5Os:APA91bG8twaz1gZ9nXxklcHAh94MBVxK_NsJfnu826GrS7uo1CK4wtYFs8B74DSVRDeO3-EX5aDhBmcfJ2H7mS8g-npQzaDl1GiQKhyRsjTRXldHN-dRdTc")
-     
-       if (result === undefined) {
-            return res.status(200).send({
-                success: false,
-                msg: 'Error, no se pudo enviar',
-            });
-        } else {
-            return res.status(200).send({
-                success: true,
-                msg: 'SUCCESSFULLY',
-                
-            });
-        }
-    } catch (error) {
-        console.log("EERROR ", error)
+  const { userId, sonido, title, message, fecha, idUser, token } = req.body;
+  try {
+    const result = await enviarNotificacionFCM(token);
+
+    if (!result) {
+      return res.status(200).send({
+        success: false,
+        msg: 'Error, no se pudo enviar',
+      });
+    } else {
+      return res.status(200).send({
+        success: true,
+        msg: 'SUCCESSFULLY',
+        responseId: result // Puedes enviar el ID de mensaje de FCM
+      });
     }
+  } catch (error) {
+    console.error("❌ Error en endpoint:", error);
+    return res.status(500).send({
+      success: false,
+      msg: 'Error interno del servidor'
+    });
+  }
 })
 module.exports = isRouter;
