@@ -1289,4 +1289,46 @@ usuarioRouter.post('/login-modo-conductor', async (req, res) => {
 })
 
 
+usuarioRouter.get('/tokenfcm/:id', async (req, res) => {
+    try {
+        const result = await condController.getTokenFCM(req.params.id)
+        if (result === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'No existen registros.'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
+usuarioRouter.put('/tokenfcm', async (req, res) => {
+    const {id, token} = req.body;
+    try {
+        const result = await condController.updateTokenFCM(id, token)
+        if (result === undefined) {
+            return res.status(400).json({
+                success: false,
+                message: 'No existen registros.'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY'
+            });
+        }
+    } catch (error) {
+        console.log("ERROR DURANTE LA OPERACIÓN")
+    }
+})
+
+
 module.exports = usuarioRouter;

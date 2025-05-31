@@ -25,9 +25,9 @@ VALUES
             "Content-Type": "application/json; charset=utf-8",
             Authorization: `Basic ${ONE_key}`, // Reemplaza con tu clave de API de OneSignal
         };
-     console.log("FECHA ", fecha)
+        console.log("FECHA ", fecha)
         // Ejecutar el INSERT en la base de datos
-    const resd =   await connection.query(insertQuery, [userId, idUser, title, message, null, 'enviada', 'null', fecha, 'Android', userId]);
+        const resd = await connection.query(insertQuery, [userId, idUser, title, message, null, 'enviada', 'null', fecha, 'Android', userId]);
         console.log(resd)
         const body = {
             app_id: ONE_id, // Reemplaza con tu App ID de OneSignal
@@ -128,7 +128,7 @@ const sendNotificationAdmin = async (userId, sonido, title, message, fecha, idUs
             android_channel_id: "c116f187-f8ea-4dbe-bd8c-6421c29b1e22",
             android_sound: "notificacion_tono", // Nombre del archivo de sonido de la notificación
             force_start: true,
-            android_small_icon: "ic_stat_onesignal_default", // Aquí se puede usar un ícono personalizado en tu app
+            android_small_icon: "ic_stat_onesignal_default" // Aquí se puede usar un ícono personalizado en tu app
         };
 
         const response = await axios.post(
@@ -173,11 +173,41 @@ const getNotificacionesUser = (id) => {
 
 const updateNotificacionesUser = (id, idVista, fecha) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE notificaciones SET estado = 'vista', fecha_vista= ? WHERE id= ? and idUser = ? `, [fecha, idVista ,  id], (err, result) => {
+        connection.query(`UPDATE notificaciones SET estado = 'vista', fecha_vista= ? WHERE id= ? and idUser = ? `, [fecha, idVista, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
     });
 }
 
-module.exports = { sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas,updateNotificacionesUser , getNotificacionesUser };
+
+const sendNotificationBotones = async (userId, sonido, title, message, fecha, idUser) => {
+try {
+    const headers = {
+        "Content-Type": "application/json",
+        Authorization: `key=AIzaSyDrD2uKFOeH9dpaGpnMV6MzFyZtVqQ7jB4`, // ✅ Server Key
+    };
+
+    const body = {
+        to: "exnrtOiBSDi1GZXDBG2EXm:APA91bEVlq5NXA2y53FXFr-KswFiE-sRYyyAe6o0BNaKpabI2Aoj9SAUKKyI5N8jYfmeZg-giYqe5GzgCaFN5bw4VnM6bERqLL_QBca_7HbYwnpoqyQOiAg", // ✅ Token de dispositivo FCM
+        priority: "high",
+        data: {
+            type: "incoming_trip",
+            origin: "Av. Central",
+            destination: "Parque Sur",
+            price: "75.00",
+            imageUrl: "https://example.com/driver.png"
+        }
+    };
+
+    const response = await axios.post("https://fcm.googleapis.com/fcm/send", body, { headers });
+    console.log("✅ Notificación enviada:", response.data);
+    return response.data;
+} catch (error) {
+    console.error("❌ Error enviando la notificación:", error.response?.data || error.message);
+    throw new Error("Error enviando la notificación: " + error.message);
+}
+
+}
+
+module.exports = { sendNotificationBotones, sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas, updateNotificacionesUser, getNotificacionesUser };

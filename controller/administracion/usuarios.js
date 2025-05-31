@@ -1,7 +1,7 @@
 const express = require('express');
 const { enviarCorreoActivacion } = require("../../utils/emailService"); // Importar el módulo
 const OneSignal = require('../../models/onesignalModel')
-
+const { enviarNotificacionFCM } = require('../../firebase');
 const isRouter = express.Router();
 
 const isUController = require('../../models/administracion/usuarios');
@@ -1338,6 +1338,29 @@ isRouter.put('/soporte/update', async (req, res) => {
             success: false,
             msg: 'Error en el servidor. Intenta más tarde.',
         });
+    }
+})
+
+
+
+isRouter.post('/enviar-campania-prueba', async (req, res) => {
+    const {userId, sonido, title, message, fecha, idUser} = req.body;
+    try {   const result = await enviarNotificacionFCM("cQ90K36oRPuH2WR_1fZ5Os:APA91bG8twaz1gZ9nXxklcHAh94MBVxK_NsJfnu826GrS7uo1CK4wtYFs8B74DSVRDeO3-EX5aDhBmcfJ2H7mS8g-npQzaDl1GiQKhyRsjTRXldHN-dRdTc")
+     
+       if (result === undefined) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, no se pudo enviar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                
+            });
+        }
+    } catch (error) {
+        console.log("EERROR ", error)
     }
 })
 module.exports = isRouter;

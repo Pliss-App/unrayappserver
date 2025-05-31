@@ -238,6 +238,28 @@ const callSecurity= () => { //getByEmail
     });
 };
 
+
+const getTokenFCM = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT tokenfcm FROM usuario WHERE id = ?", [id], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+
+const updateTokenFCM = (id, token) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set tokenfcm=? WHERE id = ?", [token, id], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -252,5 +274,7 @@ module.exports = {
     HistorialGananciasDriver,
     insertAfiliacion,
     metodopago,
-    callSecurity
+    callSecurity,
+    getTokenFCM,
+    updateTokenFCM 
 }

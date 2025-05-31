@@ -312,6 +312,30 @@ const uploadImagePublicidad = async (req, res, next) => {
     }
   };
 
+async function enviarNotificacionFCM(token) {
+  const message = {
+    token: token,
+    data: {
+      type: "incoming_trip",
+      origin: "Av. Central",
+      destination: "Parque Sur",
+      price: "75.00",
+      user: 'Rosita Pérez',
+      url: "https://media.istockphoto.com/id/1484866410/es/v%C3%ADdeo/feliz-mujer-hermosa-con-sudadera-amarilla.jpg?s=640x640&k=20&c=zT25bc5j-cCvfiSNeP_bZpt547VC2i8SaN5Q_aKZc74="
+    },
+    android: {
+      priority: "high"
+    }
+  };
+
+  try {
+    const response = await admin.messaging().send(message);
+    console.log("✅ Notificación enviada:", response);
+  } catch (error) {
+    console.error("❌ Error al enviar la notificación:", error);
+  }
+}
+
 
 module.exports = {
     uploadImage,
@@ -321,5 +345,6 @@ module.exports = {
     uploadImageToStorage,
     uploadChatSoporte,
     uploadImagePublicidad,
+    enviarNotificacionFCM,
     bucket 
 };
