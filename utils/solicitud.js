@@ -22,6 +22,7 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
     return conductoresFiltrados;
 }
 
+//
 const obtenerConductores = async (lat, lon, idService) => {
     const [rows] = await connection.query(
         `SELECT u.id, u.nombre, u.apellido, 
