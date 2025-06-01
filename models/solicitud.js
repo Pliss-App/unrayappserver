@@ -227,6 +227,34 @@ const conductores = (idService) => {
     });
 }
 
+
+
+const conductoreslist = (idService) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT u.id, u.nombre, u.apellido, 
+       u.telefono, u.foto, r.nombre as rol, u.estado,
+       u.estado_usuario, l.lat, l.lon, l.angle, u.socket_id ,
+        CASE 
+    WHEN ur.idservice IN (1, 3) THEN 'moto'
+    ELSE 'carro'
+  END AS marker
+       FROM usuario u 
+       inner join usuario_rol  ur
+       on u.id = ur.iduser
+       inner join roles r
+       ON r.id = ur.idrol
+       INNER JOIN location l
+       ON u.id = l.iduser
+       WHERE u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [idService], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
+
+
 const procesarSolicitud = (idsoli, idConductor, accion) => {
     return new Promise((resolve, reject) => {
         connection.query(`UPDATE solicitudes SET estado = ? WHERE id = ? AND idConductor= ?`, [accion, idsoli, idConductor], (err, result) => {
@@ -560,5 +588,6 @@ module.exports = {
     obtSMSDefinido,
     updateEstado,
     consultarCalificacion,
-    buscarConductorViaje
+    buscarConductorViaje,
+    conductoreslist 
 }
