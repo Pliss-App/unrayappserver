@@ -213,7 +213,7 @@ const conductores = (idService) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id, u.nombre, u.apellido, 
        u.telefono, u.foto, r.nombre as rol, u.estado,
-       u.estado_usuario, l.lat, l.lon, u.socket_id FROM usuario u 
+       u.estado_usuario, l.lat, l.lon, l.angle, u.socket_id FROM usuario u 
        inner join usuario_rol  ur
        on u.id = ur.iduser
        inner join roles r
@@ -306,10 +306,10 @@ where id =?`;
 };
 
 
-const obtMotCancelar = () => {
+const obtMotCancelar = (rol) => {
     return new Promise((resolve, reject) => {
-        const query = `SELECT title, id as value from motiCancelar`;
-        connection.query(query, (err, result) => {
+        const query = `SELECT title, id as value from motiCancelar where rol=?`;
+        connection.query(query, [rol], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });
@@ -330,10 +330,10 @@ const buscarConductorViaje = (id) => {
 
 
 
-const cancelarViaje = (id, option) => {
+const cancelarViaje = (id, option, comentario) => {
     return new Promise((resolve, reject) => {
-        const query = `update solicitudes set estado = 'Cancelado', estado_cancelacion = ?  where id= ?`;
-        connection.query(query, [option, id], (err, result) => {
+        const query = `update solicitudes set estado = 'Cancelado', estado_cancelacion = ? , comentarioCancelacion=?  where id= ?`;
+        connection.query(query, [option, comentario, id], (err, result) => {
             if (err) return reject(err);
             resolve(result);
         });

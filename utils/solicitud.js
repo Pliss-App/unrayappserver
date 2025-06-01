@@ -13,12 +13,10 @@ const findNearestDriver = async (start_lat, start_lng, idService) => {
             const distancia = haversine(origen, destino); // Calcula la distancia
             const distanciaKm = distancia / 1000;
             const km = distanciaKm.toFixed(2);
-            console.log("Distancia del USUARIO A CONDUCTOR : ", km);
             return { ...conductor, km };
         })
         .filter(conductor => conductor.km < 3)
         .sort((a, b) => a.km - b.km);
-    console.log("LISTADO CONDUCTORES PARA VIAJE ", conductoresFiltrados)
     return conductoresFiltrados;
 }
 
@@ -43,4 +41,24 @@ const obtenerConductores = async (lat, lon, idService) => {
         .sort((a, b) => a.distancia - b.distancia);
 }
 
-module.exports = { findNearestDriver };
+
+const findNearestDriverListar = async (start_lat, start_lng, idService) => {
+    const conductoresIntentados = new Set();
+    const origen = { lat: parseFloat(start_lat), lng: parseFloat(start_lng) };
+    const conductoresDisponibles = await isController.conductores(idService);
+    // console.log("LIDTAOD E CONDCUTOR ", conductoresDisponibles)
+    const conductoresFiltrados = conductoresDisponibles
+        .filter(conductor => !conductoresIntentados.has(conductor.id))
+        .map(conductor => {
+            const destino = { lat: parseFloat(conductor.lat), lng: parseFloat(conductor.lon) };
+            const distancia = haversine(origen, destino); // Calcula la distancia
+            const distanciaKm = distancia / 1000;
+            const km = distanciaKm.toFixed(2);
+            return { ...conductor, km };
+        })
+        .filter(conductor => conductor.km < 3)
+        .sort((a, b) => a.km - b.km);
+    return conductoresFiltrados;
+}
+
+module.exports = { findNearestDriver, findNearestDriverListar};

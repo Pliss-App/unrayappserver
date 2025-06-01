@@ -1,6 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { uploadImage, uploadDocumentacion } = require('../firebase');
+const { findNearestDriverListar } = require("../utils/solicitud");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -1154,7 +1155,7 @@ usuarioRouter.post('/insert-afiliacion', async (req, res) => {
         // const usBillerea = await userController.insertBilletera(result.insertId);
         //  const usVechiculo = await userController.insertVehiculo(result.insertId);
 
-        const create = await condController.recargarBilletera(idUser, 'BONO01BI', '50','https://firebasestorage.googleapis.com/v0/b/un-ray-app-a606c/o/BONOS%2FBONOBIENVENIDA.jpg?alt=media&token=a5a68dd5-9f25-493e-aff5-82fef5586d4d');
+        const create = await condController.recargarBilletera(idUser, 'BONO01BI', '50', 'https://firebasestorage.googleapis.com/v0/b/un-ray-app-a606c/o/BONOS%2FBONOBIENVENIDA.jpg?alt=media&token=a5a68dd5-9f25-493e-aff5-82fef5586d4d');
         if (create === undefined) {
             return res.status(200).send({
                 success: false,
@@ -1311,7 +1312,7 @@ usuarioRouter.get('/tokenfcm/:id', async (req, res) => {
 
 
 usuarioRouter.put('/tokenfcm', async (req, res) => {
-    const {id, token} = req.body;
+    const { id, token } = req.body;
     try {
         const result = await condController.updateTokenFCM(id, token)
         if (result === undefined) {
@@ -1330,5 +1331,30 @@ usuarioRouter.put('/tokenfcm', async (req, res) => {
     }
 })
 
+
+usuarioRouter.post('/consultarConductores', async (req, res) => {
+    const { lat, lng, idService } = req.body;
+    try {
+        const conductores = await findNearestDriverListar(lat, lng, idService);
+
+        if (conductores.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No hay conductores disponibles. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: conductores
+            });
+        }
+    } catch (error) {
+        return res.status(500).json({
+            success: false,
+            message: 'Ocurrio un error. Intenta más tarde',
+        });
+    }
+})
 
 module.exports = usuarioRouter;

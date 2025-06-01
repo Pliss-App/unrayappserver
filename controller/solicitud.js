@@ -776,9 +776,9 @@ isRouter.get('/estado_viaje/:id', async (req, res) => {
 })
 
 
-isRouter.get('/motivos_cancelacion', async (req, res) => {
+isRouter.get('/motivos_cancelacion/:rol', async (req, res) => {
     try {
-        const result = await isController.obtMotCancelar();
+        const result = await isController.obtMotCancelar(req.params.rol);
         if (result === undefined) {
             return res.status(200).send({
                 success: false,
@@ -799,10 +799,10 @@ isRouter.get('/motivos_cancelacion', async (req, res) => {
 
 isRouter.put('/cancelar-viaje', async (req, res) => {
     try {
-        const { id, option } = req.body;
+        const { id, option, comentario} = req.body;
         const cond = await isController.buscarConductorViaje(id);
         const update = await isController.updateEstadoUser(cond[0].idConductor, 'libre');
-        const result = await isController.cancelarViaje(id, option);
+        const result = await isController.cancelarViaje(id, option, comentario);
         if (result === undefined) {
             return res.status(200).send({
                 success: false,
