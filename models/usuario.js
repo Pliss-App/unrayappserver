@@ -1060,6 +1060,16 @@ const getServices = () => { //getByEmail
 };
 
 
+const getUsuario = (id) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT foto, nombre, apellido FROM usuario WHERE id = ? ",[id], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 const updateRol = (idUser, rol, idService) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -1153,5 +1163,6 @@ module.exports = {
     getUserTelefono,
     getServices,
     updateRol,
-    getDocumentacionAfiliacion
+    getDocumentacionAfiliacion,
+    getUsuario
 }

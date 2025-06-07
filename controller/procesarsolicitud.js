@@ -6,6 +6,7 @@ const OneSignal = require('../models/onesignalModel')
 const tokeOne = require('../models/conductor')
 const cobro = require('../models/cobro')
 const connection = require('../config/conexion');
+const {enviarNotificacionFCM }  = require("../firebase")
 //const io = socketIo(server);
 const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
@@ -87,12 +88,14 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const conductor = conductores[index];
         // Actualizar el idCONDUCTOR en la base de datos
-        const token = await tokeOne.getTokenOnesignal(conductor.id);
+        const token = await tokeOne.getTokenFCM(conductor.id);
         if (!token) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
-            OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
+            const user = await isUserController.getUsuario(idUser)
+          //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
+           enviarNotificacionFCM(token, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');

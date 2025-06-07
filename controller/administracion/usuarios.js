@@ -1344,9 +1344,9 @@ isRouter.put('/soporte/update', async (req, res) => {
 
 
 isRouter.post('/enviar-campania-prueba', async (req, res) => {
-  const { userId, sonido, title, message, fecha, idUser, token } = req.body;
+  const { token, idViaje, origin, destination, price, user, url } = req.body;
   try {
-    const result = await enviarNotificacionFCM(token);
+    const result = await enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url);
 
     if (!result) {
       return res.status(200).send({

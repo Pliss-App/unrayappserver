@@ -65,6 +65,27 @@ const getTokenOnesignal = (id) => {
 };
 
 
+const getTokenFcm = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT tokenfcm AS token FROM usuario WHERE id = ?;`,
+            [id],
+            (err, result) => {
+                if (err) {
+                    console.error("Error al obtener el token:", err);
+                    return reject(err);  // Rechaza la promesa en caso de error
+                }
+
+                // Si no hay resultados, resuelve con null en lugar de `undefined`
+                if (!result || result.length === 0) {
+                    return resolve(null);
+                }
+
+                resolve(result[0].token); // Devuelve solo el token en lugar de un objeto completo
+            }
+        );
+    });
+};
 
 
 const insertMoviBilletera = (id_user, monto, descripcion, tipo) => {
@@ -242,7 +263,7 @@ const callSecurity= () => { //getByEmail
 const getTokenFCM = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT tokenfcm FROM usuario WHERE id = ?", [id], (err, rows) => {
+            "SELECT tokenfcm as token FROM usuario WHERE id = ?", [id], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
