@@ -312,7 +312,7 @@ const uploadImagePublicidad = async (req, res, next) => {
     }
   };
 
-async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url) {
+async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser) {
   const message = {
     token: token,
     data: {
@@ -322,7 +322,8 @@ async function enviarNotificacionFCM(token, idViaje, origin, destination, price,
       destination: destination,
       price: price,
       user: user,
-      url: url
+      url: url,
+      idUser: idUser
     },
     android: {
       priority: "high",

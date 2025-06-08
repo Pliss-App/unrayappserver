@@ -95,7 +95,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         } else {
             const user = await isUserController.getUsuario(idUser)
           //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
-           enviarNotificacionFCM(token, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto)
+           enviarNotificacionFCM(token, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');
