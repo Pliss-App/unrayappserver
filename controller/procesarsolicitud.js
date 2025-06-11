@@ -89,13 +89,16 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         const conductor = conductores[index];
         // Actualizar el idCONDUCTOR en la base de datos
         const token = await tokeOne.getTokenFCM(conductor.id);
+
+        console.log("Token    ", token)
         if (!token) {
             return;
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
-            const user = await isUserController.getUsuario(idUser)
+            const user = await isUserController.getUsuario(idUser);
+                 console.log("Token    ",token.tokenfcm)
           //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
-           enviarNotificacionFCM(token[0].token, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser)
+           enviarNotificacionFCM(token.tokenfcm, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');

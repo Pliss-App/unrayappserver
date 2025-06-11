@@ -263,9 +263,9 @@ const callSecurity= () => { //getByEmail
 const getTokenFCM = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT tokenfcm as token FROM usuario WHERE id = ?", [id], (err, rows) => {
+            "SELECT tokenfcm FROM usuario WHERE id = ?", [id], (err, rows) => {
                 if (err) reject(err)
-                resolve(rows)
+                resolve(rows[0])
             });
     });
 };
