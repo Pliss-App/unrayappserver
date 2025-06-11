@@ -318,13 +318,13 @@ async function enviarNotificacionFCM(token, idViaje, origin, destination, price,
     token: token,
     data: {
       type: "incoming_trip",
-      idViaje: idViaje,
+      idViaje: `${idViaje}`,
       origin: origin,
       destination: destination,
-      price: price,
-      user: user,
+      price: `${price}`,
+      user: `${user}`,
       url: url,
-      idUser: idUser
+      idUser: `${idUser}`
     },
     android: {
       priority: "high",
