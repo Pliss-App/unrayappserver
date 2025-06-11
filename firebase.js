@@ -313,6 +313,7 @@ const uploadImagePublicidad = async (req, res, next) => {
   };
 
 async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser) {
+  console.log("Datos del viaje : ",  token, idViaje, origin, destination, price, user, url, idUser)
   const message = {
     token: token,
     data: {
@@ -330,6 +331,7 @@ async function enviarNotificacionFCM(token, idViaje, origin, destination, price,
     }
   };
 
+    console.log("Datos de la noti : ", message)
   try {
     const response = await admin.messaging().send(message);
     console.log("✅ Notificación enviada:", response);
