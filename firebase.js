@@ -312,8 +312,7 @@ const uploadImagePublicidad = async (req, res, next) => {
     }
   };
 
-async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser) {
-  console.log("Datos del viaje : ",  token, idViaje, origin, destination, price, user, url, idUser)
+async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser, idConductor) {
   const message = {
     token: token,
     data: {
@@ -324,7 +323,8 @@ async function enviarNotificacionFCM(token, idViaje, origin, destination, price,
       price: `${price}`,
       user: `${user}`,
       url: url,
-      idUser: `${idUser}`
+      idUser: `${idUser}`,
+      idConductor: `${idConductor}`
     },
     android: {
       priority: "high",

@@ -6,7 +6,7 @@ const OneSignal = require('../models/onesignalModel')
 const userController = require('../models/usuario')
 const cobro = require('../models/cobro')
 const connection = require('../config/conexion');
-
+const tokeOne = require('../models/conductor')
 //const io = socketIo(server);
 const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
@@ -534,7 +534,7 @@ isRouter.post('/crear_viaje', async (req, res) => {
 
 isRouter.post('/aceptar_solicitud', async (req, res) => {
     const io = getIO();
-    const { solicitudId, conductorId } = req.body;
+    const { solicitudId, conductorId, idUser } = req.body;
 
     if (!solicitudId || !conductorId) {
         return res.status(400).json({ error: "Faltan datos requeridos" });
@@ -554,8 +554,19 @@ isRouter.post('/aceptar_solicitud', async (req, res) => {
             });
         }
 
-        // Notificar a otros conductores que la solicitud ya fue tomada
-        //  io.emit(`solicitud_cancelada_${solicitudId}`);
+        const token = await tokeOne.getTokenOnesignal(idUser);
+        if (!token) {
+            return;
+        }
+
+        const now = new Date();
+        now.getFullYear() + "-" +
+            String(now.getMonth() + 1).padStart(2, "0") + "-" +
+            String(now.getDate()).padStart(2, "0") + " " +
+            String(now.getHours()).padStart(2, "0") + ":" +
+            String(now.getMinutes()).padStart(2, "0") + ":" +
+            String(now.getSeconds()).padStart(2, "0");
+        const result = await OneSignal.sendNotification(token, 'vacio', 'Viaje Un Ray', 'Tu solicitud de viaje a sido aceptada.', now, idUser)
 
         return res.status(200).json({
             success: true,
@@ -799,7 +810,7 @@ isRouter.get('/motivos_cancelacion/:rol', async (req, res) => {
 
 isRouter.put('/cancelar-viaje', async (req, res) => {
     try {
-        const { id, option, comentario} = req.body;
+        const { id, option, comentario } = req.body;
         const cond = await isController.buscarConductorViaje(id);
         const update = await isController.updateEstadoUser(cond[0].idConductor, 'libre');
         const result = await isController.cancelarViaje(id, option, comentario);

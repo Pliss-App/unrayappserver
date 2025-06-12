@@ -175,7 +175,7 @@ const obtenerEstadoConductor = (id) => {
 
 const updateEstadoUser = (id, estado) => {
     return new Promise((resolve, reject) => {
-        connection.query(`UPDATE usuario SET estado_usuario = ? WHERE id = ?`, [estado, id], (err, result) => {
+        connection.query(`UPDATE usuario SET estado_usuario = ?, estado = 1 WHERE id = ?`, [estado, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
