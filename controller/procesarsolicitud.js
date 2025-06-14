@@ -6,7 +6,7 @@ const OneSignal = require('../models/onesignalModel')
 const tokeOne = require('../models/conductor')
 const cobro = require('../models/cobro')
 const connection = require('../config/conexion');
-const {enviarNotificacionFCM }  = require("../firebase")
+const { enviarNotificacionFCM } = require("../firebase")
 //const io = socketIo(server);
 const { respuestasSolicitudes, connectedUsers, connectedDrivers, getIO } = require('../socketOr');
 const isRouter = express.Router();
@@ -94,8 +94,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
             const user = await isUserController.getUsuario(idUser);
-          //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
-        const result = await   enviarNotificacionFCM(token.tokenfcm, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser, conductor.id)
+            //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
+            const result = await enviarNotificacionFCM(token.tokenfcm, solicitudId, start_direction, end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser, conductor.id)
         }
 
         const updateEsta = await isController.updateEstadoUser(conductor.id, 'ocupado');
@@ -131,31 +131,36 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             });
         }
 
-        const timeout = setTimeout(async () => {
-            if (!respuestasSolicitudes[solicitudId]) {
-                      console.log("RESPUESTA DE SOLICITUD 1", respuestasSolicitudes[solicitudId])
+        /*     const timeout = setTimeout(async () => {
+                 if (!respuestasSolicitudes[solicitudId]) {
+                           console.log("RESPUESTA DE SOLICITUD 1", respuestasSolicitudes[solicitudId])
+     
+                     const upDEU = await isController.updateEstadoUser(conductor.id, 'libre');
+                     if (upDEU === undefined) {
+                         return resolve({
+                             success: false,
+                             message: 'Error al solicitar Viaje.',
+                         });
+                     } else {
+                         // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
+                         resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+                     }
+     
+                 } else {
+                     clearTimeout(timeout);
+                     return 0;
+                 }
+             }, 32000);*/
 
-                const upDEU = await isController.updateEstadoUser(conductor.id, 'libre');
-                if (upDEU === undefined) {
-                    return resolve({
-                        success: false,
-                        message: 'Error al solicitar Viaje.',
-                    });
-                } else {
-                    // console.log(`Tiempo agotado para el conductor ${conductor.nombre}, reasignando...`);
-                    resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-                }
-
-            } else {
-                clearTimeout(timeout);
-                return 0;
-            }
-        }, 32000);
+        const contador = 0;
 
         const intervalo = setInterval(async () => {
+            contador = contador + 1;
+
+            console.log("ESTOY contando : ", contador);
             if (respuestasSolicitudes[solicitudId]) {
 
-                 console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
+                console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
 
                 clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];

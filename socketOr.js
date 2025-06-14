@@ -146,6 +146,7 @@ async function initializeSocketOr(server) {
 
         // ✅ Responder solicitud
         socket.on('respuesta_solicitud', (data) => {
+            console.log("DATOS DEL VIAJE EN SOCKET :", data)
             const eventName = `respuesta_solicitud_${data.solicitudId}`;
 
             // Guardar respuesta
