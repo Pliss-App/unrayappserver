@@ -1319,7 +1319,6 @@ isRouter.put('/soporte/update', async (req, res) => {
     const { estado, id, idUser } = req.body;
     try {
 
-        console.log("ENTRA ", estado, id, idUser  )
         const results = await isSController.updateSoporteUsuario(estado, id, idUser);
         if (results === undefined || results.length == 0) {
             return res.status(401).send({

@@ -330,8 +330,6 @@ async function enviarNotificacionFCM(token, idViaje, origin, destination, price,
       priority: "high",
     }
   };
-
-    console.log("Datos de la noti : ", message)
   try {
     const response = await admin.messaging().send(message);
     console.log("✅ Notificación enviada:", response);

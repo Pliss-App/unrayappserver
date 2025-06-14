@@ -94,7 +94,6 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             // return res.json({ success: false, message: "Token no encontrado" });
         } else {
             const user = await isUserController.getUsuario(idUser);
-                 console.log("Token    ",token.tokenfcm)
           //  OneSignal.sendNotification(token, null, 'Nueva solicitud', 'Tienes una nueva solicitud de viaje. Tienes 30 seg para aceptar.', fecha, conductor.id)
         const result = await   enviarNotificacionFCM(token.tokenfcm, solicitudId, start_direction,  end_direction, costo, user[0].nombre + " " + user[0].apellido, user[0].foto, idUser, conductor.id)
         }
@@ -134,6 +133,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         const timeout = setTimeout(async () => {
             if (!respuestasSolicitudes[solicitudId]) {
+                      console.log("RESPUESTA DE SOLICITUD 1", respuestasSolicitudes[solicitudId])
+
                 const upDEU = await isController.updateEstadoUser(conductor.id, 'libre');
                 if (upDEU === undefined) {
                     return resolve({
@@ -154,7 +155,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         const intervalo = setInterval(async () => {
             if (respuestasSolicitudes[solicitudId]) {
 
-                 console.log("RESPUESTA DE SOLICITUD ", respuestasSolicitudes[solicitudId])
+                 console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
 
                 clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];
