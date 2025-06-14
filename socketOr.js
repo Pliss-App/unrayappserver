@@ -63,7 +63,9 @@ async function initializeSocketOr(server) {
 
     io.on('connection', async (socket) => {
         console.log(`🔗 Nueva conexión: ${socket.id}`);
-
+  socket.onAny((event, data) => {
+    console.log(`📥 Evento recibido [${event}]:`, data);
+  });
 
         console.log("🔗Listado de conductores:", JSON.stringify(connectedDrivers, null, 2));
         // ✅ Registrar conductor
