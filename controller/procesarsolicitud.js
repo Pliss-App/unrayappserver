@@ -154,6 +154,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         const intervalo = setInterval(async () => {
             if (respuestasSolicitudes[solicitudId]) {
 
+                 console.log("RESPUESTA DE SOLICITUD ", respuestasSolicitudes[solicitudId])
+
                 clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada

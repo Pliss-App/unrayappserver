@@ -151,6 +151,8 @@ async function initializeSocketOr(server) {
             // Guardar respuesta
             respuestasSolicitudes[data.solicitudId] = data;
 
+           
+
             // Emitir solo al usuario correspondiente
             if (connectedUsers[data.idUser]) {
                 io.to(connectedUsers[data.idUser]).emit(eventName, data);
@@ -176,7 +178,7 @@ async function initializeSocketOr(server) {
             */
             if (userId) {
                 console.log(`🛑 Usuario ${userId} se desconectó.`);
-                delete connectedUsers[userId]; // Eliminar usuario siempre
+            //    delete connectedUsers[userId]; // Eliminar usuario siempre
             }
         });
     });
