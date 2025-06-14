@@ -58,7 +58,7 @@ async function initializeSocketOr(server) {
             origin: '*',
             methods: ['GET', 'POST'],
         },
-        path: '/api/socket/',
+        path: '/api/socket',
     });
 
     io.on('connection', async (socket) => {
