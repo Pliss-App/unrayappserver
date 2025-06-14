@@ -152,7 +152,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                  }
              }, 32000);*/
 
-        const contador = 0;
+        var contador = 0;
 
         const intervalo = setInterval(async () => {
             contador = contador + 1;
@@ -314,7 +314,6 @@ isRouter.post("/crear", async (req, res) => {
         } = req.body;
 
         const conductores = await findNearestDriver(start_lat, start_lng, idService);
-        console.log("CONDCUTOERES ACTIVOS: ", conductores);
         if (conductores.length === 0) {
             return res.status(200).json({
                 success: false,
