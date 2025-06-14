@@ -162,14 +162,15 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
                 console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
 
-                clearTimeout(timeout);
+                //  clearTimeout(timeout);
                 const data = respuestasSolicitudes[solicitudId];
                 delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
                 if (data.estado === 'Aceptado') {
+                    contador = 0
                     console.log("Condcutor ACEPTO ", conductor.id);
                     clearInterval(intervalo);
-                    clearTimeout(timeout);
+                    //  clearTimeout(timeout);
                     //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
                     const upEU = await isController.updateEstadoUser(conductor.id, 'ocupado');
                     if (upEU === undefined) {
@@ -199,6 +200,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                     }
 
                 } else if (data.estado == 'Rechazado') {
+                    contador = 0;
                     console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                     delete respuestasSolicitudes[solicitudId];
                     const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
@@ -208,6 +210,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                             message: 'Error al solicitar Viaje.',
                         });
                     } else {
+                           contador = 0;
                         //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
                         //  asignarConductor(solicitudId, conductores, index + 1, idUser);
                         resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
@@ -215,7 +218,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
                 } else if (data.estado == 'Cancelado') {
                     console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
-                    clearTimeout(timeout);
+                    //   clearTimeout(timeout);
                     delete respuestasSolicitudes[solicitudId];
                     await isController.updateEstadoUser(conductor.id, 'libre');
                     await isController.deleteSolicitud(solicitudId);
