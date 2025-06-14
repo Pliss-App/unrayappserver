@@ -157,84 +157,102 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         const intervalo = setInterval(async () => {
             contador = contador + 1;
 
-            console.log("ESTOY contando : ", contador);
-            if (respuestasSolicitudes[solicitudId]) {
-
-                console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
-
-                //  clearTimeout(timeout);
-                const data = respuestasSolicitudes[solicitudId];
-                delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
-
-                if (data.estado === 'Aceptado') {
-                    contador = 0
-                    console.log("Condcutor ACEPTO ", conductor.id);
-                    clearInterval(intervalo);
+            if (contador <= 30) {
+                console.log("ESTOY contando : ", contador);
+                if (respuestasSolicitudes[solicitudId]) {
+                    console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
                     //  clearTimeout(timeout);
-                    //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
-                    const upEU = await isController.updateEstadoUser(conductor.id, 'ocupado');
-                    if (upEU === undefined) {
-                        return resolve({
-                            success: false,
-                            message: 'Error al solicitar Viaje.',
-                        });
-                    } else {
-                        const atendio = await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
+                    const data = respuestasSolicitudes[solicitudId];
+                    delete respuestasSolicitudes[solicitudId]; // Eliminar respuesta usada
 
-                        if (atendio === undefined) {
+                    if (data.estado === 'Aceptado') {
+                        contador = 0
+                        console.log("Condcutor ACEPTO ", conductor.id);
+                        clearInterval(intervalo);
+                        //  clearTimeout(timeout);
+                        //   console.log(`Solicitud ${solicitudId} aceptada por ${conductor.nombre}`);
+                        const upEU = await isController.updateEstadoUser(conductor.id, 'ocupado');
+                        if (upEU === undefined) {
                             return resolve({
                                 success: false,
                                 message: 'Error al solicitar Viaje.',
                             });
                         } else {
-                            soli = {};
-                            delete respuestasSolicitudes[solicitudId];
-                            io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
-                            io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
-                            return resolve({
-                                success: true,
-                                message: 'Solicitud aceptada.',
-                                solicitudId,
-                            });
-                        }
-                    }
+                            const atendio = await connection.query("UPDATE solicitudes SET estado = 'Aceptado' WHERE id = ?", [solicitudId]);
 
-                } else if (data.estado == 'Rechazado') {
-                    contador = 0;
-                    console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
-                    delete respuestasSolicitudes[solicitudId];
-                    const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
-                    if (upEsU === undefined) {
+                            if (atendio === undefined) {
+                                return resolve({
+                                    success: false,
+                                    message: 'Error al solicitar Viaje.',
+                                });
+                            } else {
+                                soli = {};
+                                delete respuestasSolicitudes[solicitudId];
+                                io.to(connectedDrivers[conductor.id]).emit('solicitud_iniciar_viaje', { solicitudId, estado: 'Aceptado' });
+                                io.to(connectedUsers[idUser]).emit('solicitud_iniciar', { solicitudId, estado: 'Aceptado' });
+                                return resolve({
+                                    success: true,
+                                    message: 'Solicitud aceptada.',
+                                    solicitudId,
+                                });
+                            }
+                        }
+
+                    } else if (data.estado == 'Rechazado') {
+                        contador = 0;
+                        console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
+                        delete respuestasSolicitudes[solicitudId];
+                        const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
+                        if (upEsU === undefined) {
+                            return resolve({
+                                success: false,
+                                message: 'Error al solicitar Viaje.',
+                            });
+                        } else {
+                            contador = 0;
+                            //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
+                            //  asignarConductor(solicitudId, conductores, index + 1, idUser);
+                            resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
+                        }
+
+                    } else if (data.estado == 'Cancelado') {
+                        console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
+                        //   clearTimeout(timeout);
+                        delete respuestasSolicitudes[solicitudId];
+                        await isController.updateEstadoUser(conductor.id, 'libre');
+                        await isController.deleteSolicitud(solicitudId);
+                        // Emitir una notificación al usuario
+                        io.to(connectedUsers[idUser]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
+
+                        // Emitir una notificación al conductor
+                        var estado_actual = 'Cancelado';
+                        var estado = true;
+                        io.to(connectedDrivers[conductor.id]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
+
                         return resolve({
                             success: false,
-                            message: 'Error al solicitar Viaje.',
+                            message: 'Se ha cancelado el viaje.',
                         });
-                    } else {
-                           contador = 0;
-                        //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
-                        //  asignarConductor(solicitudId, conductores, index + 1, idUser);
-                        resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
                     }
-
-                } else if (data.estado == 'Cancelado') {
-                    console.log("Aqui hacer que la solicitud actual a conductor se le elimine ");
-                    //   clearTimeout(timeout);
-                    delete respuestasSolicitudes[solicitudId];
-                    await isController.updateEstadoUser(conductor.id, 'libre');
-                    await isController.deleteSolicitud(solicitudId);
-                    // Emitir una notificación al usuario
-                    io.to(connectedUsers[idUser]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
-
-                    // Emitir una notificación al conductor
-                    var estado_actual = 'Cancelado';
-                    var estado = true;
-                    io.to(connectedDrivers[conductor.id]).emit('solicitud_cancelada', { solicitudId, estado, estado_actual });
-
+                }
+            } else {
+                clearInterval(intervalo);
+                contador = 0;
+                console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
+                delete respuestasSolicitudes[solicitudId];
+                const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
+                if (upEsU === undefined) {
                     return resolve({
                         success: false,
-                        message: 'Se ha cancelado el viaje.',
+                        message: 'Error al solicitar Viaje.',
                     });
+                } else {
+                    contador = 0;
+                    //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
+                    //  asignarConductor(solicitudId, conductores, index + 1, idUser);
+                    resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
                 }
+
             }
         }, 1000);
     });
