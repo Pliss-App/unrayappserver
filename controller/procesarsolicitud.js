@@ -79,6 +79,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
         } = soli
 
         if (index >= conductores.length) {
+
+               delete respuestasSolicitudes[solicitudId];
             await isController.deleteSolicitud(solicitudId);
             return resolve({
                 success: false,
@@ -199,7 +201,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                         }
 
                     } else if (data.estado == 'Rechazado') {
-                        contador = 0;
+                      //  contador = 0;
                         console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                         delete respuestasSolicitudes[solicitudId];
                         const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
