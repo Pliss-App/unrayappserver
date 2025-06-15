@@ -80,7 +80,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
 
         if (index >= conductores.length) {
 
-               delete respuestasSolicitudes[solicitudId];
+            delete respuestasSolicitudes[solicitudId];
             await isController.deleteSolicitud(solicitudId);
             return resolve({
                 success: false,
@@ -201,7 +201,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                         }
 
                     } else if (data.estado == 'Rechazado') {
-                      //  contador = 0;
+                        //  contador = 0;
                         console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                         delete respuestasSolicitudes[solicitudId];
                         const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
@@ -240,21 +240,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             } else {
                 clearInterval(intervalo);
                 contador = 0;
-                console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
-                delete respuestasSolicitudes[solicitudId];
-                const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
-                if (upEsU === undefined) {
-                    return resolve({
-                        success: false,
-                        message: 'Error al solicitar Viaje.',
-                    });
-                } else {
-                    contador = 0;
-                    //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
-                    //  asignarConductor(solicitudId, conductores, index + 1, idUser);
-                    resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
-                }
-
+                resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
             }
         }, 1000);
     });
