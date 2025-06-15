@@ -201,6 +201,8 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                         }
 
                     } else if (data.estado == 'Rechazado') {
+
+                     clearInterval(intervalo);
                         //  contador = 0;
                         console.log("Condcutor DE CAMBIAR A ", conductor.id, 'libre');
                         delete respuestasSolicitudes[solicitudId];
