@@ -33,8 +33,6 @@ isRouter.post('/login-register', async (req, res) => {
         });
     }
 
-
-
     const idService = 5;
     const codigoVer = generateTemporaryPassword();
     const message = `Tu código de verificación es: ${codigoVer}. No lo compartas con nadie.`;
@@ -42,6 +40,7 @@ isRouter.post('/login-register', async (req, res) => {
     try {
         const userExists = await isController.getTelefono(telefono);
         if (userExists == undefined || userExists.length > 0) {
+              await sendSMS(`502${telefono}`, message, 'Un Ray');
             // const codigo = generateTemporaryPassword();
             const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer)
             if (usDet === undefined) {
@@ -49,11 +48,9 @@ isRouter.post('/login-register', async (req, res) => {
                 return res.status(200).send({
                     success: false,
                     msg: 'No se ha podido enviar el código.'
-                });;
+                });
             } else {
-
                 try {
-                    await sendSMS(`502${telefono}`, message, 'Un Ray');
                     const existingUser = await userController.getLoginTelefono(telefono);
 
                     if (existingUser === undefined) {

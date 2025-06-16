@@ -1011,7 +1011,7 @@ const deleteMensaje = (id) => { //getByEmail
 const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "update usuario set  codigo_verificacion= ?, codigoVerTimestamp=? where telefono = ?", [codigo, fecha, telefono], (err, rows) => {
+            "update usuario set codigo_verificacion= ?, codigoVerTimestamp=?,  ultconexion= ?, verificacion= 0 where telefono = ?", [codigo, fecha, fecha, telefono], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
