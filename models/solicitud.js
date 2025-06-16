@@ -202,7 +202,9 @@ const updateSolicitudConductor = (id, time, idConductor,) => {
 
 const deleteSolicitud = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
+        // UPDATE solicitudes SET
+     //   connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
+           connection.query(`UPDATE solicitudes SET estado = "Rechazado" where id = ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
