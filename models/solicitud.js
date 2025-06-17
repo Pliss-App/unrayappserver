@@ -298,6 +298,7 @@ const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
           LIMIT 1`;
         connection.query(query, [idViaje, emisorId, receptorId, receptorId, emisorId], (err, result) => {
             if (err) return reject(err);
+            console.log("DATOS DE CHATS : ", result)
            resolve(result.length > 0);
         });
     });
