@@ -271,4 +271,34 @@ isRouter.get('/callsecurity', async (req, res) => {
     }
 })
 
+
+isRouter.get('/saldoMinimo', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+    
+        const result = await isController.getSaldoMinimo();
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(4001).send({
+                success: false,
+                msg: 'En este momento no podemos mostrarte la información.',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result[0]
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            success: false,
+            msg: 'No pudimos completar la operación debido a un problema de comunicación con el servidor. Te sugerimos intentar nuevamente en unos momentos.'
+        });
+    }
+})
+
 module.exports = isRouter;

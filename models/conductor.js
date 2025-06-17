@@ -281,6 +281,16 @@ const updateTokenFCM = (id, token) => { //getByEmail
     });
 };
 
+
+const getSaldoMinimo = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT * FROM saldoMinimo`, [uid], (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -297,5 +307,6 @@ module.exports = {
     metodopago,
     callSecurity,
     getTokenFCM,
-    updateTokenFCM 
+    updateTokenFCM,
+    getSaldoMinimo 
 }
