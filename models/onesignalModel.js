@@ -171,6 +171,15 @@ const getNotificacionesUser = (id) => {
     });
 }
 
+const getNotificacionesUserNoLeidas = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT count(*) total FROM notificaciones WHERE estado= 'enviada' and idUser = ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
 const updateNotificacionesUser = (id, idVista, fecha) => {
     return new Promise((resolve, reject) => {
         connection.query(`UPDATE notificaciones SET estado = 'vista', fecha_vista= ? WHERE id= ? and idUser = ? `, [fecha, idVista, id], (err, result) => {
@@ -210,4 +219,4 @@ try {
 
 }
 
-module.exports = { sendNotificationBotones, sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas, updateNotificacionesUser, getNotificacionesUser };
+module.exports = { getNotificacionesUserNoLeidas, sendNotificationBotones, sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas, updateNotificacionesUser, getNotificacionesUser };

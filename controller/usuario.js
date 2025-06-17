@@ -827,6 +827,31 @@ usuarioRouter.put('/update-socket-io', async (req, res) => {
     }
 })
 
+usuarioRouter.get('/notificaciones-noleidas/:id', async (req, res) => {
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        const result = await OneSignal.getNotificacionesUserNoLeidas(req.params.id)
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No existen registros',
+            });
+        }
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            error: 'Internal Server Error'
+        });
+    }
+})
+
 usuarioRouter.get('/notificaciones/:id', async (req, res) => {
     try {
 
