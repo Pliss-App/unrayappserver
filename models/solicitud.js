@@ -291,6 +291,7 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
 
 
 const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
+    console.log("DATOS van : ", idViaje, emisorId, receptorId)
     return new Promise((resolve, reject) => {
         const query = `SELECT 1 FROM mensajes  
       WHERE leido = 'noleida' and idViaje= ? AND emisor_id = ? AND receptor_id = ? 
