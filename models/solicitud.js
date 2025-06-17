@@ -515,7 +515,7 @@ const obtLisCali = (id) => {
 const historial = (id, role, offset) => {
     return new Promise((resolve, reject) => {
         let column = role === "conductor" ? "idConductor" : "idUser";
-        connection.query(`SELECT id, start_direction, end_direction, costo, fecha_hora
+        connection.query(`SELECT id, start_direction, end_direction, costo, fecha_hora, estado, idService
                         FROM solicitudes
                         WHERE ${column} = ?
                         ORDER BY fecha_hora DESC
