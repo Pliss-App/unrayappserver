@@ -302,7 +302,7 @@ const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
     });
 };
 
-
+//
 const updateMessageNoLeidos = (idViaje, emisorId, receptorId) => {
     return new Promise((resolve, reject) => {
         const query = `update mensajes set leido = 'leida'
