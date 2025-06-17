@@ -515,16 +515,31 @@ const obtLisCali = (id) => {
 const historial = (id, role, offset) => {
     return new Promise((resolve, reject) => {
         let column = role === "conductor" ? "idConductor" : "idUser";
-        connection.query(`SELECT id, start_direction, end_direction, costo, fecha_hora, estado, idService
-                        FROM solicitudes
-                        WHERE ${column} = ?
-                        ORDER BY fecha_hora DESC
-                        LIMIT ?, 10; `, [id, parseInt(offset, 10)], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
-    });
 
+        // Estados permitidos según el rol
+        let estadosPermitidos = role === "conductor"
+            ? ['Cancelado', 'Finalizado', 'Rechazado']
+            : ['Cancelado', 'Finalizado'];
+
+        // Construye los placeholders (?, ?, ?) según cuántos estados haya
+        let placeholders = estadosPermitidos.map(() => '?').join(', ');
+
+        let query = `
+            SELECT id, start_direction, end_direction, costo, fecha_hora, estado, idService
+            FROM solicitudes
+            WHERE ${column} = ?
+            AND estado IN (${placeholders})
+            ORDER BY fecha_hora DESC
+            LIMIT ?, 10;
+        `;
+
+        let values = [id, ...estadosPermitidos, parseInt(offset, 10)];
+
+        connection.query(query, values, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
+    });
 }
 
 const insertMoviBilletera = (id_user, monto, descripcion, tipo) => {
