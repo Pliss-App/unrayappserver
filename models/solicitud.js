@@ -203,8 +203,8 @@ const updateSolicitudConductor = (id, time, idConductor,) => {
 const deleteSolicitud = (id) => {
     return new Promise((resolve, reject) => {
         // UPDATE solicitudes SET
-     //   connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
-           connection.query(`UPDATE solicitudes SET estado = "Rechazado" where id = ?`, [id], (err, result) => {
+        //   connection.query(`delete from solicitudes where id = ?`, [id], (err, result) => {
+        connection.query(`UPDATE solicitudes SET estado = "Rechazado" where id = ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -291,15 +291,13 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
 
 
 const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
-    console.log("DATOS van : ", idViaje, emisorId, receptorId)
     return new Promise((resolve, reject) => {
         const query = `SELECT 1 FROM mensajes  
-      WHERE leido = 'noleida' and idViaje= ? AND emisor_id = ? AND receptor_id = ? 
+      WHERE leido = 'noleida' and idViaje= ? AND receptor_id = ? 
           LIMIT 1`;
         connection.query(query, [idViaje, emisorId, receptorId], (err, result) => {
             if (err) return reject(err);
-            console.log("DATOS DE CHATS : ", result)
-           resolve(result.length > 0);
+            resolve(result.length > 0);
         });
     });
 };
@@ -622,5 +620,5 @@ module.exports = {
     consultarCalificacion,
     buscarConductorViaje,
     conductoreslist,
-    obtMessageNoLeidos 
+    obtMessageNoLeidos
 }
