@@ -293,10 +293,9 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
 const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT 1 FROM mensajes  
-      WHERE leido = 'noleida' and idViaje= ? AND (emisor_id = ? AND receptor_id = ?) 
-         OR (emisor_id = ? AND receptor_id = ?) 
+      WHERE leido = 'noleida' and idViaje= ? AND emisor_id = ? AND receptor_id = ? 
           LIMIT 1`;
-        connection.query(query, [idViaje, emisorId, receptorId, receptorId, emisorId], (err, result) => {
+        connection.query(query, [idViaje, emisorId, receptorId], (err, result) => {
             if (err) return reject(err);
             console.log("DATOS DE CHATS : ", result)
            resolve(result.length > 0);
