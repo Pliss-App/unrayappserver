@@ -726,7 +726,7 @@ isRouter.post("/get/mensajesNoLeidos", async (req, res) => {
       return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
     }
 
-    const hayNoLeidos = await isController.hayMensajesNoLeidos(idViaje, emisor_id, receptor_id);
+    const hayNoLeidos = await isController.obtMessageNoLeidos(idViaje, emisor_id, receptor_id);
 
     return res.status(200).json({
       success: true,
