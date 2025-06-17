@@ -720,7 +720,7 @@ isRouter.post("/send/mensajes", async (req, res) => {
 isRouter.post("/get/mensajesNoLeidos", async (req, res) => {
   try {
     const { idViaje, emisor_id, receptor_id } = req.body;
-
+console.log("DATOS , ", idViaje, emisor_id, receptor_id )
     // Validación de campos requeridos
     if (!idViaje || !emisor_id || !receptor_id) {
       return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
