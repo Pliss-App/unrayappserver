@@ -214,6 +214,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                             });
                         } else {
                             contador = 0;
+                             const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
                             //console.log(`Solicitud ${solicitudId} rechazada por ${conductor.nombre}, reasignando...`);
                             //  asignarConductor(solicitudId, conductores, index + 1, idUser);
                             resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
