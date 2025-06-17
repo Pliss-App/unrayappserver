@@ -742,7 +742,7 @@ isRouter.post("/get/mensajesNoLeidos", async (req, res) => {
 });
 
 
-isRouter.put("/updateMensajesNoLeidos", async (req, res) => {
+isRouter.post("/updateMensajesNoLeidos", async (req, res) => {
   try {
     const { idViaje,  receptor_id } = req.body;
     // Validación de campos requeridos
