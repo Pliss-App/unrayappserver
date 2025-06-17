@@ -295,7 +295,7 @@ const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
         const query = `SELECT 1 FROM mensajes  
       WHERE leido = 'noleida' and idViaje= ? AND receptor_id = ? 
           LIMIT 1`;
-        connection.query(query, [idViaje, emisorId, receptorId], (err, result) => {
+        connection.query(query, [idViaje, receptorId], (err, result) => {
             if (err) return reject(err);
             resolve(result.length > 0);
         });
@@ -307,7 +307,7 @@ const updateMessageNoLeidos = (idViaje, emisorId, receptorId) => {
     return new Promise((resolve, reject) => {
         const query = `update mensajes set leido = 'leida'
       WHERE  idViaje= ? AND receptor_id = ?`;
-        connection.query(query, [idViaje, emisorId, receptorId], (err, result) => {
+        connection.query(query, [idViaje, receptorId], (err, result) => {
             if (err) return reject(err);
             resolve(result.length > 0);
         });
