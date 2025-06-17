@@ -303,7 +303,7 @@ const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
 };
 
 //
-const updateMessageNoLeidos = (idViaje, emisorId, receptorId) => {
+const updateMessageNoLeidos = (idViaje, receptorId) => {
     return new Promise((resolve, reject) => {
         const query = `update mensajes set leido = 'leida'
       WHERE  idViaje= ? AND receptor_id = ?`;
