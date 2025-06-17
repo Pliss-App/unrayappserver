@@ -289,6 +289,20 @@ const obtMessage = (idViaje, emisorId, receptorId) => {
     });
 };
 
+
+const obtMessageNoLeidos = (idViaje, emisorId, receptorId) => {
+    return new Promise((resolve, reject) => {
+        const query = `SELECT 1 FROM mensajes  
+      WHERE leido = 'noleida' and idViaje= ? AND (emisor_id = ? AND receptor_id = ?) 
+         OR (emisor_id = ? AND receptor_id = ?) 
+          LIMIT 1`;
+        connection.query(query, [idViaje, emisorId, receptorId, receptorId, emisorId], (err, result) => {
+            if (err) return reject(err);
+           resolve(result.length > 0);
+        });
+    });
+};
+
 const obtSMSDefinido = (rol) => {
     return new Promise((resolve, reject) => {
         const query = `SELECT * FROM mensajeDefinido 
@@ -606,5 +620,6 @@ module.exports = {
     updateEstado,
     consultarCalificacion,
     buscarConductorViaje,
-    conductoreslist 
+    conductoreslist,
+    obtMessageNoLeidos 
 }

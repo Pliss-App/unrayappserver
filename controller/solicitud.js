@@ -717,6 +717,32 @@ isRouter.post("/send/mensajes", async (req, res) => {
     }
 });
 
+isRouter.post("/get/mensajesNoLeidos", async (req, res) => {
+  try {
+    const { idViaje, emisor_id, receptor_id } = req.body;
+
+    // Validación de campos requeridos
+    if (!idViaje || !emisor_id || !receptor_id) {
+      return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+    }
+
+    const hayNoLeidos = await isController.hayMensajesNoLeidos(idViaje, emisor_id, receptor_id);
+
+    return res.status(200).json({
+      success: true,
+      result: hayNoLeidos  // true o false
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      success: false,
+      error: 'Error interno del servidor'
+    });
+  }
+});
+
+
 isRouter.get("/obtener-sms-definido/:rol", async (req, res) => {
     try {
 
