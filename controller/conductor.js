@@ -279,7 +279,7 @@ isRouter.get('/saldoMinimo', async (req, res) => {
         const result = await isController.getSaldoMinimo();
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
-            return res.status(4001).send({
+            return res.status(401).send({
                 success: false,
                 msg: 'En este momento no podemos mostrarte la información.',
             });

@@ -285,7 +285,7 @@ const updateTokenFCM = (id, token) => { //getByEmail
 const getSaldoMinimo = () => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT * FROM saldoMinimo`, [uid], (err, rows) => {
+            `SELECT * FROM saldoMinimo`,  (err, rows) => {
             if (err) reject(err)
             resolve(rows)
         });
