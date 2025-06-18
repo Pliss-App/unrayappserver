@@ -302,11 +302,11 @@ isRouter.get('/saldoMinimo', async (req, res) => {
 })
 
 
-isRouter.post('/bloqueo', async (req, res) => {
+isRouter.post('/bloqueo/:id', async (req, res) => {
     const { id } = req.body
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        console.log("ID ACTUALIZAR ", id);
+        console.log("ID ACTUALIZAR ", id, " OTRO ", req.params.id);
         const result = await isController.bloqueo(id);
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
