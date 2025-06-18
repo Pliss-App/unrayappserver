@@ -438,7 +438,6 @@ usuarioRouter.get('/rating/:id', async (req, res) => {
     }
 })
 
-
 usuarioRouter.get('/estado/:id', async (req, res) => {
     const getUserby = await userController.getEstado(req.params.id)
     if (getUserby === undefined) {

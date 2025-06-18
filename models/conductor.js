@@ -291,6 +291,17 @@ const getSaldoMinimo = () => {
         });
     });
 };
+
+
+const bloqueo = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `update usuario set estado = 0, estado_usuario= 'ocupado' where id = ?`, [id], (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -308,5 +319,6 @@ module.exports = {
     callSecurity,
     getTokenFCM,
     updateTokenFCM,
-    getSaldoMinimo 
+    getSaldoMinimo,
+    bloqueo
 }

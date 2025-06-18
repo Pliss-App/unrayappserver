@@ -227,7 +227,7 @@ const getRating = (id) => { //getByEmail
 const getEstado = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT estado FROM usuario WHERE id = ?", [id], (err, rows) => {
+            "SELECT estado, estado_usuario FROM usuario WHERE id = ?", [id], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
