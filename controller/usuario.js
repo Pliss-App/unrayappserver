@@ -456,7 +456,7 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
 
 usuarioRouter.post('/update-estado-bloqueo/:id', async (req, res) => {
     const { id } = req.body;
-    const result = await userController.updateEstadoBloqueo(id);
+    const result = await userController.updateEstadoBloqueo(req.params.id);
     if (result === undefined) {
         return res.status(401).send({
             success: false,
@@ -475,7 +475,6 @@ usuarioRouter.put('/bloqueo/:id', async (req, res) => {
      const {id} =req.body;
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        console.log( id, " OTRO ", req.params.id);
         const result = await condController.bloqueo(req.params.id);
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
