@@ -250,6 +250,18 @@ const updateEstado = (id, estado) => { //getByEmail
     });
 };
 
+const updateEstadoBloqueo = (id ) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set estado = 1, estado_usuario = 'libre' WHERE id = ?", [id], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
 
 
 
@@ -1164,5 +1176,6 @@ module.exports = {
     getServices,
     updateRol,
     getDocumentacionAfiliacion,
-    getUsuario
+    getUsuario,
+    updateEstadoBloqueo 
 }

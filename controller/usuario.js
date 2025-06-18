@@ -454,6 +454,23 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
+    const result = await userController.updateEstadoBloqueo(id);
+    if (result === undefined) {
+        return res.status(401).send({
+            success: false,
+            msg: 'Error al actualizar',
+            result: false
+        });
+    } else {
+        return res.status(200).send({
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    }
+})
+
+
 usuarioRouter.put('/update-estado/:id', async (req, res) => {
     const { id, estado } = req.body;
     const result = await userController.updateEstado(id, estado)
