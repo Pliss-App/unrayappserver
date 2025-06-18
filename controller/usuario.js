@@ -471,6 +471,35 @@ usuarioRouter.post('/update-estado-bloqueo/:id', async (req, res) => {
     }
 })
 
+usuarioRouter.put('/bloqueo/:id', async (req, res) => {
+     const {id} =req.body;
+    try {
+        // Llamar al controlador para obtener los datos de la billetera
+        console.log( id, " OTRO ", req.params.id);
+        const result = await condController.bloqueo(req.params.id);
+        // Verificar si se encontró el usuario o devolver saldo 0
+        if (!result || Object.keys(result).length === 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'En este momento no podemos mostrarte la información.',
+            });
+        }
+
+        // Si existe el registro, devolverlo
+        return res.status(200).send({
+            success: true,
+            msg: 'SUCCESSFULLY',
+            result: result
+        });
+    } catch (error) {
+        console.error(error);
+        // Manejar errores
+        return res.status(500).send({
+            success: false,
+            msg: 'No pudimos completar la operación debido a un problema de comunicación con el servidor. Te sugerimos intentar nuevamente en unos momentos.'
+        });
+    }
+})
 
 usuarioRouter.put('/update-estado/:id', async (req, res) => {
     const { id, estado } = req.body;
