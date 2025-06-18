@@ -454,7 +454,8 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
     }
 })
 
-usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
+usuarioRouter.post('/update-estado-bloqueo/:id', async (req, res) => {
+    const { id } = req.body;
     const result = await userController.updateEstadoBloqueo(id);
     if (result === undefined) {
         return res.status(401).send({

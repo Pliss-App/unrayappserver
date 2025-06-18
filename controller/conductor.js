@@ -302,7 +302,7 @@ isRouter.get('/saldoMinimo', async (req, res) => {
 })
 
 
-isRouter.put('/bloqueo/:id', async (req, res) => {
+isRouter.post('/bloqueo', async (req, res) => {
     const { id } = req.body
     try {
         // Llamar al controlador para obtener los datos de la billetera
