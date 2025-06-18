@@ -441,11 +441,13 @@ usuarioRouter.get('/rating/:id', async (req, res) => {
 usuarioRouter.get('/estado/:id', async (req, res) => {
     const getUserby = await userController.getEstado(req.params.id)
     if (getUserby === undefined) {
-        res.json({
-            error: 'Error, Datos no encontrados'
-        })
+        return res.status(401).send({
+            success: false,
+            msg: 'En este momento no podemos regresar información.',
+        });
     } else {
         return res.status(200).send({
+            success: true,
             msg: 'SUCCESSFULLY',
             result: getUserby
         });
