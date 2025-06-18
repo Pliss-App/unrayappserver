@@ -49,7 +49,7 @@ isRouter.post('/recargar-billetera', async (req, res) => {
             });
         } else {
 
-            const insert = await  isController.insertMoviBilletera (iduser, monto, 'Recarga a Billetera', 'crédito');
+            const insert = await isController.insertMoviBilletera(iduser, monto, 'Recarga a Billetera', 'crédito');
             if (insert === undefined) {
                 return res.status(200).send({
                     success: false,
@@ -275,7 +275,7 @@ isRouter.get('/callsecurity', async (req, res) => {
 isRouter.get('/saldoMinimo', async (req, res) => {
     try {
         // Llamar al controlador para obtener los datos de la billetera
-    
+
         const result = await isController.getSaldoMinimo();
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
@@ -303,10 +303,11 @@ isRouter.get('/saldoMinimo', async (req, res) => {
 
 
 isRouter.put('/bloqueo/:id', async (req, res) => {
+    const { id } = req.body
     try {
         // Llamar al controlador para obtener los datos de la billetera
-        console.log("ID ACTUALIZAR ", req.body);
-        const result = await isController.bloqueo(req.params.id);
+        console.log("ID ACTUALIZAR ", id);
+        const result = await isController.bloqueo(id);
         // Verificar si se encontró el usuario o devolver saldo 0
         if (!result || Object.keys(result).length === 0) {
             return res.status(401).send({
