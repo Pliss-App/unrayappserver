@@ -10,7 +10,7 @@ const timeoutPromise = (ms) => new Promise((_, reject) =>
 );
 
 const extractOCRData = async (req, res) => {
-    const { imageBase64 } = req.body;
+    const { imageBase64,  } = req.body;
 
     if (!imageBase64) {
         return res.status(400).json({ success: false, msg: 'Imagen no proporcionada' });
@@ -52,9 +52,12 @@ const extractOCRData = async (req, res) => {
         const fechaRegex = /(Fecha|Date):?\s*([\d\/\-]+)/i;
         const montoRegex = /(Monto|Cantidad|Total|por un valor de|Monto\s*a\s*debitar):?\s*(Q|GTQ|\$)?\s*([\d]{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?)/i;
 
+
         // 📌 Extraer comprobante
         const comprobanteMatch = text.match(comprobanteRegex);
         if (comprobanteMatch) result.receiptNumber = comprobanteMatch[2];
+
+        
 
         // 📅 Extraer fecha
         const fechaMatch = text.match(fechaRegex);
@@ -68,6 +71,7 @@ const extractOCRData = async (req, res) => {
         }
 
         // ✔ Validación final
+        console.log("DATOS DE IMAGEN ,",  result)
         if (result.receiptNumber && result.amount) {
             return res.status(200).json({
                 success: true,
