@@ -1,4 +1,4 @@
-const Tesseract = require('tesseract.js');
+/*const Tesseract = require('tesseract.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -102,4 +102,109 @@ const extractOCRData = async (req, res) => {
 
 module.exports = {
     extractOCRData
+};
+*/
+
+
+const fs = require('fs');
+const path = require('path');
+const { CognitiveServicesCredentials } = require('@azure/ms-rest-azure-js');
+const { ComputerVisionClient } = require('@azure/cognitiveservices-computervision');
+
+// Configuración desde variables de entorno
+const key = process.env.AZURE_CV_KEY;
+const endpoint = process.env.AZURE_CV_ENDPOINT;
+
+// Crear credenciales y cliente
+const credentials = new CognitiveServicesCredentials(key);
+const client = new ComputerVisionClient(credentials, endpoint);
+
+/**
+ * Procesa una imagen en base64 usando Azure Computer Vision OCR
+ * @param {Object} req - Objeto de solicitud Express
+ * @param {Object} res - Objeto de respuesta Express
+ */
+exports.processOCR = async (req, res) => {
+  const { imageBase64 } = req.body;
+
+  if (!imageBase64) {
+    return res.status(400).json({ 
+      success: false, 
+      msg: 'Imagen no proporcionada en base64' 
+    });
+  }
+
+  try {
+    // Limpiar base64 (remover encabezado si existe)
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+
+    // Validar tamaño máximo (5 MB)
+    const maxSizeInBytes = 5 * 1024 * 1024;
+    if (buffer.length > maxSizeInBytes) {
+      return res.status(413).json({ 
+        success: false, 
+        msg: 'La imagen excede el tamaño máximo permitido (5 MB)' 
+      });
+    }
+
+    // Enviar a Azure OCR
+    const result = await client.readInStream(buffer);
+    const operationId = result.operationLocation.split('/').pop();
+
+    // Esperar hasta que el procesamiento termine
+    let readResult;
+    while (true) {
+      readResult = await client.getReadResult(operationId);
+      if (readResult.status !== 'notStarted' && readResult.status !== 'running') break;
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+
+    // Verificar si el procesamiento fue exitoso
+    if (readResult.status !== 'succeeded') {
+      throw new Error('El procesamiento OCR no fue exitoso');
+    }
+
+    // Extraer todo el texto
+    const allText = readResult.analyzeResult.readResults
+      .flatMap(page => page.lines.map(line => line.text))
+      .join(' ');
+
+    // Expresiones regulares para extraer datos específicos
+    const receiptPatterns = {
+      receiptNumber: /(No\.|Número|Transacci[oó]n|Autorizaci[oó]n|Referencia|Boleta|Factura)[\s:]*([\dA-Z-]+)/i,
+      amount: /(Total|Monto|Amount|TOTAL)\s*(?:Q|GTQ|\$)?\s*([\d,]+\.\d{2})/i,
+      date: /(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{4}[\/\-]\d{2}[\/\-]\d{2})/i,
+      nit: /(NIT|Nit|nit)\s*[\:\-]?\s*([\d\-]+)/i
+    };
+
+    // Extraer datos con los patrones
+    const extractedData = {};
+    for (const [key, pattern] of Object.entries(receiptPatterns)) {
+      const match = allText.match(pattern);
+      extractedData[key] = match ? match[match.length - 1] : null;
+    }
+
+    // Formatear montos (remover comas)
+    if (extractedData.amount) {
+      extractedData.amount = extractedData.amount.replace(',', '');
+    }
+
+    return res.status(200).json({
+      success: true,
+      rawText: allText,
+      extractedData,
+      processingTime: readResult.analyzeResult.readResults.reduce(
+        (acc, page) => acc + page.lines.length, 0
+      )
+    });
+
+  } catch (err) {
+    console.error('Error en Azure OCR:', err);
+    return res.status(500).json({ 
+      success: false, 
+      msg: 'Error al procesar la imagen OCR',
+      error: err.message 
+    });
+  }
 };
