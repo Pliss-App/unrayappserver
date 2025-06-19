@@ -47,10 +47,14 @@ const usarAppuser= async () => {
 cron.schedule('0 7,12,18 * * *', () => {
   console.log('🔁 Ejecutando job: Notificar usuarios...');
   usarAppuser();
+}, {
+  timezone: 'America/Guatemala'
 });
 
 // 11:30 PM
 cron.schedule('30 23 * * *', () => {
   console.log('🔁 Ejecutando job: Notificar usuarios...');
   usarAppuser();
+}, {
+  timezone: 'America/Guatemala'
 });

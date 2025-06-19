@@ -46,4 +46,6 @@ const recargarBilletera = async () => {
 cron.schedule('0 8,14 * * *', () => {
   console.log('🔁 Ejecutando job: Recargar billetera...');
   recargarBilletera();
+}, {
+  timezone: 'America/Guatemala'
 });

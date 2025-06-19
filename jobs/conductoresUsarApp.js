@@ -47,28 +47,38 @@ const conductoresUsarApp = async () => {
 cron.schedule('0 7 * * *', () => {
   console.log('🔁 Ejecutando job 7:00 AM: Notificar Usar App conductor...');
   conductoresUsarApp();
+}, {
+  timezone: 'America/Guatemala'
 });
 
 // 10:00 AM
 cron.schedule('0 10 * * *', () => {
   console.log('🔁 Ejecutando job 10:00 AM: Notificar Usar App conductor...');
   conductoresUsarApp();
+}, {
+  timezone: 'America/Guatemala'
 });
 
 // 12:00 PM
 cron.schedule('0 12 * * *', () => {
   console.log('🔁 Ejecutando job 12:00 PM: Notificar Usar App conductor...');
   conductoresUsarApp();
+}, {
+  timezone: 'America/Guatemala'
 });
 
 // 4:00 PM
 cron.schedule('0 16 * * *', () => {
   console.log('🔁 Ejecutando job 4:00 PM: Notificar Usar App conductor...');
   conductoresUsarApp();
+}, {
+  timezone: 'America/Guatemala'
 });
 
 // 11:15 PM
-cron.schedule('35 23 * * *', () => {
-  console.log('🔁 Ejecutando job 11:18 PM: Notificar Usar App conductor...');
+cron.schedule('45 23 * * *', () => {
+  console.log('🔁 Ejecutando job 11:45 PM: Notificar Usar App conductor...');
   conductoresUsarApp();
+}, {
+  timezone: 'America/Guatemala'
 });
