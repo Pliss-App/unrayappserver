@@ -1,6 +1,6 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { uploadImage, uploadDocumentacion } = require('../firebase');
+const { uploadImage, uploadBoletas, uploadDocumentacion } = require('../firebase');
 const { findNearestDriverListar } = require("../utils/solicitud");
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
