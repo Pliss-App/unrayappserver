@@ -482,8 +482,8 @@ usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
                 await OneSignal.sendNotification(
                     token,
                     'vacio',
-                    'Un Ray - Cuenta Activa',
-                    'Tu cuenta fue activa nuevamente. Ya puedes seguir recibiendo nuevos viajes.',
+                    'Un Ray - ✅ Cuenta Activa',
+                    'Tu cuenta fue activa nuevamente.🚗 Ya puedes seguir recibiendo nuevos viajes 🏍️.',
                     fechaHora,
                     id,
                     'desbloqueo'

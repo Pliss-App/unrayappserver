@@ -3,10 +3,10 @@ const condController = require('../models/conductor'); // ajusta si tu archivo s
 const OneSignal = require('../models/onesignalModel');
 
 
-const bloquearTemporalmenteFaltaSaldo = async () => {
+const recargarBilletera = async () => {
     try {
         const saldo = await condController.getSaldoMinimoConductores();
-        const usuarios = await condController.verificacionBilleteraConductores(saldo.saldo);
+        const usuarios = await condController.verificacionBilleteraConductoresNoti(saldo.saldo);
         for (const user of usuarios) {
             await condController.bloqueo(user.id);
             try {
@@ -24,29 +24,26 @@ const bloquearTemporalmenteFaltaSaldo = async () => {
                     await OneSignal.sendNotification(
                         token,
                         'vacio',
-                        'Un Ray - ☹️ Saldo insuficiente',
-                        '🛑 Tu cuenta fue suspendida temporalmente por saldo bajo. Recarga para activarla.',
+                        '📲Recarga tu billetera',
+                        '💰 Sigue reciendo más viajes y aumentando tus ingresos 🤑. Recarga tu billetera hoy .',
                         fechaHora,
                         user.id,
                         'bloqueo'
                     );
 
-                     console.log(`✅ Notificacion ${user.id} enviada.`);
                 }
             } catch (notiError) {
                 console.warn('Error al enviar la notificación:', notiError.message || notiError);
                 // No hacer nada, solo registrar el error
             }
-
-            console.log(`✅ Usuario ${user.id} bloqueado por saldo insuficiente.`);
         }
     } catch (error) {
         console.error('❌ Error en job verificarSaldos:', error.message);
     }
 };
 
-// Ejecutar cada 30 minutos
-cron.schedule('*/5 * * * *', () => {
-    console.log('🔁 Ejecutando job: Verificar saldos mínimos...');
-   bloquearTemporalmenteFaltaSaldo();
+
+cron.schedule('0 8,14 * * *', () => {
+  console.log('🔁 Ejecutando job: Verificar saldos mínimos...');
+  recargarBilletera();
 });
