@@ -17,11 +17,22 @@ const extractOCRData = async (req, res) => {
     }
 
     try {
-        // 🖼 Convertir Base64 en Buffer y guardar como archivo temporal
+        // 🖼 Convertir Base64 en Buffer
         const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
         const buffer = Buffer.from(base64Data, 'base64');
-        const tempPath = path.join(uploadDir , `ocr-${Date.now()}.jpg`);
 
+        // ⚖️ Validar tamaño máximo permitido (5 MB)
+        const maxSizeInMB = 5;
+        const maxSizeInBytes = maxSizeInMB * 1024 * 1024;
+        if (buffer.length > maxSizeInBytes) {
+            return res.status(413).json({
+                success: false,
+                msg: `La imagen excede el tamaño máximo permitido de ${maxSizeInMB} MB`
+            });
+        }
+
+        // 📂 Guardar imagen temporal
+        const tempPath = path.join(uploadDir, `ocr-${Date.now()}.jpg`);
         fs.writeFileSync(tempPath, buffer);
 
         // 🔍 Ejecutar OCR con límite de tiempo (20s)
