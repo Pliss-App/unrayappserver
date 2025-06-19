@@ -1,6 +1,11 @@
 const Tesseract = require('tesseract.js');
 const fs = require('fs');
+const path = require('path');
 
+// ⏱ Función de timeout para limitar el tiempo del OCR
+const timeoutPromise = (ms) => new Promise((_, reject) =>
+  setTimeout(() => reject(new Error('Timeout de OCR superado')), ms)
+);
 
 const extractOCRData = async (req, res) => {
   const { imageBase64 } = req.body;
@@ -10,36 +15,46 @@ const extractOCRData = async (req, res) => {
   }
 
   try {
-    const { data } = await Tesseract.recognize(imageBase64, 'eng');
+    // 🖼 Convertir Base64 en Buffer y guardar como archivo temporal
+    const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+    const buffer = Buffer.from(base64Data, 'base64');
+    const tempPath = path.join(__dirname, '../uploads', `ocr-${Date.now()}.jpg`);
 
-    const text = data.text;
+    fs.writeFileSync(tempPath, buffer);
+
+    // 🔍 Ejecutar OCR con límite de tiempo (20s)
+    const resultOCR = await Promise.race([
+      Tesseract.recognize(tempPath, 'eng'),
+      timeoutPromise(20000)
+    ]);
+
+    // ✅ Borrar imagen temporal
+    fs.unlinkSync(tempPath);
+
+    const text = resultOCR.data.text;
     const result = {};
 
-    // REGEX para comprobante, fecha y monto
+    // 🧠 Regex para extraer datos
     const comprobanteRegex = /(Comprobante|No\.|Número|Transaccion|No\.\s*de\s*autorización|Numero\.\s*de\s*deposito|No\.\s*de\s*autorizacion|Número\s*de\s*Depósito|Código\s*de\s*autorizacion|Cddigo\s*de\s*autorizacion|No\.\s*de\s*Referencia):?\s*(\d+)/i;
     const fechaRegex = /(Fecha|Date):?\s*([\d\/\-]+)/i;
     const montoRegex = /(Monto|Cantidad|Total|por un valor de|Monto\s*a\s*debitar):?\s*(Q|GTQ|\$)?\s*([\d]{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?)/i;
 
-    // Buscar número de comprobante
+    // 📌 Extraer comprobante
     const comprobanteMatch = text.match(comprobanteRegex);
-    if (comprobanteMatch) {
-      result.receiptNumber = comprobanteMatch[2];
-    }
+    if (comprobanteMatch) result.receiptNumber = comprobanteMatch[2];
 
-    // Buscar fecha
+    // 📅 Extraer fecha
     const fechaMatch = text.match(fechaRegex);
-    if (fechaMatch) {
-      result.fecha = fechaMatch[2];
-    }
+    if (fechaMatch) result.fecha = fechaMatch[2];
 
-    // Buscar monto
+    // 💵 Extraer monto
     const montoMatch = text.match(montoRegex);
     if (montoMatch) {
-      let montoRaw = montoMatch[3].replace(/(?<=\d),(?=\d{3}\b)/g, '');
+      const montoRaw = montoMatch[3].replace(/(?<=\d),(?=\d{3}\b)/g, '');
       result.amount = parseFloat(montoRaw);
     }
 
-    // Verifica si datos clave están presentes
+    // ✔ Validación final
     if (result.receiptNumber && result.amount) {
       return res.status(200).json({
         success: true,
@@ -56,7 +71,7 @@ const extractOCRData = async (req, res) => {
     }
 
   } catch (error) {
-    console.error('❌ Error al procesar OCR:', error);
+    console.error('❌ Error al procesar OCR:', error.message || error);
     return res.status(500).json({
       success: false,
       msg: 'Error al procesar la imagen. Intenta nuevamente más tarde.'
