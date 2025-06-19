@@ -292,6 +292,16 @@ const getSaldoMinimo = () => {
     });
 };
 
+const getSaldoMinimoConductores = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT saldo FROM saldoMinimo`,  (err, rows) => {
+            if (err) reject(err)
+            resolve(rows[0])
+        });
+    });
+};
+
 
 const bloqueo = (id) => {
     return new Promise((resolve, reject) => {
@@ -320,5 +330,6 @@ module.exports = {
     getTokenFCM,
     updateTokenFCM,
     getSaldoMinimo,
-    bloqueo
+    bloqueo,
+    getSaldoMinimoConductores
 }

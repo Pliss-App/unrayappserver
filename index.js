@@ -1,10 +1,12 @@
 // Imports
 require('dotenv').config();
+require('./jobs/saldoChecker');
 const express = require("express");
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const http = require('http');
 const socketIo = require('socket.io');
+
 const { initializeSocket } = require('./socket'); // Importa el inicializador de Socket.IO
 const { initializeSocketOr } = require('./socketOr');
 const app = express();
