@@ -26,7 +26,7 @@ const conductoresUsarApp = async () => {
                         '📲 Mantente en línea y recibe más viajes 🚗💰 ¡Cada viaje es una oportunidad de generar ingresos extra! 💵✨',
                         fechaHora,
                         user.id,
-                        'bloqueo'
+                        'principal'
                     );
 
                      console.log(`✅ Notificacion ${user.id} enviada.`);
@@ -68,7 +68,7 @@ cron.schedule('0 16 * * *', () => {
 });
 
 // 11:15 PM
-cron.schedule('15 23 * * *', () => {
-  console.log('🔁 Ejecutando job 11:15 PM: Notificar Usar App conductor...');
+cron.schedule('18 23 * * *', () => {
+  console.log('🔁 Ejecutando job 11:18 PM: Notificar Usar App conductor...');
   conductoresUsarApp();
 });
