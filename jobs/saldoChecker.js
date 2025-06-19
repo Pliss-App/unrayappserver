@@ -3,7 +3,7 @@ const condController = require('../models/conductor'); // ajusta si tu archivo s
 const OneSignal = require('../models/onesignalModel');
 
 
-const verificarSaldos = async () => {
+const bloquearTemporalmenteFaltaSaldo = async () => {
     try {
         const saldo = await condController.getSaldoMinimoConductores();
         const usuarios = await condController.verificacionBilleteraConductores(saldo.saldo);
@@ -47,5 +47,5 @@ const verificarSaldos = async () => {
 // Ejecutar cada 30 minutos
 cron.schedule('*/5 * * * *', () => {
     console.log('🔁 Ejecutando job: Verificar saldos mínimos...');
-    verificarSaldos();
+   bloquearTemporalmenteFaltaSaldo();
 });

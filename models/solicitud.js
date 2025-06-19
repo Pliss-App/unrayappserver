@@ -211,18 +211,20 @@ const deleteSolicitud = (id) => {
     });
 }
 
-const conductores = (idService) => {
+const conductores = (idService, saldo) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id, u.nombre, u.apellido, 
        u.telefono, u.foto, r.nombre as rol, u.estado,
        u.estado_usuario, l.lat, l.lon, l.angle, u.socket_id FROM usuario u 
        inner join usuario_rol  ur
        on u.id = ur.iduser
+       inner join billetera b
+       on u.id = b.iduser
        inner join roles r
        ON r.id = ur.idrol
        INNER JOIN location l
        ON u.id = l.iduser
-       WHERE u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [idService], (err, result) => {
+       WHERE b.saldo > ? and u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [saldo, idService], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -231,7 +233,7 @@ const conductores = (idService) => {
 
 
 
-const conductoreslist = (idService) => {
+const conductoreslist = (idService, saldo) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT u.id, u.nombre, u.apellido, 
        u.telefono, u.foto, r.nombre as rol, u.estado,
@@ -243,11 +245,13 @@ const conductoreslist = (idService) => {
        FROM usuario u 
        inner join usuario_rol  ur
        on u.id = ur.iduser
+     inner join billetera b
+       on u.id = b.iduser
        inner join roles r
        ON r.id = ur.idrol
        INNER JOIN location l
        ON u.id = l.iduser
-       WHERE u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [idService], (err, result) => {
+       WHERE b.saldo > ? and u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [saldo, idService], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
