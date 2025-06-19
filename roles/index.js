@@ -21,6 +21,7 @@ const publicidad = require('../controller/administracion/publicidad')
 // ####################################admin
 const adminRouter = require('../controller/administracion/usuarios');
 const afiRouter = require('../controller/administracion/documentacion');
+const validateImage = require('../controller/ocr.controller')
 
 const apiRouter = express.Router();
 
@@ -44,6 +45,8 @@ apiRouter.use('/publicidad', publicidad);
 
 apiRouter.use('/afiliacion', afiRouter);
 
+
+apiRouter.use('/validateimage', validateImage);
 
 
 module.exports = apiRouter;

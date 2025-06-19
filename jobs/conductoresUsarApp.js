@@ -35,8 +35,6 @@ const conductoresUsarApp = async () => {
                 console.warn('Error al enviar la notificación:', notiError.message || notiError);
                 // No hacer nada, solo registrar el error
             }
-
-            console.log(`✅ Usuario ${user.id} bloqueado por saldo insuficiente.`);
         }
     } catch (error) {
         console.error('❌ Error en job verificarSaldos:', error.message);

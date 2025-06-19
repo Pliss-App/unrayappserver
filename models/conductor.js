@@ -294,14 +294,17 @@ const getSaldoMinimo = () => {
 
 const getSaldoMinimoConductores = () => {
     return new Promise((resolve, reject) => {
-        connection.query(
-            `SELECT saldo FROM saldoMinimo`, (err, rows) => {
-                if (err) reject(err)
-                resolve(rows[0])
-            });
+        connection.query(`SELECT saldo FROM saldoMinimo`, (err, rows) => {
+            if (err) return reject(err);
+
+            if (!rows || rows.length === 0) {
+                return reject(new Error('No se encontró saldo mínimo en la base de datos.'));
+            }
+
+            resolve(rows[0]);
+        });
     });
 };
-
 
 const bloqueo = (id) => {
     return new Promise((resolve, reject) => {
