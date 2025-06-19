@@ -72,6 +72,67 @@ const uploadImage = async (req, res, next) => {
     }
   };
 
+  const uploadBoletas = async (req, res, next) => {
+    try {
+      const { image, id } = req.body;
+  
+      if (!image || !id) {
+        return res.status(400).json({ message: 'No se proporcionó imagen en base64' });
+      }
+  
+   // Extraer el tipo mime y los datos en base64
+   const matches = image.match(/^data:(.+);base64,(.+)$/);
+   if (!matches || matches.length !== 3) {
+     console.log('Invalid base64 format');
+     return res.status(400).json({ message: 'Invalid base64 format' });
+   }
+      const mimeType = matches[1];
+      const base64Data = matches[2];
+      const buffer = Buffer.from(base64Data, 'base64');
+  
+      const extension = mimeType.split('/')[1];
+      const fileName = `boletas_id=${id}_${Date.now()}.${extension}`;
+  
+      const file = bucket.file('BoletasPago/' + fileName);
+      const stream = file.createWriteStream({
+        metadata: {
+          contentType: mimeType,
+          metadata: {
+            firebaseStorageDownloadTokens: uuidv4(),
+          },
+        },
+      });
+  
+      stream.on("error", (err) => {
+        console.error('Stream error:', err.message);
+        return res.status(500).json({ message: 'Error uploading image', error: err.message });
+      });
+  
+      stream.on("finish", async () => {
+        try {
+          await file.makePublic();
+          const url = file.publicUrl();
+  
+          // Dejar datos en el request para que los use el endpoint
+          req.file = { firebaseUrl: url };
+          req.body.id_photo = fileName;
+  
+         
+          next();
+        } catch (error) {
+          console.error('Error during making file public:', error.message);
+          res.status(500).json({ message: 'Error during making file public', error: error.message });
+        }
+      });
+  
+      stream.end(buffer);
+    } catch (error) {
+        console.error('Error in uploadImage middleware:', error.message);
+        res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    }
+  };
+
+
   const uploadDocumentacion = async (req, res, next) => {
     try {
       const { image, id } = req.body;
@@ -350,5 +411,6 @@ module.exports = {
     uploadChatSoporte,
     uploadImagePublicidad,
     enviarNotificacionFCM,
+    uploadBoletas,
     bucket 
 };

@@ -73,6 +73,20 @@ usuarioRouter.post('/upload_profile', uploadImage, async (req, res) => {
     })
 })
 
+usuarioRouter.post('/upload_boletas', uploadBoletas, async (req, res) => {
+
+
+    const url = {
+        url: req.file.firebaseUrl,
+        id: req.body.id_photo,
+    }
+
+    res.status(200).json({
+        success: true,
+        message: 'IMAGE UPLOADED SUCCESSFULLY',
+        data: url
+    })
+})
 
 usuarioRouter.post('/upload_documentacion', uploadDocumentacion, async (req, res) => {
     const url = {
