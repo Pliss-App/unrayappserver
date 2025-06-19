@@ -3,12 +3,12 @@ const condController = require('../models/conductor'); // ajusta si tu archivo s
 const OneSignal = require('../models/onesignalModel');
 
 
-const recargarBilletera = async () => {
+const usarAppuser= async () => {
     try {
-        const saldo = await condController.getSaldoMinimoConductores();
-        const usuarios = await condController.verificacionBilleteraConductoresNoti(saldo.saldo);
+
+        const usuarios = await condController.usarAppUserNoti();
         for (const user of usuarios) {
-            await condController.bloqueo(user.id);
+
             try {
                 const token = await condController.getTokenOnesignal(user.id);
                 if (token) {
@@ -24,11 +24,11 @@ const recargarBilletera = async () => {
                     await OneSignal.sendNotification(
                         token,
                         'vacio',
-                        '📲Recarga tu billetera',
-                        '💰 Sigue reciendo más viajes y aumentando tus ingresos 🤑. Recarga tu billetera hoy .',
+                        '👉 ¡Muévete con Un Ray!',
+                        'No esperes más 🕒 ubicación, solicita tu viaje 🧭 y déjanos llevarte a tu destino 🏁',
                         fechaHora,
                         user.id,
-                        'bloqueo'
+                        'principal'
                     );
 
                 }
@@ -43,7 +43,14 @@ const recargarBilletera = async () => {
 };
 
 
-cron.schedule('0 8,14 * * *', () => {
-  console.log('🔁 Ejecutando job: Recargar billetera...');
-  recargarBilletera();
+// 7:00 AM, 12:00 PM, 6:00 PM
+cron.schedule('0 7,12,18 * * *', () => {
+  console.log('🔁 Ejecutando job: Notificar usuarios...');
+  usarAppuser();
+});
+
+// 11:30 PM
+cron.schedule('30 23 * * *', () => {
+  console.log('🔁 Ejecutando job: Notificar usuarios...');
+  usarAppuser();
 });

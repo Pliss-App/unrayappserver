@@ -2,6 +2,7 @@
 require('dotenv').config();
 require('./jobs/saldoChecker');
 require('./jobs/recargarBilletera');
+require('./jobs/usuarioUsarApp');
 const express = require("express");
 const bodyParser = require('body-parser');
 const cors = require('cors');

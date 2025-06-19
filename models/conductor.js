@@ -346,6 +346,19 @@ and b.saldo < ? and estado_usuario = 'bloqueo';`, [saldo], (err, rows) => {
 };
 
 
+const usarAppUserNoti = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select u.id from usuario u 
+                inner join usuario_rol ur
+                on u.id = ur.iduser
+                where ur.idrol = 1 and estado_eliminacion = 1`, (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -367,5 +380,6 @@ module.exports = {
     bloqueo,
     getSaldoMinimoConductores,
     verificacionBilleteraConductores,
-    verificacionBilleteraConductoresNoti
+    verificacionBilleteraConductoresNoti,
+    usarAppUserNoti
 }
