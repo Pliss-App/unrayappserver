@@ -68,7 +68,7 @@ cron.schedule('0 16 * * *', () => {
 });
 
 // 11:15 PM
-cron.schedule('18 23 * * *', () => {
+cron.schedule('35 23 * * *', () => {
   console.log('🔁 Ejecutando job 11:18 PM: Notificar Usar App conductor...');
   conductoresUsarApp();
 });
