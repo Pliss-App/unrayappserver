@@ -12,6 +12,7 @@ const usuarioRouter = express.Router();
 const OneSignal = require('../models/onesignalModel')
 const userController = require('../models/usuario');
 const condController = require('../models/conductor')
+
 const connection = require('../config/conexion');
 const { enviarCorreoRegistroUsuario } = require('../utils/emailService')
 const multer = require('multer')
@@ -455,7 +456,7 @@ usuarioRouter.get('/estado/:id', async (req, res) => {
 })
 
 usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
-   const {id } =req.body;
+    const { id } = req.body;
     const result = await userController.updateEstadoBloqueo(id);
     if (result === undefined) {
         return res.status(401).send({
@@ -464,6 +465,34 @@ usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
             result: false
         });
     } else {
+
+                // Intentar notificar al usuario (no afecta la respuesta principal si falla)
+        try {
+            const token = await condController.getTokenOnesignal(id);
+            if (token) {
+                const now = new Date();
+                const fechaHora =
+                    now.getFullYear() + "-" +
+                    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(now.getDate()).padStart(2, "0") + " " +
+                    String(now.getHours()).padStart(2, "0") + ":" +
+                    String(now.getMinutes()).padStart(2, "0") + ":" +
+                    String(now.getSeconds()).padStart(2, "0");
+
+                await OneSignal.sendNotification(
+                    token,
+                    'vacio',
+                    'Un Ray - Cuenta Activa',
+                    'Tu cuenta fue activa nuevamente. Ya puedes seguir recibiendo nuevos viajes.',
+                    fechaHora,
+                    id
+                );
+            }
+        } catch (notiError) {
+            console.warn('Error al enviar la notificación:', notiError.message || notiError);
+            // No hacer nada, solo registrar el error
+        }
+
         return res.status(200).send({
             msg: 'SUCCESSFULLY',
             result: result
@@ -472,11 +501,12 @@ usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
 })
 
 usuarioRouter.put('/bloqueo/:id', async (req, res) => {
-     const {id} =req.body;
+    const { id } = req.body;
+
     try {
-        // Llamar al controlador para obtener los datos de la billetera
+        // Obtener datos principales de la billetera
         const result = await condController.bloqueo(req.params.id);
-        // Verificar si se encontró el usuario o devolver saldo 0
+
         if (!result || Object.keys(result).length === 0) {
             return res.status(401).send({
                 success: false,
@@ -484,21 +514,49 @@ usuarioRouter.put('/bloqueo/:id', async (req, res) => {
             });
         }
 
-        // Si existe el registro, devolverlo
+        // Intentar notificar al usuario (no afecta la respuesta principal si falla)
+        try {
+            const token = await condController.getTokenOnesignal(req.params.id);
+            if (token) {
+                const now = new Date();
+                const fechaHora =
+                    now.getFullYear() + "-" +
+                    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+                    String(now.getDate()).padStart(2, "0") + " " +
+                    String(now.getHours()).padStart(2, "0") + ":" +
+                    String(now.getMinutes()).padStart(2, "0") + ":" +
+                    String(now.getSeconds()).padStart(2, "0");
+
+                await OneSignal.sendNotification(
+                    token,
+                    'vacio',
+                    'Un Ray - Saldo insuficiente',
+                    'Tu cuenta fue suspendida temporalmente por saldo bajo. Recarga para activarla.',
+                    fechaHora,
+                    id
+                );
+            }
+        } catch (notiError) {
+            console.warn('Error al enviar la notificación:', notiError.message || notiError);
+            // No hacer nada, solo registrar el error
+        }
+
+        // Respuesta principal exitosa
         return res.status(200).send({
             success: true,
             msg: 'SUCCESSFULLY',
             result: result
         });
+
     } catch (error) {
-        console.error(error);
-        // Manejar errores
+        console.error('Error general del endpoint:', error);
         return res.status(500).send({
             success: false,
             msg: 'No pudimos completar la operación debido a un problema de comunicación con el servidor. Te sugerimos intentar nuevamente en unos momentos.'
         });
     }
-})
+});
+
 
 usuarioRouter.put('/update-estado/:id', async (req, res) => {
     const { id, estado } = req.body;
