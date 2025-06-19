@@ -13,6 +13,14 @@ const socketIo = require('socket.io');
 const { initializeSocket } = require('./socket'); // Importa el inicializador de Socket.IO
 const { initializeSocketOr } = require('./socketOr');
 const app = express();
+
+//  Crear carpeta uploads al iniciar servidor (solo si no existe)
+const uploadDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+  console.log('Carpeta uploads creada');
+}
+
 // 👇 Solución al error
 app.set('trust proxy', 1);
 
