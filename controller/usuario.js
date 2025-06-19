@@ -533,7 +533,7 @@ usuarioRouter.put('/bloqueo/:id', async (req, res) => {
                     'Un Ray - Saldo insuficiente',
                     'Tu cuenta fue suspendida temporalmente por saldo bajo. Recarga para activarla.',
                     fechaHora,
-                    id
+                    req.params.id
                 );
             }
         } catch (notiError) {
