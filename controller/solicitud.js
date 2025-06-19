@@ -566,7 +566,7 @@ isRouter.post('/aceptar_solicitud', async (req, res) => {
             String(now.getHours()).padStart(2, "0") + ":" +
             String(now.getMinutes()).padStart(2, "0") + ":" +
             String(now.getSeconds()).padStart(2, "0");
-        const result = await OneSignal.sendNotification(token, 'vacio', 'Viaje Un Ray', 'Tu solicitud de viaje a sido aceptada.', now, idUser)
+        const result = await OneSignal.sendNotification(token, 'vacio', 'Viaje Un Ray', 'Tu solicitud de viaje a sido aceptada.', now, idUser, 'viaje')
 
         return res.status(200).json({
             success: true,
@@ -914,13 +914,13 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
-    const { userId, sonido, title, message, fecha, idUser } = req.body;
+    const { userId, sonido, title, message, fecha, idUser, tipo } = req.body;
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
 
     try {
-        const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser);
+        const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser, tipo);
         if (result.id === undefined || result.id == '') {
             return res.status(200).json({
                 success: false,

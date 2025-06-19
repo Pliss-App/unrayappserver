@@ -485,7 +485,8 @@ usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
                     'Un Ray - Cuenta Activa',
                     'Tu cuenta fue activa nuevamente. Ya puedes seguir recibiendo nuevos viajes.',
                     fechaHora,
-                    id
+                    id,
+                    'desbloqueo'
                 );
             }
         } catch (notiError) {
@@ -533,7 +534,8 @@ usuarioRouter.put('/bloqueo/:id', async (req, res) => {
                     'Un Ray - Saldo insuficiente',
                     'Tu cuenta fue suspendida temporalmente por saldo bajo. Recarga para activarla.',
                     fechaHora,
-                    req.params.id
+                    req.params.id,
+                    'bloqueo'
                 );
             }
         } catch (notiError) {

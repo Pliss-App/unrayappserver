@@ -798,7 +798,7 @@ isRouter.put('/boletas/update', async (req, res) => {
 isRouter.post('/enviar-campania', async (req, res) => {
     const { userId, sonido, title, message, fecha, idUser } = req.body;
     try {
-        const result = await OneSignal.sendNotificationAdmin(userId, sonido, title, message, fecha, idUser);
+        const result = await OneSignal.sendNotificationAdmin(userId, sonido, title, message, fecha, idUser, 'campania');
         if (result === undefined) {
             return res.status(200).send({
                 success: false,

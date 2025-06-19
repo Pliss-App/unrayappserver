@@ -8,7 +8,7 @@ const travelController = require('../../models/administracion/notificador');
 travelRouter.post('/enviar-campania', async (req, res) => {
     const {userId, sonido, title, message, fecha, idUser} = req.body;
     try {
-       const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser);
+       const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser, 'campania');
        if (result.id === undefined || result.id == '') {
             return res.status(200).send({
                 success: false,

@@ -27,7 +27,8 @@ const bloquearTemporalmenteFaltaSaldo = async () => {
                         'Un Ray - Saldo insuficiente',
                         'Tu cuenta fue suspendida temporalmente por saldo bajo. Recarga para activarla.',
                         fechaHora,
-                        user.id
+                        user.id,
+                        'bloqueo'
                     );
 
                      console.log(`✅ Notificacion ${user.id} enviada.`);
