@@ -329,6 +329,22 @@ and b.saldo < ? and ( estado = 1 or estado_usuario = 'libre');`, [saldo], (err, 
     });
 };
 
+const conductoresUsarApp = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select u.id, u.estado, u.estado_usuario, ur.idrol, ur.idservice, b.saldo from usuario u 
+inner join usuario_rol ur
+on u.id = ur.iduser
+inner join billetera b
+on u.id = b.iduser
+where u.activacion = 1 and ur.idrol = 2`, (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
+
 const verificacionBilleteraConductoresNoti = (saldo) => {
     return new Promise((resolve, reject) => {
         connection.query(
@@ -381,5 +397,6 @@ module.exports = {
     getSaldoMinimoConductores,
     verificacionBilleteraConductores,
     verificacionBilleteraConductoresNoti,
-    usarAppUserNoti
+    usarAppUserNoti,
+    conductoresUsarApp
 }
