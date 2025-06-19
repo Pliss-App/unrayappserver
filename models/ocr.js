@@ -45,6 +45,8 @@ const extractOCRData = async (req, res) => {
         fs.unlinkSync(tempPath);
 
         const text = resultOCR.data.text;
+
+        console.log("DATOS DE LA IMAGEN ", text)
         const result = {};
 
         // 🧠 Regex para extraer datos
