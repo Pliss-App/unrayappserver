@@ -12,7 +12,7 @@ const saldoBilletera = (id) => { //getByEmail
     });
 };
 
-const metodopago= () => { //getByEmail
+const metodopago = () => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             "SELECT * FROM metodopago limit 1", (err, rows) => {
@@ -201,16 +201,16 @@ const cargaDocumentacion = (idUser, fecha) => {
 }
 
 
-const insertAfiliacion = (userId, data,  fecha, idservicio) => {
-  return new Promise((resolve, reject) => {
-    const {
-      perfil,
-      dpi,
-      vehiculo,
-      licencia
-    } = data;
+const insertAfiliacion = (userId, data, fecha, idservicio) => {
+    return new Promise((resolve, reject) => {
+        const {
+            perfil,
+            dpi,
+            vehiculo,
+            licencia
+        } = data;
 
-    const sql = `
+        const sql = `
       INSERT INTO documentacion (
         iduser,
         dpi_frontal,
@@ -227,29 +227,29 @@ const insertAfiliacion = (userId, data,  fecha, idservicio) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
-    const values = [
-      userId ,
-      dpi?.dpi_frontal || null,
-      dpi?.dpi_inverso || null,
-      licencia?.licencia_frontal || null,
-      licencia?.licencia_inverso || null,
-      vehiculo?.tarjeta_frontal || null,
-      vehiculo?.tarjeta_inverso || null,
-      dpi?.rostrodpi || null,
-       perfil?.photo || null,
-     vehiculo?.vehiculo_frontal || null,
-      fecha,
-      idservicio
-    ];
+        const values = [
+            userId,
+            dpi?.dpi_frontal || null,
+            dpi?.dpi_inverso || null,
+            licencia?.licencia_frontal || null,
+            licencia?.licencia_inverso || null,
+            vehiculo?.tarjeta_frontal || null,
+            vehiculo?.tarjeta_inverso || null,
+            dpi?.rostrodpi || null,
+            perfil?.photo || null,
+            vehiculo?.vehiculo_frontal || null,
+            fecha,
+            idservicio
+        ];
 
-    connection.query(sql, values, (err, result) => {
-      if (err) return reject(err);
-      resolve(result);
+        connection.query(sql, values, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+        });
     });
-  });
 };
 
-const callSecurity= () => { //getByEmail
+const callSecurity = () => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             "SELECT * FROM callSecurity ", (err, rows) => {
@@ -285,20 +285,20 @@ const updateTokenFCM = (id, token) => { //getByEmail
 const getSaldoMinimo = () => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT * FROM saldoMinimo`,  (err, rows) => {
-            if (err) reject(err)
-            resolve(rows)
-        });
+            `SELECT * FROM saldoMinimo`, (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
     });
 };
 
 const getSaldoMinimoConductores = () => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `SELECT saldo FROM saldoMinimo`,  (err, rows) => {
-            if (err) reject(err)
-            resolve(rows[0])
-        });
+            `SELECT saldo FROM saldoMinimo`, (err, rows) => {
+                if (err) reject(err)
+                resolve(rows[0])
+            });
     });
 };
 
@@ -307,11 +307,28 @@ const bloqueo = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(
             `update usuario set estado = false, estado_usuario= 'ocupado' where id = ?`, [id], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
+const verificacionBilleteraConductores = (saldo) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select u.id, u.estado, u.estado_usuario, ur.idrol, ur.idservice, b.saldo from usuario u 
+inner join usuario_rol ur
+on u.id = ur.iduser
+inner join billetera b
+on u.id = b.iduser
+where u.activacion = 1 and ur.idrol = 2
+and b.saldo < ? and ( estado = 1 or estado_usuario = 'libre');`, [saldo], (err, rows) => {
             if (err) reject(err)
             resolve(rows)
         });
     });
 };
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -331,5 +348,6 @@ module.exports = {
     updateTokenFCM,
     getSaldoMinimo,
     bloqueo,
-    getSaldoMinimoConductores
+    getSaldoMinimoConductores,
+    verificacionBilleteraConductores
 }
