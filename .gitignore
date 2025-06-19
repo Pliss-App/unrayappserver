@@ -6,3 +6,4 @@ firebase_key.json
 ./firebase_key.json
 cloudinary.config.js
 cloudinary.config
+uploads/
