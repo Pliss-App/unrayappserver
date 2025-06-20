@@ -378,6 +378,16 @@ const usarAppUserNoti = () => {
     });
 };
 
+const apoyoBoleta = () => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select * from apoyoboleta`, (err, rows) => {
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
@@ -401,5 +411,6 @@ module.exports = {
     verificacionBilleteraConductores,
     verificacionBilleteraConductoresNoti,
     usarAppUserNoti,
-    conductoresUsarApp
+    conductoresUsarApp,
+    apoyoBoleta
 }

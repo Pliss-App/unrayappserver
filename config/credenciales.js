@@ -2,9 +2,9 @@ module.exports = {
     hostname: 'myhostname',
     database: {
         host: process.env.DB_HOST || "srv1543.hstgr.io", //traido desde hostinger. para establecer la conexión remota.
-        user: process.env.DB_USER || "u889064612_adminray",
-        password: process.env.DB_PASSWORD || "Ov5zTInX?",
-        database: process.env.DB_DATABASE || "u889064612_unray",
+        user: process.env.DB_USER || "u889064612_unrayadmin",
+        password: process.env.DB_PASSWORD || "H$h60pA!zY",
+        database: process.env.DB_DATABASE || "u889064612_unrayprod",
         connectTimeout: 20000,   // 20 segundos para handshake
         acquireTimeout: 20000,   // 20 segundos para obtener una conexión del pool
         connectionLimit: 10,     // límite de conexiones simultáneas
