@@ -554,7 +554,7 @@ const historial = (id, role, offset) => {
         let placeholders = estadosPermitidos.map(() => '?').join(', ');
 
         let query = `
-            SELECT id, start_direction, end_direction, costo, fecha_hora, estado, idService
+            SELECT id, start_lat, start_lng, start_direction, end_direction, end_lat, end_lng, costo, fecha_hora, estado, idService
             FROM solicitudes
             WHERE ${column} = ?
             AND estado IN (${placeholders})
