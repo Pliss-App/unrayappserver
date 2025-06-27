@@ -128,9 +128,9 @@ exports.processOCR = async (req, res) => {
   const { imageBase64 } = req.body;
 
   if (!imageBase64) {
-    return res.status(400).json({ 
-      success: false, 
-      msg: 'Imagen no proporcionada en base64' 
+    return res.status(400).json({
+      success: false,
+      msg: 'Imagen no proporcionada en base64'
     });
   }
 
@@ -142,9 +142,9 @@ exports.processOCR = async (req, res) => {
     // Validar tamaño máximo (5 MB)
     const maxSizeInBytes = 5 * 1024 * 1024;
     if (buffer.length > maxSizeInBytes) {
-      return res.status(413).json({ 
-        success: false, 
-        msg: 'La imagen excede el tamaño máximo permitido (5 MB)' 
+      return res.status(413).json({
+        success: false,
+        msg: 'La imagen excede el tamaño máximo permitido (5 MB)'
       });
     }
 
@@ -173,7 +173,7 @@ exports.processOCR = async (req, res) => {
     // Expresiones regulares para extraer datos específicos
     const receiptPatterns = {
       receiptNumber: /(Comprobante|No\.|Número|Transaccion|No\.\s*de\s*autorización|Numero\.\s*de\s*deposito|No\.\s*de\s*autorizacion|Número\s*de\s*Depósito|Código\s*de\s*autorizacion|Cddigo\s*de\s*autorizacion|No\.\s*de\s*Referencia):?\s*(\d+)/i,
-      amount: /(Monto|Cantidad|Total|por un valor de|Monto\s*a\s*debitar):?\s*(Q|GTQ|\$)?\s*([\d]{1,3}(?:[.,]\d{3})*(?:[.,]\d+)?)/i,
+      amount: /(Monto|Cantidad|Total|por un valor de|Monto\s*a\s*debitar):?\s*(Q|GTQ|\$)?\s*(\d{1,3}(?:\.\d{3})*,\d{2}|\d+(?:[.,]\d{2}))/i,
       date: /(\d{2}[\/\-]\d{2}[\/\-]\d{4}|\d{4}[\/\-]\d{2}[\/\-]\d{2})/i,
       nit: /(NIT|Nit|nit)\s*[\:\-]?\s*([\d\-]+)/i
     };
@@ -187,9 +187,18 @@ exports.processOCR = async (req, res) => {
 
     // Formatear montos (remover comas)
     if (extractedData.amount) {
-      extractedData.amount = extractedData.amount.replace(',', '');
-    }
+      let rawAmount = extractedData.amount;
 
+      // Detectar formato latino (coma como decimal)
+      if (/,\d{2}$/.test(rawAmount)) {
+        rawAmount = rawAmount.replace(/\./g, '').replace(',', '.');
+      } else {
+        // Formato USA (coma como miles)
+        rawAmount = rawAmount.replace(/,/g, '');
+      }
+
+      extractedData.amount = parseFloat(rawAmount);
+    }
     return res.status(200).json({
       success: true,
       rawText: allText,
@@ -201,10 +210,10 @@ exports.processOCR = async (req, res) => {
 
   } catch (err) {
     console.error('Error en Azure OCR:', err);
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       msg: 'Error al procesar la imagen OCR',
-      error: err.message 
+      error: err.message
     });
   }
 };
