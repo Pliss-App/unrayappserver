@@ -1112,7 +1112,7 @@ const getDocumentacionAfiliacion = (id) => { //getByEmail
 const insertTiempoUsuarioDiario = (idUser, fecha, duracion) => {
     return new Promise((resolve, reject) => {
         const query = `
-      INSERT INTO tiempoUsoDiario (id_user, fecha, duracionsegundos)
+      INSERT INTO tiempoUsoDiario (idUser, fecha, duracionsegundos)
       VALUES (?, ?, ?)
       ON DUPLICATE KEY UPDATE
         duracionsegundos = duracionsegundos + VALUES(duracionsegundos),
