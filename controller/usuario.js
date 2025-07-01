@@ -480,7 +480,7 @@ usuarioRouter.put('/update-estado-bloqueo/:id', async (req, res) => {
         });
     } else {
 
-                // Intentar notificar al usuario (no afecta la respuesta principal si falla)
+        // Intentar notificar al usuario (no afecta la respuesta principal si falla)
         try {
             const token = await condController.getTokenOnesignal(id);
             if (token) {
@@ -1502,5 +1502,22 @@ usuarioRouter.post('/consultarConductores', async (req, res) => {
         });
     }
 })
+
+
+usuarioRouter.post('/tiempouso', async (req, res) => {
+    const { idUser, fecha, duracion } = req.body;
+
+    if (!idUser || !fecha || !duracion) {
+        return res.status(400).json({ success: false, message: 'Faltan datos requeridos' });
+    }
+
+    try {
+        await userController.insertTiempoUsuarioDiario(idUser, fecha, duracion);
+        res.json({ success: true, message: 'Tiempo acumulado correctamente' });
+    } catch (error) {
+        console.error('Error al guardar tiempo de uso:', error);
+        res.status(500).json({ success: false, message: 'Error del servidor' });
+    }
+});
 
 module.exports = usuarioRouter;

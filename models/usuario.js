@@ -250,7 +250,7 @@ const updateEstado = (id, estado) => { //getByEmail
     });
 };
 
-const updateEstadoBloqueo = (id ) => { //getByEmail
+const updateEstadoBloqueo = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
             "update usuario set estado = 1, estado_usuario = 'libre' WHERE id = ?", [id], (err, rows) => {
@@ -1075,7 +1075,7 @@ const getServices = () => { //getByEmail
 const getUsuario = (id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT foto, nombre, apellido FROM usuario WHERE id = ? ",[id], (err, rows) => {
+            "SELECT foto, nombre, apellido FROM usuario WHERE id = ? ", [id], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
@@ -1102,12 +1102,29 @@ const getDocumentacionAfiliacion = (id) => { //getByEmail
             `select idservicio from documentacion
             where iduser = ?
             limit 1;`, [id], (err, rows) => {
-                        if (err) reject(err)
-                        resolve(rows)
-                    });
-                });
-    };
+            if (err) reject(err)
+            resolve(rows)
+        });
+    });
+};
 
+
+const insertTiempoUsuarioDiario = (idUser, fecha, duracion) => {
+    return new Promise((resolve, reject) => {
+        const query = `
+      INSERT INTO tiempo_uso_diario (id_user, fecha, duracion_segundos)
+      VALUES (?, ?, ?)
+      ON DUPLICATE KEY UPDATE
+        duracion_segundos = duracion_segundos + VALUES(duracion_segundos),
+        updated_at = NOW()
+    `;
+
+        connection.query(query, [idUser, fecha, duracion], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows);
+        });
+    });
+};
 
 module.exports = {
     getUserTelfonoEmail,
@@ -1177,5 +1194,6 @@ module.exports = {
     updateRol,
     getDocumentacionAfiliacion,
     getUsuario,
-    updateEstadoBloqueo 
+    updateEstadoBloqueo,
+    insertTiempoUsuarioDiario
 }
