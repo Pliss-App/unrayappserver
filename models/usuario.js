@@ -651,7 +651,7 @@ const insertVehiculoModo = (idUser, placas, modelo, color) => {
 const insertTransicion = (idUser, fecha) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO transicionConductors(idUser, fecha) VALUES (?, ?)`, [idUser, fecha], (err, rows) => {
+            `INSERT INTO transicionConductor(idUser, fecha) VALUES (?, ?)`, [idUser, fecha], (err, rows) => {
                 if (err) {
                     console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                     return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
@@ -1181,6 +1181,22 @@ const actualizarCorreoModoConductor = (id, telefono, correo) => {
     });
 };
 
+const ejecutarTransicionConductor = (idUser, fecha, placas, modelo, color, idServicio, correo) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'CALL sp_transicion_conductor(?, ?, ?, ?, ?, ?, ?)',
+      [idUser, fecha, placas, modelo, color, idServicio, correo],
+      (err, result) => {
+        if (err) {
+          console.error('Error al ejecutar el procedimiento:', err);
+          return reject(new Error('Error en la transición de conductor'));
+        }
+        resolve(result);
+      }
+    );
+  });
+};
+
 module.exports = {
     getUserTelfonoEmail,
     createUser,
@@ -1254,5 +1270,6 @@ module.exports = {
     actualizarCorreoModoConductor,
     insertVehiculoModo,
     insertTransicion,
-    updateRolTransicion
+    updateRolTransicion,
+    ejecutarTransicionConductor 
 }

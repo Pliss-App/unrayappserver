@@ -1018,14 +1018,15 @@ isRouter.post('/transicionconductor', async (req, res) => {
     }
 
     try {
-        await connection.beginTransaction();
-        const usTransicion = await isUserController.insertTransicion(idUser, fecha);
-        const usVechiculo = await isUserController.insertVehiculoModo(idUser, placas, modelo, color);
-        const permission = await isUserController.updateRolTransicion(idUser, idservicio);
-        const usDire = await isUserController.insertDireccion(idUser);
-        const usBillerea = await isUserController.insertBilletera(idUser);
-        await connection.commit(); // ✅ Todo OK, confirmamos cambios
-        connection.release();
+
+        const resultado = await isUserController.ejecutarTransicionConductor(idUser, fecha, placas, modelo, color, idservicio, correo);
+        if (!resultado || resultado.length === 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'No se obtuvo respuesta del procedimiento',
+            });
+        }
+
         const transporter = nodemailer.createTransport({
             host: 'smtp.hostinger.com',
             port: 465,
@@ -1035,7 +1036,6 @@ isRouter.post('/transicionconductor', async (req, res) => {
                 pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
             },
         });
-
         // Enviar el correo con el enlace de restablecimiento
         // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
         const mailOptions = {
@@ -1071,11 +1071,9 @@ isRouter.post('/transicionconductor', async (req, res) => {
             res.status(200).send('Correo enviado: ' + info.response);
         });
 
-        return res.status(200).json({ success: true, msg: 'Transición Completada Exitosamente.', status: 200 });
+        return res.status(200).json({ success: true, msg: 'Transición realizada con éxito', status: 200 });
 
     } catch (error) {
-        await connection.rollback(); // ❌ Error, deshacemos todo
-        connection.release();
         console.error('Error durante el registro:', error);  // Verificamos el código de error
         switch (error.code) {
             case 'ER_NO_SUCH_TABLE':
