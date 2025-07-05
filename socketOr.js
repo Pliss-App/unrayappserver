@@ -2,6 +2,7 @@ require('dotenv').config();
 const { Server } = require('socket.io');
 const { createClient } = require('redis');
 const isController = require('./models/solicitud');
+const isConectionUser = require('./models/Conectados/usuarios')
 
 let io;
 const connectedDrivers = {};
@@ -9,17 +10,17 @@ const connectedUsers = {};
 const respuestasSolicitudes = {};
 const userStatus = {};
 const driverStatus = {};
-
+/*
 const redis = createClient({
     url: process.env.REDIS_URL,
 });
 
 let warned = false;
 redis.on("error", function (err) {
-     if (!warned) {
-    console.warn("Redis warning:", err.message);
-    warned = true;
-  }
+    if (!warned) {
+        console.warn("Redis warning:", err.message);
+        warned = true;
+    }
 });
 
 (async () => {
@@ -31,22 +32,27 @@ redis.on("error", function (err) {
 })();
 
 
+*/
+
 // Función para cargar datos guardados en Redis a la memoria
 async function cargarEstadoDesdeRedis() {
     // Recuperar conductores
-    const drivers = await redis.hGetAll('connectedDrivers');
+  //  const drivers = await redis.hGetAll('connectedDrivers');
+  const drivers =  await isConectionUser.getConnectedDrivers();
+
     for (const [driverId, socketId] of Object.entries(drivers)) {
         connectedDrivers[driverId] = socketId;
         driverStatus[driverId] = 1; // opcional, dar por online si quieres
     }
     // Recuperar usuarios
-    const users = await redis.hGetAll('connectedUsers');
+   //const users = await redis.hGetAll('connectedUsers');
+   const users = await isConectionUser.getConnectedUsers();
     for (const [userId, socketId] of Object.entries(users)) {
         connectedUsers[userId] = socketId;
         userStatus[userId] = 1; // opcional
     }
 
-    console.log('🔄 Estado recuperado de Redis:');
+    console.log('🔄 Estado recuperado Conectividad de usuarios:');
     console.log('Conductores:', connectedDrivers);
     console.log('Usuarios:', connectedUsers);
 }
@@ -63,9 +69,9 @@ async function initializeSocketOr(server) {
 
     io.on('connection', async (socket) => {
         console.log(`🔗 Nueva conexión: ${socket.id}`);
-  socket.onAny((event, data) => {
-    console.log(`📥 Evento recibido [${event}]:`, data);
-  });
+        socket.onAny((event, data) => {
+            console.log(`📥 Evento recibido [${event}]:`, data);
+        });
 
         console.log("🔗Listado de conductores:", JSON.stringify(connectedDrivers, null, 2));
         // ✅ Registrar conductor
@@ -74,7 +80,8 @@ async function initializeSocketOr(server) {
             driverStatus[driverId] = 1;  // Marcar como en línea
             console.log(`🚗 Conductor ${driverId} conectado.`);
 
-             await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
+            // await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
+            await isConectionUser.connectedDrivers(driverId, String(socket.id));
             console.log(`🚗 Conductor ${driverId} conectado.`);
 
             // Buscar la solicitud pendiente del conductor
@@ -121,7 +128,8 @@ async function initializeSocketOr(server) {
         // ✅ Registrar usuario
         socket.on('registrar_usuario', async (userId) => {
             connectedUsers[userId] = socket.id;
-             await redis.hSet('connectedUsers', String(userId), String(socket.id));
+            // await redis.hSet('connectedUsers', String(userId), String(socket.id));
+            await isConectionUser.connectedUsers(userId, String(socket.id));
             console.log(`👤 Usuario ${userId} conectado.`);
         });
 
@@ -135,12 +143,14 @@ async function initializeSocketOr(server) {
             if (estado == 0) {
                 // Si pasa a "offline", eliminar de la lista
                 delete connectedDrivers[driverId];
-                await redis.hDel('connectedDrivers', String(driverId));
+                // await redis.hDel('connectedDrivers', String(driverId));
+                await isConectionUser.deleteConnectedDrivers(driverId);
                 console.log(`❌ Conductor ${driverId} ahora está OFFLINE.`);
             } else {
                 // Si vuelve a estar en línea, actualizar socket ID
                 connectedDrivers[driverId] = socket.id;
-                         await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
+                // await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
+                await isConectionUser.connectedDrivers(driverId, String(socket.id))
                 console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
             }
 
@@ -154,7 +164,7 @@ async function initializeSocketOr(server) {
             // Guardar respuesta
             respuestasSolicitudes[data.solicitudId] = data;
 
-           
+
 
             // Emitir solo al usuario correspondiente
             if (connectedUsers[data.idUser]) {
@@ -181,7 +191,7 @@ async function initializeSocketOr(server) {
             */
             if (userId) {
                 console.log(`🛑 Usuario ${userId} se desconectó.`);
-            //    delete connectedUsers[userId]; // Eliminar usuario siempre
+                //    delete connectedUsers[userId]; // Eliminar usuario siempre
             }
         });
     });
