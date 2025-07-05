@@ -434,6 +434,34 @@ const getValidaComunity = (correo, telefono) => {
     });
 }
 
+const validarAplicaSerConductor = (telefono) => {
+    return new Promise((resolve, reject) => {
+        const sql = `
+      SELECT 
+        ? AS telefono,
+        CASE 
+          WHEN EXISTS (
+            SELECT 1 
+            FROM usuario u
+            INNER JOIN usuario_rol ur ON u.id = ur.iduser
+            WHERE u.telefono = ? AND ur.idrol = 1
+          )
+          THEN 'Aplica'
+          ELSE 'No aplica'
+        END AS resultado
+    `;
+
+        connection.query(sql, [telefono, telefono], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result[0]); // solo una fila
+            }
+        });
+    });
+};
+
+
 
 module.exports = {
     beneficios,
@@ -466,5 +494,6 @@ module.exports = {
     insertVisitas,
     getListadoAfiliado,
     addComunity,
-    getValidaComunity
+    getValidaComunity,
+    validarAplicaSerConductor
 }

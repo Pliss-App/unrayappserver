@@ -967,4 +967,30 @@ isRouter.post('/add-comunity', async (req, res) => {
     }
 });
 
+
+isRouter.get('/validation-pasajero', async (req, res) => {
+    const { telefono } = req.body;
+    try {
+        const result = await isController.validarAplicaSerConductor(telefono);
+        if (result === undefined) {
+            return res.status(401).send({
+                success: false,
+                msg: 'Lo sentimos, en este momento no podemos procesar tu solicitud. Intenta más tarde.'
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: result
+            });
+        }
+    } catch (error) {
+          return res.status(500).json({
+            success: false,
+            msg: 'Error en el servidor. Intentar más tarde.',
+        });
+    }
+})
+
+
 module.exports = isRouter;
