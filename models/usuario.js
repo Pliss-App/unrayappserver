@@ -635,6 +635,32 @@ const insertVehiculo = (idUser) => {
     });
 };
 
+const insertVehiculoModo = (idUser, placas, modelo, color) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO detalle_vehiculo(idUser, placas, modelo, color) VALUES (?, ?, ?, ?)`, [idUser, placas, modelo, color], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+const insertTransicion = (idUser, fecha) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO transicionConductors(idUser, fecha) VALUES (?, ?)`, [idUser, fecha], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
 const insertLocationDireUser = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
@@ -703,6 +729,19 @@ const agregarRol = (idUser, idservice) => {
         connection.query(
             `INSERT INTO usuario_rol (iduser, idrol, idservice)
                VALUES (?, ?, ?)`, [idUser, 2, idservice], (err, rows) => {
+            if (err) {
+                console.error('Error al guardar registro:', err); // Registro del error en el servidor
+                return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
+            }
+            resolve(rows)
+        });
+    });
+};
+
+const updateRolTransicion = (idUser, idservice) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `update usuario_rol set idrol=2, idservice= ? where iduser = ?;`, [ idservice, idUser], (err, rows) => {
             if (err) {
                 console.error('Error al guardar registro:', err); // Registro del error en el servidor
                 return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
@@ -1126,6 +1165,22 @@ const insertTiempoUsuarioDiario = (idUser, fecha, duracion) => {
     });
 };
 
+
+const actualizarCorreoModoConductor = (id, telefono, correo) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set  correo = ?  where id = ?  and telefono = ? ", [correo, id, telefono],
+            (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            }
+        );
+    });
+};
+
 module.exports = {
     getUserTelfonoEmail,
     createUser,
@@ -1195,5 +1250,9 @@ module.exports = {
     getDocumentacionAfiliacion,
     getUsuario,
     updateEstadoBloqueo,
-    insertTiempoUsuarioDiario
+    insertTiempoUsuarioDiario,
+    actualizarCorreoModoConductor,
+    insertVehiculoModo,
+    insertTransicion,
+    updateRolTransicion
 }

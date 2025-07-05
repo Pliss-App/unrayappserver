@@ -194,7 +194,7 @@ isRouter.post('/registro_conductor', async (req, res) => {
         const mailOptions = {
             from: process.env.GMAIL_DRIVER,
             to: correo,
-            subject: '✅ Afiliación Completada',
+            subject: '✅ Afiliación Iniciada',
             html: `<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
         <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
             <h2 style="color: #333;">👋 ¡Bienvenido a bordo!</h2>
@@ -969,7 +969,15 @@ isRouter.post('/add-comunity', async (req, res) => {
 
 
 isRouter.get('/validation-pasajero', async (req, res) => {
-    const { telefono } = req.body;
+    const { telefono } = req.query;
+
+    if (!telefono || typeof telefono !== 'string') {
+        return res.status(400).json({
+            success: false,
+            msg: 'El número de teléfono proporcionado no es válido.',
+        });
+    }
+
     try {
         const result = await isController.validarAplicaSerConductor(telefono);
         if (result === undefined) {
@@ -985,12 +993,133 @@ isRouter.get('/validation-pasajero', async (req, res) => {
             });
         }
     } catch (error) {
-          return res.status(500).json({
+        return res.status(500).json({
             success: false,
             msg: 'Error en el servidor. Intentar más tarde.',
         });
     }
 })
 
+
+isRouter.post('/transicionconductor', async (req, res) => {
+    const { idUser,
+        idservicio,
+        correo,
+        placas,
+        modelo,
+        color,
+        fecha } = req.body;
+
+    if (!idUser || !idservicio || !correo || !placas || !modelo || !color || !fecha) {
+        return res.status(400).json({
+            success: false,
+            message: "Faltan campos obligatorios en la solicitud",
+        });
+    }
+
+    try {
+        await connection.beginTransaction();
+        const usTransicion = await isUserController.insertTransicion(idUser, fecha);
+        const usVechiculo = await isUserController.insertVehiculoModo(idUser, placas, modelo, color);
+        const permission = await isUserController.updateRolTransicion(idUser, idservicio);
+        const usDire = await isUserController.insertDireccion(idUser);
+        const usBillerea = await isUserController.insertBilletera(idUser);
+        await connection.commit(); // ✅ Todo OK, confirmamos cambios
+        connection.release();
+        const transporter = nodemailer.createTransport({
+            host: 'smtp.hostinger.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: process.env.GMAIL_DRIVER, // Tu correo
+                pass: process.env.GMAIL_APP_PASSWORD, // La contraseña específica de la aplicación
+            },
+        });
+
+        // Enviar el correo con el enlace de restablecimiento
+        // const resetUrl = `https://darkcyan-gazelle-270531.hostingersite.com/reset-password/${_resetToken}`;
+        const mailOptions = {
+            from: process.env.GMAIL_DRIVER,
+            to: correo,
+            subject: '✅ Afiliación Iniciada',
+            html: `<div style="font-family: Arial, sans-serif; text-align: center; padding: 20px; background-color: #f4f4f4;">
+        <div style="max-width: 500px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); margin: auto;">
+            <h2 style="color: #333;">👋 ¡Bienvenido a bordo!</h2>
+            <p style="text-align: left; color: #555; font-size: 16px;">Nos alegra tenerte como nuevo afiliado conductor. Has dado el primer paso al crear tu cuenta, y eso ya te acerca a nuevas oportunidades de crecimiento e ingresos.</p>
+        
+
+            <p style=" text-align: left; color: #555; font-size: 16px;">✅ Muy pronto, nuestro equipo se estará comunicando contigo para completar el proceso de afiliación y brindarte toda la información que necesitas para comenzar a conducir con nosotros.</p>
+   <p style=" text-align: left; color: #555; font-size: 16px;">Gracias por confiar en nosotros. Estamos emocionados de que formes parte de esta comunidad comprometida con el servicio, la seguridad y la excelencia.</p>
+
+
+       <p style="text-align: left;  color: #555; font-size: 16px;">¡Nos vemos en el camino!</p>
+         
+            <hr style="border: 0; height: 1px; background: #ddd; margin: 20px 0;">
+
+            <p style="color: #555; font-size: 14px;">Atentamente,</p>
+            <p style="font-size: 16px; font-weight: bold; color: #333;">Equipo de Soporte</p>
+            <p style="color: #777; font-size: 13px;">📧 soporteconductor@unraylatinoamerica.com</p>
+        </div>
+    </div>`,
+        };
+
+        await transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return res.status(500).send(error.toString());
+            }
+
+            res.status(200).send('Correo enviado: ' + info.response);
+        });
+
+        return res.status(200).json({ success: true, msg: 'Transición Completada Exitosamente.', status: 200 });
+
+    } catch (error) {
+        await connection.rollback(); // ❌ Error, deshacemos todo
+        connection.release();
+        console.error('Error durante el registro:', error);  // Verificamos el código de error
+        switch (error.code) {
+            case 'ER_NO_SUCH_TABLE':
+
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+            case 'ER_DUP_ENTRY':
+                // Error de entrada duplicada (ej. DPI o email ya existen en la base de datos)
+                console.error('Correo o teléfono ya existe.');
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+
+            case 'ER_BAD_FIELD_ERROR':
+                // Error de campo incorrecto (cuando un campo de la consulta no existe en la base de datos)
+                console.error('Campo no válido en la consulta.');
+                return res.status(400).json({
+                    error: error.sqlMessage
+                });
+
+            case 'ER_NO_REFERENCED_ROW':
+            case 'ER_ROW_IS_REFERENCED':
+                // Error de violación de llave foránea (cuando estás eliminando o insertando un valor que tiene dependencias)
+                console.error('Violación de llave foránea.');
+                return res.status(409).json({
+                    error: error.sqlMessage
+                });
+
+            case 'ER_DATA_TOO_LONG':
+                // Error de longitud de dato (cuando intentas insertar un valor que excede la longitud permitida)
+                console.error('Dato demasiado largo para uno de los campos.');
+                return res.status(400).json({
+                    error: 'Uno de los campos supera la longitud permitida.'
+                });
+
+            default:
+                // Cualquier otro error no manejado específicamente
+                console.error('Error inesperado:', error);
+                return res.status(500).json({
+                    error: 'Ocurrió un error inesperado al crear tu cuenta.'
+                });
+        }
+    }
+})
 
 module.exports = isRouter;

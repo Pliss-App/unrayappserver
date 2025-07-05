@@ -437,21 +437,43 @@ const getValidaComunity = (correo, telefono) => {
 const validarAplicaSerConductor = (telefono) => {
     return new Promise((resolve, reject) => {
         const sql = `
-      SELECT 
-        ? AS telefono,
-        CASE 
-          WHEN EXISTS (
-            SELECT 1 
-            FROM usuario u
-            INNER JOIN usuario_rol ur ON u.id = ur.iduser
-            WHERE u.telefono = ? AND ur.idrol = 1
-          )
-          THEN 'Aplica'
-          ELSE 'No aplica'
-        END AS resultado
+SELECT 
+  ? AS telefono,
+  CASE 
+    WHEN EXISTS (
+      SELECT 1
+      FROM usuario u
+      INNER JOIN usuario_rol ur ON u.id = ur.iduser
+      WHERE u.telefono = ? AND ur.idrol = 1
+    ) THEN 'Aplica'
+
+    WHEN EXISTS (
+      SELECT 1
+      FROM usuario u
+      INNER JOIN usuario_rol ur ON u.id = ur.iduser
+      WHERE u.telefono = ? AND ur.idrol = 2
+    ) THEN 'Ya eres conductor'
+
+    WHEN EXISTS (
+      SELECT 1
+      FROM usuario u
+      INNER JOIN usuario_rol ur ON u.id = ur.iduser
+      WHERE u.telefono = ? AND ur.idrol = 3
+    ) THEN 'Eres usuario administrador'
+
+    ELSE 'No existe cuenta'
+  END AS resultado,
+  (
+    SELECT u.id 
+    FROM usuario u
+    INNER JOIN usuario_rol ur ON u.id = ur.iduser
+    WHERE u.telefono = ?
+    LIMIT 1
+  ) AS idUser;
+
     `;
 
-        connection.query(sql, [telefono, telefono], (err, result) => {
+        connection.query(sql, [telefono, telefono, telefono, telefono,  telefono], (err, result) => {
             if (err) {
                 reject(err);
             } else {

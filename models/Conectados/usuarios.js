@@ -67,27 +67,6 @@ const deleteConnectedDrivers = (id) => {
     });
 }
 
-
-
-const createTravelDetail = (data) => {
-    return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO travel_detail SET ? `, [data], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
-    });
-}
-
-
-const getCarousel = (modulo) => {
-    return new Promise((resolve, reject) => {
-        connection.query(`SELECT * FROM carousel WHERE modulo = ?`, [modulo], (err, result) => {
-            if (err) reject(err)
-            resolve(result)
-        })
-    });
-}
-
 module.exports = {
     connectedUsers,
     connectedDrivers,
