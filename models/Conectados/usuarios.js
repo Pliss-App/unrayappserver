@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 
 const connectedUsers = (id, socket) => {
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO connectedUsers( identificador,  socket) VALUES (${connection.escape(id)}, ${connection.escape(socket)}`, (err, result) => {
+        connection.query(`INSERT INTO connectedUsers( identificador,  socket) VALUES (${connection.escape(id)}, ${connection.escape(socket)})`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -12,7 +12,7 @@ const connectedUsers = (id, socket) => {
 
 const connectedDrivers = (id, socket) => {
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO connectedDrivers( identificador,  socket) VALUES (${connection.escape(id)}, ${connection.escape(socket)}`, (err, result) => {
+        connection.query(`INSERT INTO connectedDrivers( identificador,  socket) VALUES (${connection.escape(id)}, ${connection.escape(socket)})`, (err, result) => {
             if (err) reject(err)
             resolve(result)
         })

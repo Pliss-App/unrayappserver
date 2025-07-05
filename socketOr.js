@@ -81,7 +81,7 @@ async function initializeSocketOr(server) {
             console.log(`🚗 Conductor ${driverId} conectado.`);
 
             // await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
-            await isConectionUser.connectedDrivers(driverId, String(socket.id));
+            await isConectionUser.connectedDrivers(driverId, socket.id);
             console.log(`🚗 Conductor ${driverId} conectado.`);
 
             // Buscar la solicitud pendiente del conductor
@@ -129,7 +129,7 @@ async function initializeSocketOr(server) {
         socket.on('registrar_usuario', async (userId) => {
             connectedUsers[userId] = socket.id;
             // await redis.hSet('connectedUsers', String(userId), String(socket.id));
-            await isConectionUser.connectedUsers(userId, String(socket.id));
+            await isConectionUser.connectedUsers(userId, socket.id);
             console.log(`👤 Usuario ${userId} conectado.`);
         });
 
@@ -150,7 +150,7 @@ async function initializeSocketOr(server) {
                 // Si vuelve a estar en línea, actualizar socket ID
                 connectedDrivers[driverId] = socket.id;
                 // await redis.hSet('connectedDrivers', String(driverId), String(socket.id));
-                await isConectionUser.connectedDrivers(driverId, String(socket.id))
+                await isConectionUser.connectedDrivers(driverId, socket.id)
                 console.log(`✅ Conductor ${driverId} ahora está ONLINE.`);
             }
 
