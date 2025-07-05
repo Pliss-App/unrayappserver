@@ -37,20 +37,30 @@ redis.on("error", function (err) {
 // Función para cargar datos guardados en Redis a la memoria
 async function cargarEstadoDesdeRedis() {
     // Recuperar conductores
-  //  const drivers = await redis.hGetAll('connectedDrivers');
-  const drivers =  await isConectionUser.getConnectedDrivers();
+    //  const drivers = await redis.hGetAll('connectedDrivers');
+    const drivers = await isConectionUser.getConnectedDrivers();
 
-    for (const [driverId, socketId] of Object.entries(drivers)) {
+    /*for (const [driverId, socketId] of Object.entries(drivers)) {
         connectedDrivers[driverId] = socketId;
         driverStatus[driverId] = 1; // opcional, dar por online si quieres
-    }
+    } */
+
+    drivers.forEach(driver => {
+        connectedDrivers[driver.identificador] = driver.socket;
+        driverStatus[driver.identificador] = 1; // opcional
+    });
     // Recuperar usuarios
-   //const users = await redis.hGetAll('connectedUsers');
-   const users = await isConectionUser.getConnectedUsers();
-    for (const [userId, socketId] of Object.entries(users)) {
+    //const users = await redis.hGetAll('connectedUsers');
+    const users = await isConectionUser.getConnectedUsers();
+    /*for (const [userId, socketId] of Object.entries(users)) {
         connectedUsers[userId] = socketId;
         userStatus[userId] = 1; // opcional
-    }
+    }*/
+
+    users.forEach(user => {
+        connectedUsers[user.identificador] = user.socket;
+        userStatus[user.identificador] = 1; // opcional
+    });
 
     console.log('🔄 Estado recuperado Conectividad de usuarios:');
     console.log('Conductores:', connectedDrivers);
