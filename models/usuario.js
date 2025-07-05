@@ -1073,6 +1073,21 @@ const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
 };
 
 
+
+const updateCodigoModoConductor = (telefono, fecha, codigo) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "update usuario set codigo_verificacion= ?, codigoVerTimestamp=? where telefono = ?", [codigo,  fecha, telefono], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+
 const estadoVerificacion = (telefono) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -1271,5 +1286,6 @@ module.exports = {
     insertVehiculoModo,
     insertTransicion,
     updateRolTransicion,
-    ejecutarTransicionConductor 
+    ejecutarTransicionConductor ,
+    updateCodigoModoConductor
 }

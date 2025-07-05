@@ -434,6 +434,27 @@ const getValidaComunity = (correo, telefono) => {
     });
 }
 
+const validarNumeroExiste = (telefono) => {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT 
+  ? AS numero,
+  CASE 
+    WHEN EXISTS (
+      SELECT 1 FROM usuario WHERE telefono = ?
+    ) THEN 'Existe'
+    ELSE 'No existe'
+  END AS resultado;`;
+
+        connection.query(sql, [telefono, telefono], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result[0]); // solo una fila
+            }
+        });
+    });
+}
+
 const validarAplicaSerConductor = (telefono) => {
     return new Promise((resolve, reject) => {
         const sql = `
@@ -472,8 +493,7 @@ SELECT
   ) AS idUser;
 
     `;
-
-        connection.query(sql, [telefono, telefono, telefono, telefono,  telefono], (err, result) => {
+        connection.query(sql, [telefono, telefono, telefono, telefono, telefono], (err, result) => {
             if (err) {
                 reject(err);
             } else {
@@ -483,6 +503,41 @@ SELECT
     });
 };
 
+
+const validarCodigoAplicaSerConductor = (telefono, codigo) => {
+    return new Promise((resolve, reject) => {
+
+        const sql = `SELECT 
+  codigo_verificacion AS codigo,
+  telefono,
+  CASE 
+    WHEN telefono = ? AND codigo_verificacion = ? THEN 'válido'
+    ELSE 'inválido'
+  END AS estado_codigo
+FROM usuario
+WHERE telefono = ?;`;
+
+
+        connection.query(sql, [telefono, codigo, telefono], (err, result) => {
+            if (err) {
+                reject(err);
+            } else {
+                resolve(result[0]); // solo una fila
+            }
+        });
+    })
+}
+
+
+
+const updateCodigoUser = (telefono) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`update usuario set codigo_verificacion= null, codigoVerTimestamp = null where telefono = ?`, [ telefono], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
 
 
 module.exports = {
@@ -517,5 +572,8 @@ module.exports = {
     getListadoAfiliado,
     addComunity,
     getValidaComunity,
-    validarAplicaSerConductor
+    validarAplicaSerConductor,
+    validarNumeroExiste,
+    validarCodigoAplicaSerConductor,
+    updateCodigoUser 
 }

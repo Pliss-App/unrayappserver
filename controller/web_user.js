@@ -4,6 +4,7 @@ const multer = require("multer");
 const connection = require('../config/conexion');
 const isRouter = express.Router();
 const nodemailer = require('nodemailer');
+const userController = require('../models/usuario');
 const isServicio = require('../models/services')
 const isController = require('../models/web_user');
 const isUserController = require('../models/usuario');
@@ -12,7 +13,7 @@ const { saveBase64File } = require("../utils/saveBase64File");
 const storage = require("../config/cloudinaryStorage");
 const rateLimit = require('express-rate-limit');
 const CryptoJS = require('crypto-js');  // Instalar crypto-js
-
+const { sendSMS } = require('../utils/sendSMS');
 const SECRET_KEY = process.env.WEB_USER_API_KEY;
 // Configuración de rate limiting
 const publicLimiter = rateLimit({
@@ -46,6 +47,19 @@ const generateTemporaryPassword = () => {
     }
     return password;
 };
+
+
+const generateTemporaryPasswordExistencia = () => {
+    const length = 4; // Longitud de la contraseña
+    const characters = '0123456789'; // Solo números
+    let password = '';
+    for (let i = 0; i < length; i++) {
+        const randomIndex = Math.floor(Math.random() * characters.length);
+        password += characters[randomIndex];
+    }
+    return password;
+};
+
 
 const upload = multer({ storage: storage });
 
@@ -969,7 +983,7 @@ isRouter.post('/add-comunity', async (req, res) => {
 
 
 isRouter.get('/validation-pasajero', async (req, res) => {
-    const { telefono } = req.query;
+    const { telefono, codigo } = req.query;
 
     if (!telefono || typeof telefono !== 'string') {
         return res.status(400).json({
@@ -979,17 +993,26 @@ isRouter.get('/validation-pasajero', async (req, res) => {
     }
 
     try {
-        const result = await isController.validarAplicaSerConductor(telefono);
-        if (result === undefined) {
-            return res.status(401).send({
-                success: false,
-                msg: 'Lo sentimos, en este momento no podemos procesar tu solicitud. Intenta más tarde.'
-            });
+        const valida = await isController.validarCodigoAplicaSerConductor(telefono, codigo);
+        if (valida.estado_codigo == 'válido') {
+            const update = await isController.updateCodigoUser(telefono);
+            const result = await isController.validarAplicaSerConductor(telefono);
+            if (result === undefined) {
+                return res.status(401).send({
+                    success: false,
+                    msg: 'Lo sentimos, en este momento no podemos procesar tu solicitud. Intenta más tarde.'
+                });
+            } else {
+                return res.status(200).send({
+                    success: true,
+                    msg: 'SUCCESSFULLY',
+                    result: result
+                });
+            }
         } else {
-            return res.status(200).send({
+            return res.status(401).send({
                 success: true,
-                msg: 'SUCCESSFULLY',
-                result: result
+                msg: 'Código no es válido',
             });
         }
     } catch (error) {
@@ -1117,6 +1140,99 @@ isRouter.post('/transicionconductor', async (req, res) => {
                     error: 'Ocurrió un error inesperado al crear tu cuenta.'
                 });
         }
+    }
+})
+
+
+isRouter.get('/valida-existencia', async (req, res) => {
+    const { telefono, fecha } = req.query;
+
+    if (!telefono || typeof telefono !== 'string') {
+        return res.status(400).json({
+            success: false,
+            msg: 'El número de teléfono proporcionado no es válido.',
+        });
+    }
+
+    try {
+        const codigo = generateTemporaryPasswordExistencia();
+        const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie. ID: ${Date.now().toString(36).slice(-5)}`;
+        const result = await isController.validarNumeroExiste(telefono);
+
+        if (result.resultado == 'Existe') {
+            const usDet = await userController.updateCodigoModoConductor(telefono, fecha, codigo)
+            if (usDet === undefined) {
+                //  return res.status(400).json({ success: false, msg: 'No se ha podido enviar el código.' })
+                return res.status(200).send({
+                    success: false,
+                    msg: 'No se ha podido enviar el código.'
+                });;
+            } else {
+
+                // Enviar SM
+                try {
+                    await sendSMS(`502${telefono}`, message, 'Un Ray');
+                    return res.status(200).send({
+                        success: true,
+                        msg: 'Código enviado satisfactoriamente.',
+                    });
+                } catch (smsError) {
+                    console.error('Error al enviar SMS:', smsError);
+                    return res.status(500).json({
+                        success: false,
+                        msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
+                    });
+                }
+            }
+        } else {
+            return res.status(401).send({
+                success: false,
+                msg: 'Número de teléfono no existe.'
+            });
+        }
+
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            msg: 'Ocurrio un error en el servidor. Intenta más tarde.'
+        });
+    }
+
+})
+
+
+isRouter.put('/update-codigo-verificacion', async (req, res) => {
+    const { telefono, fecha } = req.body;
+    try {
+     
+        const codigo = generateTemporaryPasswordExistencia();
+        const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
+
+        const usDet = await userController.updateCodigoModoConductor(telefono, fecha, codigo)
+        if (usDet === undefined) {
+            //  return res.status(400).json({ success: false, msg: 'No se ha podido enviar el código.' })
+            return res.status(200).send({
+                success: false,
+                msg: 'No se ha podido enviar el código.'
+            });;
+        } else {
+
+            try {
+                await sendSMS(`502${telefono}`, message, 'Un Ray');
+                return res.status(200).send({
+                    success: true,
+                    msg: 'Código enviado satisfactoriamente.',
+                });
+            } catch (smsError) {
+                console.error('Error al enviar SMS:', smsError);
+                return res.status(200).json({
+                    success: false,
+                    msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
+                });
+            }
+        }
+    } catch (error) {
+        console.error(error);
     }
 })
 

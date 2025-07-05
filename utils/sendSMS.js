@@ -19,7 +19,7 @@ const sendSMS = async (to, message, sender) => {
         // Formateo y validación de número (Guatemala)
         const cleanNumber = to.replace(/\D/g, '');
         const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
-        
+
         if (formattedNumber.length !== 11) {
             throw { status: 400, message: 'Número inválido. Formato: 502XXXXYYYY' };
         }
@@ -28,7 +28,8 @@ const sendSMS = async (to, message, sender) => {
         const sms = new SendTransacSms();
         sms.sender = sender.slice(0, 11);
         sms.recipient = formattedNumber;
-        sms.content = message.slice(0, 160);
+        sms.content = message;
+        sms.type = 'transactional';
 
         // Configuración de la petición
         const options = {
@@ -40,7 +41,7 @@ const sendSMS = async (to, message, sender) => {
 
         // Envío del SMS
         const data = await apiInstance.sendTransacSms(sms, options);
-        
+
         return {
             success: true,
             status: 200,
