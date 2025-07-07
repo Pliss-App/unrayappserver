@@ -132,14 +132,11 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
             contador = contador + 1;
 
             if (contador <= 30) {
-                console.log("ESTOY contando : ", contador);
                 if (respuestasSolicitudes[solicitudId]) {
-                    console.log("RESPUESTA DE SOLICITUD 2", respuestasSolicitudes[solicitudId])
                     const data = respuestasSolicitudes[solicitudId];
                     delete respuestasSolicitudes[solicitudId];
 
                     if (data.estado === 'Aceptado') {
-                        console.log("Condcutor ACEPTO ");
                         contador = 0
                         clearInterval(intervalo);
                         const upEU = await isController.updateEstadoUser(conductor.id, 'ocupado');
@@ -154,14 +151,12 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                             solicitudId
                         });
                     } else if (data.estado == 'Rechazado') {
-                        console.log("SE RECHAZO")
                         contador = 0;
                         clearInterval(intervalo);
                         delete respuestasSolicitudes[solicitudId];
                         const upEsU = await isController.updateEstadoUser(conductor.id, 'libre');
                         resolve(await asignarConductor(solicitudId, conductores, index + 1, idUser));
                     } else if (data.estado == 'Cancelado') {
-                        console.log("Cancelo el Viaje por usuario");
                         delete respuestasSolicitudes[solicitudId];
                         await isController.updateEstadoUser(conductor.id, 'libre');
                         await isController.deleteSolicitud(solicitudId);
