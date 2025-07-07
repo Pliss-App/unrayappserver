@@ -121,7 +121,7 @@ async function asignarConductor(solicitudId, conductores, index, idUser) {
                 duration_unit,
                 duration,
                 costo,
-                fecha_hora,
+                fecha,
                 tiempoExpiracion,
                 foto
             });
@@ -297,7 +297,7 @@ isRouter.post("/crear", async (req, res) => {
             duration_unit,
             duration,
             costo,
-            fecha_hora
+            fecha
         );
         const solicitudId = result.insertId;
         io.to(connectedUsers[idUser]).emit('solicitud_creada', { solicitudId, estado: true });
