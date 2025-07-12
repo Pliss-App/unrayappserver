@@ -885,7 +885,7 @@ const updateFoto = (id, foto) => { //getByEmail
 const updateUser = (nombre, apellido, telefono, correo, id) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "UPDATE usuario SET nombre= ?, apellido=?, correo=?, telefono=? WHERE id=? ;", [nombre.toUpperCase(), apellido.toUpperCase(), correo.toUpperCase(), telefono, id], (err, rows) => {
+            "UPDATE usuario SET nombre= ?, apellido=?, correo=? WHERE id=? ;", [nombre.toUpperCase(), apellido.toUpperCase(), correo.toUpperCase(), id], (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
