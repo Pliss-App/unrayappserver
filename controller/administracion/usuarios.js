@@ -12,11 +12,12 @@ const isDController = require('../../models/administracion/documentacion');
 const isBController = require('../../models/administracion/boletasBilletera');
 const isNotController = require('../../models/administracion/notificador');
 const isRefController = require('../../models/administracion/referidos');
+const isBonoController = require('../../models/administracion/bonificaciones')
 
 isRouter.get('/usuarios/activos', async (req, res) => {
     try {
         const resultado = await isUController.getUsuariosActivos();
-        if (resultado === undefined || resultado.length== 0) {
+        if (resultado === undefined || resultado.length == 0) {
             return res.status(401).send({
                 success: false,
                 msg: 'No se encontro data',
@@ -31,10 +32,10 @@ isRouter.get('/usuarios/activos', async (req, res) => {
 
     } catch (error) {
         console.error(error);
-                    return res.status(500).send({
-                success: false,
-                msg: 'Error en el servidor. Intenta más tarde',
-            });
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde',
+        });
     }
 
 })
@@ -1343,28 +1344,79 @@ isRouter.put('/soporte/update', async (req, res) => {
 
 
 isRouter.post('/enviar-campania-prueba', async (req, res) => {
-  const { token, idViaje, origin, destination, price, user, url, idUser } = req.body;
-  try {
-    const result = await enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser);
+    const { token, idViaje, origin, destination, price, user, url, idUser } = req.body;
+    try {
+        const result = await enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser);
 
-    if (!result) {
-      return res.status(200).send({
-        success: false,
-        msg: 'Error, no se pudo enviar',
-      });
-    } else {
-      return res.status(200).send({
-        success: true,
-        msg: 'SUCCESSFULLY',
-        responseId: result // Puedes enviar el ID de mensaje de FCM
-      });
+        if (!result) {
+            return res.status(200).send({
+                success: false,
+                msg: 'Error, no se pudo enviar',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                responseId: result // Puedes enviar el ID de mensaje de FCM
+            });
+        }
+    } catch (error) {
+        console.error("❌ Error en endpoint:", error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error interno del servidor'
+        });
     }
-  } catch (error) {
-    console.error("❌ Error en endpoint:", error);
-    return res.status(500).send({
-      success: false,
-      msg: 'Error interno del servidor'
-    });
-  }
 })
+
+isRouter.get('/bono/rangofechas', async (req, res) => {
+    const { ini, fin } = req.query;
+    try {
+        const results = await isBonoController.filtrarRangoFechaViajes(ini, fin);
+        console.log("DATOS  ", results)
+        if (results === undefined || results.length == 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+isRouter.get('/bono/codigo', async (req, res) => {
+    const { codigo } = req.query;
+    try {
+        const results = await isBonoController.filtrarCodigoViajes(codigo);
+        if (results === undefined || results.length == 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
 module.exports = isRouter;
