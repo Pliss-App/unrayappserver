@@ -40,7 +40,7 @@ isRouter.post('/login-register', async (req, res) => {
     try {
         const userExists = await isController.getTelefono(telefono);
         if (userExists == undefined || userExists.length > 0) {
-              await sendSMS(`502${telefono}`, message, 'Un Ray');
+              await sendSMS(`502${telefono}`, message, 'UnRay');
             // const codigo = generateTemporaryPassword();
             const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer)
             if (usDet === undefined) {
@@ -121,7 +121,7 @@ isRouter.post('/login-register', async (req, res) => {
         }
 
         try {
-            await sendSMS(`${codigo}${telefono}`, message, 'Un Ray');
+            await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);
             return res.status(200).json({

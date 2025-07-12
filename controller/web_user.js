@@ -13,7 +13,7 @@ const { saveBase64File } = require("../utils/saveBase64File");
 const storage = require("../config/cloudinaryStorage");
 const rateLimit = require('express-rate-limit');
 const CryptoJS = require('crypto-js');  // Instalar crypto-js
-const { sendSMS } = require('../utils/sendSMS');
+const { sendSMS, enviarSMSBrevo } = require('../utils/sendSMS');
 const SECRET_KEY = process.env.WEB_USER_API_KEY;
 // Configuración de rate limiting
 const publicLimiter = rateLimit({
@@ -93,6 +93,25 @@ isRouter.post("/upload", upload.single("archivo"), async (req, res) => {
     }
 });
 
+
+isRouter.post('/prueba-sms', async (req, res) => {
+    const codigo = generateTemporaryPasswordExistencia();
+    const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
+
+    try {
+        await enviarSMSBrevo(`50237300562`, message, 'UNRAY');
+        return res.status(200).send({
+            success: true,
+            msg: 'Código enviado satisfactoriamente.',
+        });
+    } catch (smsError) {
+        console.error('Error al enviar SMS:', smsError);
+        return res.status(500).json({
+            success: false,
+            msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
+        });
+    }
+})
 
 isRouter.post('/pruebas', async (req, res) => {
 
@@ -1171,7 +1190,7 @@ isRouter.get('/valida-existencia', async (req, res) => {
 
                 // Enviar SM
                 try {
-                    await sendSMS(`502${telefono}`, message, 'Un Ray');
+                    await sendSMS(`502${telefono}`, message, 'UnRay');
                     return res.status(200).send({
                         success: true,
                         msg: 'Código enviado satisfactoriamente.',
@@ -1204,7 +1223,7 @@ isRouter.get('/valida-existencia', async (req, res) => {
 isRouter.put('/update-codigo-verificacion', async (req, res) => {
     const { telefono, fecha } = req.body;
     try {
-     
+
         const codigo = generateTemporaryPasswordExistencia();
         const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
 
@@ -1218,7 +1237,7 @@ isRouter.put('/update-codigo-verificacion', async (req, res) => {
         } else {
 
             try {
-                await sendSMS(`502${telefono}`, message, 'Un Ray');
+                await enviarSMSBrevo(`502${telefono}`, message, 'Un Ray');
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',

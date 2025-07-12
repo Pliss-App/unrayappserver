@@ -148,7 +148,7 @@ usuarioRouter.post('/registro', async (req, res) => {
 
         // Enviar SM
         try {
-            await sendSMS(`${codigoPais}${telefono}`, message, 'Un Ray');
+            await sendSMS(`${codigoPais}${telefono}`, message, 'UnRay');
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);
             return res.status(200).json({
@@ -1131,7 +1131,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
         } else {
 
             try {
-                await sendSMS(`502${telefono}`, message, 'Un Ray');
+                await sendSMS(`502${telefono}`, message, 'UnRay');
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',
