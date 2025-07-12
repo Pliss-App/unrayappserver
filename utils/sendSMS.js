@@ -31,6 +31,7 @@ const sendSMS = async (to, message, sender) => {
         sms.recipient = formattedNumber;
         sms.content = message;
         sms.type = 'transactional';
+        sms.unicodeEnabled = true
 
         // Configuración de la petición
         const options = {

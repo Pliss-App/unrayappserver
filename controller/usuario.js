@@ -110,7 +110,7 @@ usuarioRouter.post('/registro', async (req, res) => {
 
     const idService = 5;
     const codigoVer = generateTemporaryPassword();
-    const message = `Tu código de verificación es: ${codigoVer}. No lo compartas con nadie.`;
+    const message = `UNRAY: Tu código de verificación es: ${codigoVer}. No lo compartas con nadie.`;
 
     try {
         const userExists = await userController.getUserTelfonoEmail(telefono);
@@ -1119,7 +1119,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
     try {
 
         const codigo = generateTemporaryPassword();
-        const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
+        const message = `UNRAY: Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
 
         const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigo)
         if (usDet === undefined) {

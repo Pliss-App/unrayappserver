@@ -1175,7 +1175,7 @@ isRouter.get('/valida-existencia', async (req, res) => {
 
     try {
         const codigo = generateTemporaryPasswordExistencia();
-        const message = `Tu código de verificación es: ${codigo}. No lo compartas con nadie. ID: ${Date.now().toString(36).slice(-5)}`;
+        const message = `UNRAY: Tu código de verificación es: ${codigo}. No lo compartas con nadie. ID: ${Date.now().toString(36).slice(-5)}`;
         const result = await isController.validarNumeroExiste(telefono);
 
         if (result.resultado == 'Existe') {
