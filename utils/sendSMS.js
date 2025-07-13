@@ -29,7 +29,7 @@ const sendSMS = async (to, message, sender) => {
         const sms = new SendTransacSms();
         sms.sender = sender.slice(0, 11);
         sms.recipient = formattedNumber;
-        sms.content = message;
+        sms.content = `${message} – ${new Date().toLocaleTimeString()}`;
         sms.type = 'transactional';
         sms.unicodeEnabled = true
 
@@ -88,7 +88,7 @@ const  enviarSMSBrevo = async (numero, mensaje, remitente = 'UnRay')  =>{
     const body = {
       sender: 'Un Ray',
       recipient: formatted,
-      content: mensaje.slice(0, 160),
+      content:`${mensaje} – ${new Date().toLocaleTimeString()}`,
       type: 'transactional',
       unicodeEnabled: true
     };
