@@ -29,7 +29,9 @@ const sendSMS = async (to, message, sender) => {
         const sms = new SendTransacSms();
         sms.sender = sender.slice(0, 11);
         sms.recipient = formattedNumber;
-        sms.content = message;
+        sms.content = `${message} | ${new Date().toLocaleTimeString()}`;
+        sms.type = 'transactional';
+        sms.unicodeEnabled = true;
 
         // Configuración de la petición
         const options = {
@@ -128,7 +130,7 @@ const enviarWhatBrevo = async (numeroDestino, sms) => {
 
         const response = await axios.post('https://api.brevo.com/v3/whatsapp/sendMessage', {
             senderNumber: '50254355617', // Reemplaza con el número de tu canal verificado en Brevo
-            contactNumbers: [ numeroDestino],
+            contactNumbers: [numeroDestino],
             templateId: 34,
             params: {
                 SMS: String(sms)// el orden debe coincidir con los parámetros de la plantilla

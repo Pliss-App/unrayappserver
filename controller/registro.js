@@ -35,12 +35,12 @@ isRouter.post('/login-register', async (req, res) => {
 
     const idService = 5;
     const codigoVer = generateTemporaryPassword();
-    const message = `UNRAY: Tu código de verificación es: ${codigoVer}. No lo compartas con nadie.`;
+    const message = `UNRAY: Tu codigo de verificacion es: ${codigoVer}. No lo compartas con nadie.`;
 
     try {
         const userExists = await isController.getTelefono(telefono);
         if (userExists == undefined || userExists.length > 0) {
-              await sendSMS(`502${telefono}`, message, 'UnRay');
+
             // const codigo = generateTemporaryPassword();
             const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer)
             if (usDet === undefined) {
@@ -51,6 +51,7 @@ isRouter.post('/login-register', async (req, res) => {
                 });
             } else {
                 try {
+                    await sendSMS(`502${telefono}`, message, 'UnRay');
                     const existingUser = await userController.getLoginTelefono(telefono);
 
                     if (existingUser === undefined) {
@@ -163,7 +164,7 @@ isRouter.post('/login-register', async (req, res) => {
 
 
 
-                      
+
             return res.status(200).send({
                 msg: 'Logged in!',
                 token,
