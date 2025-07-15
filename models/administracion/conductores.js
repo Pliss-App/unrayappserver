@@ -158,6 +158,7 @@ const getConductoresActivados = () => {
   u.estado_usuario, 
   ur.idrol, 
   ur.idservice, 
+  u.ultconexion,
   s.nombre AS servicio,
   (select nombre from  departamento where id = ul.departamento ) departamento,
   ul.departamento ubicacion,
