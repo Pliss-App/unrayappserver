@@ -14,7 +14,7 @@ const storage = require("../config/cloudinaryStorage");
 const rateLimit = require('express-rate-limit');
 const CryptoJS = require('crypto-js');  // Instalar crypto-js
 const { sendSMS, enviarSMSBrevo, enviarWhatBrevo } = require('../utils/sendSMS');
-const {  sendWhatsAppTemplate} = require('../utils/send-whatsapp');
+const { sendWhatsAppTemplate } = require('../utils/send-whatsapp');
 const SECRET_KEY = process.env.WEB_USER_API_KEY;
 // Configuración de rate limiting
 const publicLimiter = rateLimit({
@@ -103,7 +103,7 @@ isRouter.post('/prueba-sms', async (req, res) => {
 
         const number = String(codigo);
         //await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
-        await enviarWhatBrevo(`50247322976`, number);
+        await enviarWhatBrevo(`50237300562`, number);
         return res.status(200).send({
             success: true,
             msg: 'Código enviado satisfactoriamente.',
@@ -1194,7 +1194,9 @@ isRouter.get('/valida-existencia', async (req, res) => {
 
                 // Enviar SM
                 try {
-                    await sendSMS(`502${telefono}`, message, 'UnRay');
+                    //  await sendSMS(`502${telefono}`, message, 'UnRay');
+
+                    await enviarSMSBrevo(`502${telefono}`, codigo);
                     return res.status(200).send({
                         success: true,
                         msg: 'Código enviado satisfactoriamente.',

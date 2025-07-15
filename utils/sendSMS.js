@@ -126,29 +126,78 @@ const enviarSMSBrevo = async (numero, mensaje, remitente = 'UnRay') => {
 
 const enviarWhatBrevo = async (numeroDestino, sms) => {
     try {
+        const cleanNumber = numeroDestino.replace(/\D/g, '');
+        const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
 
+        if (formattedNumber.length !== 11) {
+            throw new Error('📵 Número inválido. Debe tener formato 502XXXXXXXX (11 dígitos)');
+        }
 
-        const response = await axios.post('https://api.brevo.com/v3/whatsapp/sendMessage', {
-            senderNumber: '50254355617', // Reemplaza con el número de tu canal verificado en Brevo
-            contactNumbers: [numeroDestino],
-            templateId: 34,
-            params: {
-                SMS: String(sms)// el orden debe coincidir con los parámetros de la plantilla
-            }
-        }, {
-            headers: {
-                accept: 'application/json',
-                'api-key': process.env.BREVO_API_KEY,
-                'content-type': 'application/json'
-            }
+        const headers = {
+            'api-key': process.env.BREVO_API_KEY,
+            'Content-Type': 'application/json'
+        };
+
+        let contactoId = null;
+        // Paso 1: Buscar si existe el contacto por teléfono
+        const searchResp = await axios.get(`https://api.brevo.com/v3/contacts?limit=1&sms=${formattedNumber}`, {
+            headers
         });
 
-        console.log('📲 Mensaje enviado con éxito:', response.data);
+        if (searchResp.data.contacts && searchResp.data.contacts.length > 0) {
+            contactoId = searchResp.data.contacts[0].id;
+        } else {
+            // Paso 2: Crear contacto si no existe
+            const emailFalso = `user${formattedNumber}@fake.com`;
+            const createResp = await axios.post(
+                'https://api.brevo.com/v3/contacts',
+                {
+                    email: emailFalso,
+                    sms: formattedNumber,
+                    codigo: String(sms),
+                    attributes: {
+                       CODIGO: String(sms)
+                    }
+                },
+                { headers }
+            );
+            contactoId = createResp.data.id;
+        }
+
+        // Paso 3: Actualizar el atributo SMS (por ID real)
+        await axios.put(
+            `https://api.brevo.com/v3/contacts/${contactoId}`,
+            {
+                attributes: {
+                    CODIGO: String(sms)
+                }
+            },
+            { headers }
+        );
+        // Paso 4: Enviar mensaje WhatsApp
+        const sendResp = await axios.post(
+            'https://api.brevo.com/v3/whatsapp/sendMessage',
+            {
+                senderNumber: '50254355617',
+                contactNumbers: [formattedNumber],
+                templateId: 44,
+                params: {
+                    CODIGO: String(sms)// el orden debe coincidir con los parámetros de la plantilla
+                }
+            },
+            {
+                headers: {
+                    accept: 'application/json',
+                    ...headers
+                }
+            }
+        );
+        console.log('📲 Mensaje enviado con éxito:', sendResp.data);
     } catch (err) {
-        console.error('❌ Error al enviar mensaje:', err.response?.data || err.message);
-        throw new Error('No se pudo enviar el mensaje de WhatsApp');
+        console.error('❌ Error en enviarWhatBrevo:', err.response?.data || err.message);
+        throw new Error('No se pudo procesar el contacto o enviar el mensaje');
     }
-}
+};
 
 
 
