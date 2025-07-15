@@ -17,7 +17,7 @@ const sendSMS = async (to, message, sender) => {
             throw { status: 400, message: 'Se requiere número y mensaje' };
         }
 
-        // Formateo y validación del número (Guatemala)
+        // Formateo y validación de número (Guatemala)
         const cleanNumber = to.replace(/\D/g, '');
         const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
 
@@ -25,44 +25,41 @@ const sendSMS = async (to, message, sender) => {
             throw { status: 400, message: 'Número inválido. Formato: 502XXXXYYYY' };
         }
 
-        // Payload del mensaje SMS
-        const smsPayload = {
-            sender: sender?.slice(0, 11) || 'SENDER',
-            recipient: formattedNumber,
-            content: `${message} - ${new Date().toLocaleTimeString()}`,
-            type: 'transactional'
+        // Configuración del SMS
+        const sms = new SendTransacSms();
+        sms.sender = sender.slice(0, 11);
+        sms.recipient = formattedNumber;
+        sms.content = message;
+
+        // Configuración de la petición
+        const options = {
+            headers: {
+                'api-key': process.env.BREVO_API_KEY,
+                'Content-Type': 'application/json'
+            }
         };
 
-        // Envío con Axios
-        const response = await axios.post(
-            'https://api.brevo.com/v3/transactionalSMS/sms',
-            smsPayload,
-            {
-                headers: {
-                    'api-key': process.env.BREVO_API_KEY,
-                    'Content-Type': 'application/json'
-                }
-            }
-        );
+        // Envío del SMS
+        const data = await apiInstance.sendTransacSms(sms, options);
 
         return {
             success: true,
             status: 200,
-            messageId: response.data.messageId,
+            messageId: data.messageId,
             recipient: formattedNumber
         };
 
     } catch (error) {
-        console.error('❌ Error en sendSMS:', {
-            status: error.response?.status || 500,
-            message: error.response?.data?.message || error.message,
+        console.error('Error en sendSMS:', {
+            status: error.status || 500,
+            message: error.message,
             details: error.response?.data || error
         });
 
         return {
             success: false,
-            status: error.response?.status || 500,
-            error: error.response?.data?.message || error.message,
+            status: error.status || 500,
+            error: error.message || 'Error en servidor',
             details: error.response?.data || error.stack
         };
     }
