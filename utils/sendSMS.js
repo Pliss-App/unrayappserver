@@ -16,7 +16,7 @@ const sendSMS = async (to, message, sender) => {
 
   const payload = {
     sender: 'Un Ray',
-    recipient: formattedNumber,
+    recipient: to,
     content: message,
     type: 'transactional',
     unicodeEnabled: true
