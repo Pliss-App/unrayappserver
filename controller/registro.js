@@ -3,6 +3,8 @@ const bcrypt = require('bcryptjs');
 const isRouter = express.Router();
 const { sendSMS, enviarWhatBrevo } = require('../utils/sendSMS');
 const isController = require('../models/registro');
+const OneSignal = require('../models/onesignalModel')
+const isAdmin = require('../models/administracion/usuarios')
 const userController = require('../models/usuario');
 const jwt = require('jsonwebtoken');
 
@@ -79,10 +81,6 @@ isRouter.post('/login-register', async (req, res) => {
                         },
                             process.env.JWT_SECRET
                         );
-
-
-
-
                         return res.status(200).send({
                             msg: 'Logged in!',
                             token,
@@ -115,6 +113,7 @@ isRouter.post('/login-register', async (req, res) => {
         };
 
         const result = await userController.createUser(nuevoUsuario);
+
         if (result === undefined) {
             return res.status(200).json({
                 success: false,
@@ -142,7 +141,6 @@ isRouter.post('/login-register', async (req, res) => {
         if (existingUser === undefined) {
             res.json('Error, Correo o telefono no registrados.')
         } else {
-
             var _user = {
                 estado: existingUser.estado, marker: existingUser.marker,
                 foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
@@ -164,8 +162,18 @@ isRouter.post('/login-register', async (req, res) => {
                 process.env.JWT_SECRET
             );
 
-
-
+            const tokens = await isAdmin.getTokenOneAdmin('47322976');
+            if (tokens != undefined || tokens.length > 0) {
+                await OneSignal.sendNotification(
+                    tokens[0].token,
+                    'vacio',
+                    'Play Store - Registro',
+                    `📲 El usuario ${existingUser.nombre} acaba de descargar y registrarse en la aplicación.`,
+                    fecha,
+                    tokens[0].id,
+                    'bloqueo'
+                );
+            }
 
             return res.status(200).send({
                 msg: 'Logged in!',
@@ -173,16 +181,7 @@ isRouter.post('/login-register', async (req, res) => {
                 result: true,
                 user: _user
             });
-
         }
-
-        /*  return res.status(200).json({
-              success: true,
-              msg: 'Usuario registrado exitosamente. Código de verificación enviado.',
-          }); */
-
-
-
     } catch (error) {
         console.error(error);
 
@@ -206,8 +205,6 @@ isRouter.post('/login-modo', async (req, res) => {
         });
     }
     try {
-
-        console.log("USER ", telefono)
 
         const existingUser = await userController.getLoginTelefono(telefono);
 

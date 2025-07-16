@@ -1370,10 +1370,14 @@ isRouter.post('/enviar-campania-prueba', async (req, res) => {
 })
 
 isRouter.get('/bono/rangofechas', async (req, res) => {
-    const { ini, fin } = req.query;
+    const { ini, fin, codigo } = req.query;
+
+
+    const code = codigo =="" ? null : codigo;
+
+        console.log(" NUL O , ", code)
     try {
-        const results = await isBonoController.filtrarRangoFechaViajes(ini, fin);
-        console.log("DATOS  ", results)
+        const results = await isBonoController.filtrarRangoFechaViajes(ini, fin, code);
         if (results === undefined || results.length == 0) {
             return res.status(200).send({
                 success: false,
