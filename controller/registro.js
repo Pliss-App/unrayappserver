@@ -41,66 +41,64 @@ isRouter.post('/login-register', async (req, res) => {
 
     try {
         const userExists = await isController.getTelefono(telefono);
-        if (userExists == undefined || userExists.length > 0) {
-
-
-
-
+        if ( userExists.length > 0) {
             // const codigo = generateTemporaryPassword();
-            const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer)
-            if (usDet === undefined) {
-                //  return res.status(400).json({ success: false, msg: 'No se ha podido enviar el código.' })
+            const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer);
+
+            // Si no se pudo actualizar el código, salir inmediatamente
+            if (!usDet || usDet === undefined) {
                 return res.status(200).send({
                     success: false,
                     msg: 'No se ha podido enviar el código.'
                 });
-            } else {
-                try {
-                     await sendSMS(`502${telefono}`, message, 'UnRay');
-                 //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
-                    const existingUser = await userController.getLoginTelefono(telefono);
-
-                    if (existingUser === undefined) {
-                        res.json('Error, Teléfono no registrados.')
-                    } else {
-
-                        var _user = {
-                            estado: existingUser.estado, marker: existingUser.marker,
-                            foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
-                            rol: existingUser.rol, nombre: existingUser.nombre,
-                            apellido: existingUser.apellido, correo: existingUser.correo,
-                            telefono: existingUser.telefono,
-                            verificacion: existingUser.verificacion,
-                            codigo: existingUser.codigo
-                        }
-                        const token = jwt.sign({
-                            estado: existingUser.estado, marker: existingUser.marker,
-                            foto: existingUser.foto, idUser: existingUser.idUser,
-                            idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
-                            apellido: existingUser.apellido, correo: existingUser.correo,
-                            telefono: existingUser.telefono,
-                            verificacion: existingUser.verificacion,
-                            codigo: existingUser.codigo
-                        },
-                            process.env.JWT_SECRET
-                        );
-
-                        return res.status(200).send({
-                            msg: 'Logged in!',
-                            token,
-                            result: true,
-                            user: _user
-                        });
-
-                    }
-                } catch (smsError) {
-                    console.error('Error al enviar SMS:', smsError);
-                    return res.status(200).json({
-                        success: false,
-                        msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
-                    });
-                }
             }
+
+            try {
+                await sendSMS(`502${telefono}`, message, 'UnRay');
+                //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
+                const existingUser = await userController.getLoginTelefono(telefono);
+
+                if (existingUser === undefined) {
+                    res.json('Error, Teléfono no registrados.')
+                } else {
+
+                    var _user = {
+                        estado: existingUser.estado, marker: existingUser.marker,
+                        foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
+                        rol: existingUser.rol, nombre: existingUser.nombre,
+                        apellido: existingUser.apellido, correo: existingUser.correo,
+                        telefono: existingUser.telefono,
+                        verificacion: existingUser.verificacion,
+                        codigo: existingUser.codigo
+                    }
+                    const token = jwt.sign({
+                        estado: existingUser.estado, marker: existingUser.marker,
+                        foto: existingUser.foto, idUser: existingUser.idUser,
+                        idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
+                        apellido: existingUser.apellido, correo: existingUser.correo,
+                        telefono: existingUser.telefono,
+                        verificacion: existingUser.verificacion,
+                        codigo: existingUser.codigo
+                    },
+                        process.env.JWT_SECRET
+                    );
+
+                    return res.status(200).send({
+                        msg: 'Logged in!',
+                        token,
+                        result: true,
+                        user: _user
+                    });
+
+                }
+            } catch (smsError) {
+                console.error('Error al enviar SMS:', smsError);
+                return res.status(200).json({
+                    success: false,
+                    msg: 'No se pudo enviar el SMS de verificación. Intenta más tarde.',
+                });
+            }
+
         }
 
         // Crear usuario
@@ -126,8 +124,8 @@ isRouter.post('/login-register', async (req, res) => {
         }
 
         try {
-           await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
-         //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
+            await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
+            //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);
             return res.status(200).json({
