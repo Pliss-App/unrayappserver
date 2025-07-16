@@ -17,7 +17,7 @@ const sendSMS = async (to, message, sender) => {
   const payload = {
     sender: 'UnRay',
     recipient: to,
-    content: `${mensaje} | ${new Date().toLocaleTimeString()}`,
+    content: `${message} | ${new Date().toLocaleTimeString()}`,
     type: 'transactional',
     unicodeEnabled: true
   };
