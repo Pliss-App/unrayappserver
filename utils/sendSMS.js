@@ -181,7 +181,7 @@ const enviarWhatBrevo = async (numeroDestino, sms) => {
                 senderNumber: '50254355617',
                 contactNumbers: [formattedNumber],
                 templateId: 44,
-                params: {
+            templateParams: {
                     CODIGO: String(sms)// el orden debe coincidir con los parámetros de la plantilla
                 }
             },
