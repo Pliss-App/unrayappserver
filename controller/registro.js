@@ -43,6 +43,9 @@ isRouter.post('/login-register', async (req, res) => {
         const userExists = await isController.getTelefono(telefono);
         if (userExists == undefined || userExists.length > 0) {
 
+
+
+
             // const codigo = generateTemporaryPassword();
             const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigoVer)
             if (usDet === undefined) {
@@ -81,6 +84,7 @@ isRouter.post('/login-register', async (req, res) => {
                         },
                             process.env.JWT_SECRET
                         );
+
                         return res.status(200).send({
                             msg: 'Logged in!',
                             token,
@@ -161,19 +165,6 @@ isRouter.post('/login-register', async (req, res) => {
             },
                 process.env.JWT_SECRET
             );
-
-            const tokens = await isAdmin.getTokenOneAdmin('47322976');
-            if (tokens != undefined || tokens.length > 0) {
-                await OneSignal.sendNotification(
-                    tokens[0].token,
-                    'vacio',
-                    'Play Store - Registro',
-                    `📲 El usuario ${existingUser.nombre} acaba de descargar y registrarse en la aplicación.`,
-                    fecha,
-                    tokens[0].id,
-                    'bloqueo'
-                );
-            }
 
             return res.status(200).send({
                 msg: 'Logged in!',
