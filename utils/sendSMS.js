@@ -10,6 +10,22 @@ const apiInstance = new TransactionalSMSApi();
 // ESTA es la forma que actualmente funciona con el SDK:
 apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
+
+function getHoraGuatemalaNumerica() {
+  const ahora = new Date();
+
+  // Convertir a hora UTC-6 manualmente
+  const offsetGuatemala = -6 * 60; // en minutos
+  const utc = ahora.getTime() + ahora.getTimezoneOffset() * 60000;
+  const fechaGT = new Date(utc + offsetGuatemala * 60000);
+
+  const horaGT = fechaGT.getHours().toString().padStart(2, '0') +
+                 fechaGT.getMinutes().toString().padStart(2, '0') +
+                 fechaGT.getSeconds().toString().padStart(2, '0');
+
+  return horaGT;
+}
+
 const sendSMS = async (to, message, sender) => {
   const cleanNumber = to.replace(/\D/g, '');
   const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
@@ -17,7 +33,7 @@ const sendSMS = async (to, message, sender) => {
   const payload = {
     sender: 'UnRay',
     recipient: to,
-    content: `${message} | ${new Date().toLocaleTimeString()}`,
+    content: `${message} | ${getHoraGuatemalaNumerica()}`,
     type: 'transactional',
     unicodeEnabled: true
   };
