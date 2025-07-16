@@ -54,7 +54,7 @@ isRouter.post('/login-register', async (req, res) => {
             }
 
             try {
-                await sendSMS(`502${telefono}`, message, 'UnRay');
+                sendSMS(`502${telefono}`, message, 'UnRay');
                 //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
                 const existingUser = await userController.getLoginTelefono(telefono);
 
@@ -124,7 +124,7 @@ isRouter.post('/login-register', async (req, res) => {
         }
 
         try {
-            await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
+             sendSMS(`${codigo}${telefono}`, message, 'UnRay');
             //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);

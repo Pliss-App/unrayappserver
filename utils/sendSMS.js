@@ -34,7 +34,7 @@ const sendSMS = async (to, message, sender) => {
       }
     );
 
-    console.log('📩 Enviado:', response.data);
+    console.log('📩 Enviado:');
     return response.data;
   } catch (error) {
     console.error('❌ Error en envío SMS manual:', error.response?.data || error.message);
