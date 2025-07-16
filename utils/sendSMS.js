@@ -15,9 +15,9 @@ const sendSMS = async (to, message, sender) => {
   const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
 
   const payload = {
-    sender: 'Un Ray',
+    sender: 'UnRay',
     recipient: to,
-    content: message,
+    content: `${mensaje} | ${new Date().toLocaleTimeString()}`,
     type: 'transactional',
     unicodeEnabled: true
   };

@@ -37,7 +37,7 @@ isRouter.post('/login-register', async (req, res) => {
 
     const idService = 5;
     const codigoVer = generateTemporaryPassword();
-    const message = `UNRAY: Tu codigo de verificacion es: ${codigoVer}. No lo compartas con nadie.`;
+    const message = `UNRAY: Tu codigo es ${codigoVer} No lo compartas con nadie`;
 
     try {
         const userExists = await isController.getTelefono(telefono);

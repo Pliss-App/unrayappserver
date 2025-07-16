@@ -1121,7 +1121,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
     try {
 
         const codigo = generateTemporaryPassword();
-        const message = `UNRAY: Tu código de verificación es: ${codigo}. No lo compartas con nadie.`;
+        const message = `UNRAY: Tu codigo es ${codigo} No lo compartas con nadie`;
 
         const usDet = await userController.updateCodigoVerificacion(telefono, fecha, codigo)
         if (usDet === undefined) {
