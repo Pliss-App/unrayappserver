@@ -11,60 +11,35 @@ const apiInstance = new TransactionalSMSApi();
 apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
 const sendSMS = async (to, message, sender) => {
-    try {
-        // Validaciones básicas
-        if (!to || !message) {
-            throw { status: 400, message: 'Se requiere número y mensaje' };
+  const cleanNumber = to.replace(/\D/g, '');
+  const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
+
+  const payload = {
+    sender: 'UnRay',
+    recipient: formattedNumber,
+    content: message,
+    type: 'transactional',
+    unicodeEnabled: true
+  };
+
+  try {
+    const response = await axios.post(
+      'https://api.brevo.com/v3/transactionalSMS/sms',
+      payload,
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json'
         }
+      }
+    );
 
-        // Formateo y validación de número (Guatemala)
-        const cleanNumber = to.replace(/\D/g, '');
-        const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
-
-        if (formattedNumber.length !== 11) {
-            throw { status: 400, message: 'Número inválido. Formato: 502XXXXYYYY' };
-        }
-
-        // Configuración del SMS
-        const sms = new SendTransacSms();
-        sms.sender = sender.slice(0, 11);
-        sms.recipient = formattedNumber;
-        sms.content = `${message} | ${new Date().toLocaleTimeString()}`;
-        sms.type = 'transactional';
-        sms.unicodeEnabled = true;
-
-        // Configuración de la petición
-        const options = {
-            headers: {
-                'api-key': process.env.BREVO_API_KEY,
-                'Content-Type': 'application/json'
-            }
-        };
-
-        // Envío del SMS
-        const data = await apiInstance.sendTransacSms(sms, options);
-
-        return {
-            success: true,
-            status: 200,
-            messageId: data.messageId,
-            recipient: formattedNumber
-        };
-
-    } catch (error) {
-        console.error('Error en sendSMS:', {
-            status: error.status || 500,
-            message: error.message,
-            details: error.response?.data || error
-        });
-
-        return {
-            success: false,
-            status: error.status || 500,
-            error: error.message || 'Error en servidor',
-            details: error.response?.data || error.stack
-        };
-    }
+    console.log('📩 Enviado:', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ Error en envío SMS manual:', error.response?.data || error.message);
+    throw error;
+  }
 };
 
 
