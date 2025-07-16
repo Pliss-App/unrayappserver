@@ -102,8 +102,8 @@ isRouter.post('/prueba-sms', async (req, res) => {
     try {
 
         const number = String(codigo);
-        //await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
-        await enviarWhatBrevo(`50237300562`, number);
+        await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
+     //   await enviarWhatBrevo(`50237300562`, number);
         return res.status(200).send({
             success: true,
             msg: 'Código enviado satisfactoriamente.',
@@ -1194,13 +1194,13 @@ isRouter.get('/valida-existencia', async (req, res) => {
 
                 // Enviar SM
                 try {
-                    //  await sendSMS(`502${telefono}`, message, 'UnRay');
+                      await sendSMS(`502${telefono}`, message, 'UnRay');
 
                     //await enviarSMSBrevo(`502${telefono}`, codigo);
 
-                    const number = String(codigo);
-                    //await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
-                    await enviarWhatBrevo(`502${telefono}`, number);
+                  //  const number = String(codigo);
+                  //  await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
+                   // await enviarWhatBrevo(`502${telefono}`, number);
                     return res.status(200).send({
                         success: true,
                         msg: 'Código enviado satisfactoriamente.',
@@ -1250,8 +1250,8 @@ isRouter.put('/update-codigo-verificacion', async (req, res) => {
                 //await enviarSMSBrevo(`502${telefono}`, message, 'Un Ray');
 
                 const number = String(codigo);
-                //await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
-                await enviarWhatBrevo(`502${telefono}`, number);
+                await enviarSMSBrevo(`50254355617`, message, 'UNRAY');
+               // await enviarWhatBrevo(`502${telefono}`, number);
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',

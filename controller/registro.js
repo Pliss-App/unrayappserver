@@ -1,7 +1,7 @@
 const express = require('express');
 const bcrypt = require('bcryptjs');
 const isRouter = express.Router();
-const { sendSMS, enviarWhatBrevo } = require('../utils/sendSMS');
+const { sendSMS, enviarSMSBrevo, enviarWhatBrevo } = require('../utils/sendSMS');
 const isController = require('../models/registro');
 const OneSignal = require('../models/onesignalModel')
 const isAdmin = require('../models/administracion/usuarios')
@@ -56,8 +56,8 @@ isRouter.post('/login-register', async (req, res) => {
                 });
             } else {
                 try {
-                    // await sendSMS(`502${telefono}`, message, 'UnRay');
-                    await enviarWhatBrevo(`502${telefono}`, codigoVer);
+                     await sendSMS(`502${telefono}`, message, 'UnRay');
+                 //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
                     const existingUser = await userController.getLoginTelefono(telefono);
 
                     if (existingUser === undefined) {
@@ -126,8 +126,8 @@ isRouter.post('/login-register', async (req, res) => {
         }
 
         try {
-            //  await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
-            await enviarWhatBrevo(`502${telefono}`, codigoVer);
+           await sendSMS(`${codigo}${telefono}`, message, 'UnRay');
+         //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);
             return res.status(200).json({
