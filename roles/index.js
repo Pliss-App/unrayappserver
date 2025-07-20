@@ -9,6 +9,7 @@ const docRouter = require('../controller/documentacion');
 const condRouter = require('../controller/conductor');
 const soliRouter = require('../controller/solicitud');
 const dashboardRouter = require('../controller/administracion/dashboard');
+const notiRouter = require('../controller/administracion/notificador');
 const cuentaRouter = require('../controller/registro');
 //const comercioRouter = require('../controller/comercio');
 const locationRouter = require('../controller/location')
@@ -49,6 +50,6 @@ apiRouter.use('/afiliacion', afiRouter);
 apiRouter.use('/validateimage', validateImage);
 
 apiRouter.use('/dashboard', dashboardRouter );
-
+apiRouter.use('/noti',notiRouter );
 
 module.exports = apiRouter;

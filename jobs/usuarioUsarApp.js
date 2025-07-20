@@ -43,8 +43,7 @@ const usarAppuser= async () => {
 };
 
 
-// 7:00 AM, 12:00 PM, 6:00 PM
-cron.schedule('0 7,12,18 * * *', () => {
+cron.schedule('0 7,12,18 */2 * *', () => {
   console.log('🔁 Ejecutando job: Notificar usuarios...');
   usarAppuser();
 }, {

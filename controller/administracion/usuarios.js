@@ -1375,7 +1375,6 @@ isRouter.get('/bono/rangofechas', async (req, res) => {
 
     const code = codigo =="" ? null : codigo;
 
-        console.log(" NUL O , ", code)
     try {
         const results = await isBonoController.filtrarRangoFechaViajes(ini, fin, code);
         if (results === undefined || results.length == 0) {
@@ -1416,6 +1415,58 @@ isRouter.get('/bono/codigo', async (req, res) => {
         }
     } catch (error) {
         console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde.',
+        });
+    }
+})
+
+isRouter.get('/userId=:id', async (req, res) => {
+    try {
+        const resultado = await isUController.getUserId(req.params.id);
+        if (resultado === undefined || resultado.length == 0) {
+            return res.status(401).send({
+                success: false,
+                msg: 'No se encontro data',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: resultado[0]
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor. Intenta más tarde',
+        });
+    }
+
+})
+
+
+isRouter.get('/bono/rangotiempo', async (req, res) => {
+    const { ini, fin, codigo } = req.query;
+
+    try {
+        const results = await isBonoController.filtrarRangoFechaTiempoUsuarios(ini, fin, codigo);
+        if (results === undefined || results.length == 0) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se pudo encontrar la información solicitada. Intenta más tarde.',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'SUCCESSFULLY',
+                result: results
+            });
+        }
+    } catch (error) {
         return res.status(500).send({
             success: false,
             msg: 'Error en el servidor. Intenta más tarde.',

@@ -26,7 +26,7 @@ const createTravelDetail = (data) => {
 
 const getTokenOneAdmin = (telefono) => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT onesignal_token token, id FROM usuario u where u.telefono = ?`,[telefono], (err, result) => {
+        connection.query(`SELECT onesignal_token token, id FROM usuario u where u.telefono = ?`, [telefono], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -128,6 +128,16 @@ const getPerfilUsuario = (id) => {
 }
 
 
+const getUserId = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT * FROM usuario where id = ? `,[id], (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+
 module.exports = {
     getUsuariosActivos,
     actualizarReferencias,
@@ -137,6 +147,7 @@ module.exports = {
     updatePreciosKM,
     getComunity,
     getPerfilUsuario,
-    getTokenOneAdmin
+    getTokenOneAdmin,
+    getUserId 
 
 }

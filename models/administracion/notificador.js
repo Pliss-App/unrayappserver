@@ -79,11 +79,23 @@ const actualizarEstadoDocumentacion = (id, estado) => {
     });
 }
 
+
+const getNotificaciones = (rol) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`    SELECT * FROM notificaciones_recurrentes  WHERE rol = ? AND estado = 'activo'`, [rol],
+            (err, result) => {
+                if (err) reject(err)
+                resolve(result)
+            })
+    });
+}
+
 module.exports = {
     getUsuarios,
     deleteViaje,
     liberarConductor,
     getDocumentoId,
     activarConductor,
-    actualizarEstadoDocumentacion
+    actualizarEstadoDocumentacion,
+    getNotificaciones
 }
