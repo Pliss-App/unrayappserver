@@ -374,6 +374,7 @@ const uploadImagePublicidad = async (req, res, next) => {
   };
 
 async function enviarNotificacionFCM(token, idViaje, origin, destination, price, user, url, idUser, idConductor) {
+ console.log("DATOS DEL TOJKE DEL CODNUCTOR ", token )
   const message = {
     token: token,
     data: {

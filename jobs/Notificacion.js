@@ -47,7 +47,7 @@ cron.schedule('* * * * *', async () => {
     });
 
     const diferencia = ahora.toMillis() - proximoEnvio.toMillis();
-    const margen = 90 * 1000; // 90 segundos
+    const margen = 60 * 1000; // 90 segundos
 
   //  console.log(`[🔎] Noti ID Conductor ${id} | ahora: ${ahora.toFormat('HH:mm:ss')} | próximo: ${proximoEnvio.toFormat('HH:mm:ss')} | diferencia: ${diferencia}`);
 
