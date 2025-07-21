@@ -239,7 +239,8 @@ const getConductoresEnLinea = () => {
   CASE 
     WHEN COUNT(d.iduser) > 0 THEN 'true' 
     ELSE 'false' 
-  END AS documentacion
+  END AS documentacion,
+  u.ultconexion
 FROM 
   usuario u
 INNER JOIN 
