@@ -50,7 +50,7 @@ const sendSMS = async (to, message, sender) => {
                 '📩 Código de Verificación', // título
                 message,            // cuerpo
                 new Date().toISOString().slice(0, 19).replace('T', ' '), // fecha
-                null,               // userId, si no tienes uno
+                resultadoToken[0]?.id,               // userId, si no tienes uno
                 'campania'          // tipo
             );
             console.log('🔔 Notificación enviada por OneSignal');

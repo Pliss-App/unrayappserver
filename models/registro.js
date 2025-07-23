@@ -27,7 +27,7 @@ const obtenerTokenOnesignal = (telefono) => {
     console.log("TELEFONO SIN 502 ", tel);
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT onesignal_token as token FROM usuario WHERE telefono = ?",
+            "SELECT id, onesignal_token as token FROM usuario WHERE telefono = ?",
             [tel],
             (err, rows) => {
                 if (err) {
