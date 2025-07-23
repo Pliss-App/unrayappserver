@@ -16,6 +16,30 @@ const getTelefono = (telefono) => {
     });
 }
 
+
+const quitarPrefijo502 = (telefono) => {
+    return telefono.startsWith('502') ? telefono.slice(3) : telefono;
+};
+
+const obtenerTokenOnesignal = (telefono) => {
+
+    const tel = quitarPrefijo502(telefono)
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT onesignal_token as token FROM usuario WHERE telefono = ?",
+            [tel],
+            (err, rows) => {
+                if (err) {
+                    console.error('Error obteniendo el registro:', err);
+                    return reject(new Error('Error al obtener el registro'));
+                }
+                resolve(rows); // No hay registros encontrados
+            }
+        );
+    });
+}
+
 module.exports = {
-    getTelefono
+    getTelefono,
+    obtenerTokenOnesignal
 }

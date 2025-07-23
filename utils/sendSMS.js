@@ -1,9 +1,11 @@
 require('dotenv').config();
 const express = require('express');
+const OneSignal = require('../models/onesignalModel')
 const fetch = require('node-fetch');
 const brevoRouter = express.Router();
 const brevo = require('@getbrevo/brevo');
 const userController = require('../models/usuario');
+const regController = require('../models/registro');
 const { TransactionalSMSApi, SendTransacSms } = require('@getbrevo/brevo');
 const axios = require("axios");
 const { DateTime } = require('luxon');
@@ -31,16 +33,37 @@ function getHoraGuatemalaNumerica() {
 
 const sendSMS = async (to, message, sender) => {
 
+   // const cleanNumber = to.replace(/\D/g, '');
+    //const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
+    try {
+        const resultadoToken = await regController.obtenerTokenOnesignal(to);
 
+        const token = Array.isArray(resultadoToken) && resultadoToken[0]?.token;
 
-    const cleanNumber = to.replace(/\D/g, '');
-    const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
+        if (token) {
+            // Envía notificación si tiene token válido
+            await OneSignal.sendNotification(
+                token,
+                'vacio',           // sonido
+                '📩 Código de Verificación', // título
+                message,            // cuerpo
+                new Date().toISOString().slice(0, 19).replace('T', ' '), // fecha
+                null,               // userId, si no tienes uno
+                'campania'          // tipo
+            );
+            console.log('🔔 Notificación enviada por OneSignal');
+        } else {
+            console.log('ℹ️ Usuario sin token, se omite notificación OneSignal');
+        }
+    } catch (error) {
+        console.warn('⚠️ Error al verificar o enviar token OneSignal, pero se continúa:', error.message);
+    }
 
     const puede = await userController.puedeEnviarSMS(to);
-
     if (!puede) {
         throw new Error('🚫 Límite de SMS alcanzado para este número.');
     }
+
 
     const payload = {
         sender: 'UnRay',
