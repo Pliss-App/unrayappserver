@@ -82,7 +82,7 @@ const sendSMS = async (to, message, sender) => {
 
     try {
         const response = await axios.post(
-            'https://api.brevo.com/v3/transactionalSMS/sms',
+            'https://api.brevo.com/v3/transactionalSMS/send',
             payload,
             {
                 headers: {
