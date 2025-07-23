@@ -1236,7 +1236,7 @@ const puedeEnviarSMS = (numero) => {
     `;
     connection.query(sql, [numero], (err, rows) => {
       if (err) return reject(err);
-      resolve(rows[0].total < 3); // máximo 3 envíos por día
+      resolve(rows[0].total < 5); // máximo 3 envíos por día
     });
   });
 };
