@@ -33,7 +33,7 @@ function getHoraGuatemalaNumerica() {
 
 const sendSMS = async (to, message, sender) => {
 
-   // const cleanNumber = to.replace(/\D/g, '');
+    // const cleanNumber = to.replace(/\D/g, '');
     //const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
     try {
         const resultadoToken = await regController.obtenerTokenOnesignal(to);
@@ -51,8 +51,9 @@ const sendSMS = async (to, message, sender) => {
                 message,            // cuerpo
                 new Date().toISOString().slice(0, 19).replace('T', ' '), // fecha
                 resultadoToken[0]?.id,               // userId, si no tienes uno
-                'campania'          // tipo
+                'principal'          // tipo
             );
+
             console.log('🔔 Notificación enviada por OneSignal');
         } else {
             console.log('ℹ️ Usuario sin token, se omite notificación OneSignal');
@@ -61,9 +62,13 @@ const sendSMS = async (to, message, sender) => {
         console.warn('⚠️ Error al verificar o enviar token OneSignal, pero se continúa:', error.message);
     }
 
+
+
+
     const puede = await userController.puedeEnviarSMS(to);
     if (!puede) {
-        throw new Error('🚫 Límite de SMS alcanzado para este número.');
+        console.warn('⛔ Límite de SMS alcanzado para este número:', to);
+        return; // solo omite el envío sin romper
     }
 
 
