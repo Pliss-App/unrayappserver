@@ -42,7 +42,7 @@ const sendSMS = async (to, message, sender) => {
 
         if (token) {
 
-            console.log("eSATE ES EL TOKEM ", token)
+            console.log("eSATE ES EL TOKEM ", token,  " y id user : ", resultadoToken[0]?.id)
             // Envía notificación si tiene token válido
             await OneSignal.sendNotification(
                 token,
