@@ -3,8 +3,11 @@ const express = require('express');
 const fetch = require('node-fetch');
 const brevoRouter = express.Router();
 const brevo = require('@getbrevo/brevo');
+const userController = require('../models/usuario');
 const { TransactionalSMSApi, SendTransacSms } = require('@getbrevo/brevo');
 const axios = require("axios");
+const { DateTime } = require('luxon');
+const ahoraGT = DateTime.now().setZone('America/Guatemala').toFormat('yyyy-MM-dd HH:mm:ss');
 // Configuración CORRECTA del cliente
 const apiInstance = new TransactionalSMSApi();
 // ESTA es la forma que actualmente funciona con el SDK:
@@ -12,50 +15,60 @@ apiInstance.authentications.apiKey.apiKey = process.env.BREVO_API_KEY;
 
 
 function getHoraGuatemalaNumerica() {
-  const ahora = new Date();
+    const ahora = new Date();
 
-  // Convertir a hora UTC-6 manualmente
-  const offsetGuatemala = -6 * 60; // en minutos
-  const utc = ahora.getTime() + ahora.getTimezoneOffset() * 60000;
-  const fechaGT = new Date(utc + offsetGuatemala * 60000);
+    // Convertir a hora UTC-6 manualmente
+    const offsetGuatemala = -6 * 60; // en minutos
+    const utc = ahora.getTime() + ahora.getTimezoneOffset() * 60000;
+    const fechaGT = new Date(utc + offsetGuatemala * 60000);
 
-  const horaGT = fechaGT.getHours().toString().padStart(2, '0') +
-                 fechaGT.getMinutes().toString().padStart(2, '0') +
-                 fechaGT.getSeconds().toString().padStart(2, '0');
+    const horaGT = fechaGT.getHours().toString().padStart(2, '0') +
+        fechaGT.getMinutes().toString().padStart(2, '0') +
+        fechaGT.getSeconds().toString().padStart(2, '0');
 
-  return horaGT;
+    return horaGT;
 }
 
 const sendSMS = async (to, message, sender) => {
-  const cleanNumber = to.replace(/\D/g, '');
-  const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
 
-  const payload = {
-    sender: 'UnRay',
-    recipient: to,
-    content: `${message} | ${getHoraGuatemalaNumerica()}`,
-    type: 'transactional',
-    unicodeEnabled: true
-  };
 
-  try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/transactionalSMS/sms',
-      payload,
-      {
-        headers: {
-          'api-key': process.env.BREVO_API_KEY,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
 
-    console.log('📩 Enviado:');
-    return response.data;
-  } catch (error) {
-    console.error('❌ Error en envío SMS manual:', error.response?.data || error.message);
-    throw error;
-  }
+    const cleanNumber = to.replace(/\D/g, '');
+    const formattedNumber = cleanNumber.startsWith('502') ? cleanNumber : `502${cleanNumber}`;
+
+    const puede = await userController.puedeEnviarSMS(to);
+
+    if (!puede) {
+        throw new Error('🚫 Límite de SMS alcanzado para este número.');
+    }
+
+    const payload = {
+        sender: 'UnRay',
+        recipient: to,
+        content: `${message} | ${getHoraGuatemalaNumerica()}`,
+        type: 'transactional',
+        unicodeEnabled: true
+    };
+
+    try {
+        const response = await axios.post(
+            'https://api.brevo.com/v3/transactionalSMS/sms',
+            payload,
+            {
+                headers: {
+                    'api-key': process.env.BREVO_API_KEY,
+                    'Content-Type': 'application/json'
+                }
+            }
+        );
+
+        console.log('📩 Enviado:', to);
+        await userController.insertEnvioSMS(to, ahoraGT);
+        return response.data;
+    } catch (error) {
+        console.error('❌ Error en envío SMS manual:', error.response?.data || error.message);
+        throw error;
+    }
 };
 
 
@@ -147,7 +160,7 @@ const enviarWhatBrevo = async (numeroDestino, sms) => {
                     sms: formattedNumber,
                     codigo: String(sms),
                     attributes: {
-                       CODIGO: String(sms)
+                        CODIGO: String(sms)
                     }
                 },
                 { headers }
@@ -172,7 +185,7 @@ const enviarWhatBrevo = async (numeroDestino, sms) => {
                 senderNumber: '50254355617',
                 contactNumbers: [formattedNumber],
                 templateId: 44,
-     
+
             },
             {
                 headers: {

@@ -1212,7 +1212,38 @@ const ejecutarTransicionConductor = (idUser, fecha, placas, modelo, color, idSer
   });
 };
 
+
+const insertEnvioSMS = (numero, fecha) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO sms_envios (numero,enviado_en) VALUES (?, ?)`,  [numero,fecha], (err, rows) => {
+                if (err) {
+                    console.error('Error getting record:', err); // Registro del error en el servidor
+                    return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows);
+            });
+    });
+};
+
+const puedeEnviarSMS = (numero) => {
+  return new Promise((resolve, reject) => {
+    const sql = `
+      SELECT COUNT(*) AS total 
+      FROM sms_envios 
+      WHERE numero = ? 
+      AND enviado_en >= NOW() - INTERVAL 1 DAY
+    `;
+    connection.query(sql, [numero], (err, rows) => {
+      if (err) return reject(err);
+      resolve(rows[0].total < 3); // máximo 3 envíos por día
+    });
+  });
+};
+
 module.exports = {
+    insertEnvioSMS,
+    puedeEnviarSMS,
     getUserTelfonoEmail,
     createUser,
     agregarRol,
