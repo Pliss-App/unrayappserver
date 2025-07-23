@@ -41,6 +41,8 @@ const sendSMS = async (to, message, sender) => {
         const token = Array.isArray(resultadoToken) && resultadoToken[0]?.token;
 
         if (token) {
+
+            console.log("eSATE ES EL TOKEM ", token)
             // Envía notificación si tiene token válido
             await OneSignal.sendNotification(
                 token,

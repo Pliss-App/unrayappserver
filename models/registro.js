@@ -23,7 +23,8 @@ const quitarPrefijo502 = (telefono) => {
 
 const obtenerTokenOnesignal = (telefono) => {
 
-    const tel = quitarPrefijo502(telefono)
+    const tel = quitarPrefijo502(telefono);
+    console.log("TELEFONO SIN 502 ", tel);
     return new Promise((resolve, reject) => {
         connection.query(
             "SELECT onesignal_token as token FROM usuario WHERE telefono = ?",
