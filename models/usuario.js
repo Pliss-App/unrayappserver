@@ -597,7 +597,7 @@ const createUser = (userData) => { //getByEmail
                 'libre',
                 null,
                 null,
-                codigoVer,
+                null,
                 aceptaTerminos,
                 fecha,
                 fecha], (err, rows) => {

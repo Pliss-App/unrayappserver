@@ -57,7 +57,7 @@ isRouter.post('/login-register', async (req, res) => {
             try {
               //  sendSMS(`502${telefono}`, message, 'UnRay');
                 const existingUser = await userController.getLoginTelefono(telefono);
-
+                console.log("DATOS DEL USUARIO ", existingUser)
                 if (existingUser === undefined) {
                     res.json('Error, Teléfono no registrados.')
                 } else {
@@ -68,7 +68,7 @@ isRouter.post('/login-register', async (req, res) => {
                         rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion,
+                        verificacion: 0,
                         codigo: existingUser.codigo
                     }
                     const token = jwt.sign({
@@ -77,7 +77,7 @@ isRouter.post('/login-register', async (req, res) => {
                         idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion,
+                        verificacion: 0,
                         codigo: existingUser.codigo
                     },
                         process.env.JWT_SECRET
@@ -123,7 +123,7 @@ isRouter.post('/login-register', async (req, res) => {
             });
         }
 
-        try {
+    /*    try {
             sendSMS(`${codigo}${telefono}`, message, 'UnRay');
             //   await enviarWhatBrevo(`502${telefono}`, codigoVer);
         } catch (smsError) {
@@ -134,7 +134,7 @@ isRouter.post('/login-register', async (req, res) => {
             });
         }
 
-
+   */
         await userController.agregarRolUser(result.insertId, idService);
         await userController.registerLocationUser(result.insertId);
 
@@ -149,7 +149,7 @@ isRouter.post('/login-register', async (req, res) => {
                 rol: existingUser.rol, nombre: existingUser.nombre,
                 apellido: existingUser.apellido, correo: existingUser.correo,
                 telefono: existingUser.telefono,
-                verificacion: existingUser.verificacion,
+                verificacion: 0,
                 codigo: existingUser.codigo
             }
             const token = jwt.sign({
@@ -158,7 +158,7 @@ isRouter.post('/login-register', async (req, res) => {
                 idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                 apellido: existingUser.apellido, correo: existingUser.correo,
                 telefono: existingUser.telefono,
-                verificacion: existingUser.verificacion,
+                verificacion: 0,
                 codigo: existingUser.codigo
             },
                 process.env.JWT_SECRET
