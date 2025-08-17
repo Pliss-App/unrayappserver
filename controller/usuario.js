@@ -1197,11 +1197,11 @@ usuarioRouter.put('/update-nombre-apellido', async (req, res) => {
         } else {
             const existingUser = await userController.refreshLoginTelefono(telefono);
             var _user = {
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: 1, codigo: existingUser.codigo
             }
 
             const token = jwt.sign({
-                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: existingUser.verificacion, codigo: existingUser.codigo
+                foto: existingUser.foto, marker: existingUser.marker, idUser: existingUser.idUser, idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre, apellido: existingUser.apellido, correo: existingUser.correo, telefono: existingUser.telefono, verificacion: 1, codigo: existingUser.codigo
             },
                 process.env.JWT_SECRET, {
             });
