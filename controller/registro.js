@@ -68,7 +68,7 @@ isRouter.post('/login-register', async (req, res) => {
                         rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: 0,
+                        verificacion: 1,
                         codigo: existingUser.codigo
                     }
                     const token = jwt.sign({
@@ -77,7 +77,7 @@ isRouter.post('/login-register', async (req, res) => {
                         idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: 0,
+                        verificacion: 1,
                         codigo: existingUser.codigo
                     },
                         process.env.JWT_SECRET
@@ -149,7 +149,7 @@ isRouter.post('/login-register', async (req, res) => {
                 rol: existingUser.rol, nombre: existingUser.nombre,
                 apellido: existingUser.apellido, correo: existingUser.correo,
                 telefono: existingUser.telefono,
-                verificacion: 0,
+                verificacion: 1,
                 codigo: existingUser.codigo
             }
             const token = jwt.sign({
@@ -158,7 +158,7 @@ isRouter.post('/login-register', async (req, res) => {
                 idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                 apellido: existingUser.apellido, correo: existingUser.correo,
                 telefono: existingUser.telefono,
-                verificacion: 0,
+                verificacion: 1,
                 codigo: existingUser.codigo
             },
                 process.env.JWT_SECRET
