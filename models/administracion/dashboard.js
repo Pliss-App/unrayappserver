@@ -38,7 +38,7 @@ const totalConductores = () => {
 
 const totalAfiliaciones = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT count(1) as total FROM documentacion WHERE estado in ('Pendiente',  'Estado');`,
+        connection.query(`SELECT count(1) as total FROM documentacion WHERE estado in ('Enviado',  'Estado');`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)

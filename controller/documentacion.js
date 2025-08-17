@@ -40,7 +40,6 @@ isRouter.post('/pruebas', async (req, res) => {
 
     await transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.log("EERO ", error)
             return res.status(500).send(error.toString());
         }
 
@@ -97,7 +96,6 @@ isRouter.post('/registro_conductor', async (req, res) => {
 
             await transporter.sendMail(mailOptions, (error, info) => {
                 if (error) {
-                    console.log("EERO ", error)
                     return res.status(500).send(error.toString());
                 }
 

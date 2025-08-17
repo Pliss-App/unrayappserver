@@ -421,6 +421,52 @@ WHERE u.telefono = ? and u.estado_eliminacion = 1`, [telefono], (err, rows) => {
 
 
 
+const getLoginIdModo = (id, telefono) => { //getByEmail
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `   SELECT 
+    u.id AS idUser, 
+    r.id AS idRol, 
+    u.foto, 
+        u.codigo,
+    u.estado, 
+    r.nombre AS rol, 
+    u.nombre, 
+    u.apellido, 
+    u.password, 
+    u.correo, 
+    u.telefono,  
+    u.verificacion,
+    CASE 
+        WHEN s.nombre = 'moto ray' THEN 'moto'
+        WHEN s.nombre IN ('Un ray', 'Plus ray') THEN 'carro'
+        ELSE s.nombre 
+    END AS marker,  
+    u.created_at,
+    -- Determinar tipo de usuario
+    CASE 
+        WHEN r.nombre = 'conductor' AND s.id IS NOT NULL THEN 'conductor'
+        ELSE 'usuario normal'
+    END AS tipo_usuario
+FROM usuario u 
+INNER JOIN usuario_rol ur 
+    ON u.id = ur.iduser 
+INNER JOIN roles r  
+    ON ur.idrol = r.id 
+LEFT JOIN servicios s 
+    ON ur.idservice = s.id  
+WHERE u.id = ? and u.telefono = ? and u.estado_eliminacion = 1`, [id, telefono], (err, rows) => {
+            if (err) {
+                console.error('Error getting record:', err); // Registro del error en el servidor
+                return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
+            }
+            resolve(rows[0]);
+        });
+    });
+};
+
+
+
 const refreshLogin = (_valor) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
@@ -555,10 +601,7 @@ const createUser = (userData) => { //getByEmail
                 aceptaTerminos,
                 fecha,
                 fecha], (err, rows) => {
-
-                    console.log("EERO ", err);
                     if (err) {
-                        console.log("EERO ", err);
                         //  console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                         return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
                     }
@@ -621,6 +664,33 @@ const insertBilletera = (idUser) => {
     });
 };
 
+
+
+const getVehiculo = (idUser) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select * from detalle_vehiculo where idUser = ?;`, [idUser], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
+
+const getVehiculoModo = (idUser, idservice) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `select * from detalle_vehiculo where idUser = ? and idservicio = ? ;`, [idUser, idservice], (err, rows) => {
+                if (err) {
+                    console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al crear la cuenta')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
+    });
+};
 
 const insertVehiculo = (idUser) => {
     return new Promise((resolve, reject) => {
@@ -741,15 +811,30 @@ const agregarRol = (idUser, idservice) => {
 const updateRolTransicion = (idUser, idservice) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `update usuario_rol set idrol=2, idservice= ? where iduser = ?;`, [ idservice, idUser], (err, rows) => {
-            if (err) {
-                console.error('Error al guardar registro:', err); // Registro del error en el servidor
-                return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
-            }
-            resolve(rows)
-        });
+            `update usuario_rol set idrol=2, idservice= ? where iduser = ?;`, [idservice, idUser], (err, rows) => {
+                if (err) {
+                    console.error('Error al guardar registro:', err); // Registro del error en el servidor
+                    return reject(new Error('Error al agregar Rol')); // Rechazo con un mensaje de error personalizado
+                }
+                resolve(rows)
+            });
     });
 };
+
+
+const verificarServicioExiste = (idservice) => {
+  return new Promise((resolve, reject) => {
+    connection.query(
+      'SELECT id FROM servicios WHERE id = ?',
+      [idservice],
+      (err, rows) => {
+        if (err) return reject(err);
+        resolve(rows.length > 0);
+      }
+    );
+  });
+};
+
 
 const agregarRolUser = (idUser, idservice) => {
     return new Promise((resolve, reject) => {
@@ -1061,8 +1146,9 @@ const deleteMensaje = (id) => { //getByEmail
 
 const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
-        connection.query(
-            "update usuario set codigo_verificacion= ?, codigoVerTimestamp=?,  ultconexion= ?, verificacion= 0 where telefono = ?", [codigo, fecha, fecha, telefono], (err, rows) => {
+        //anterio = > update usuario set codigo_verificacion= ?, codigoVerTimestamp=?,  ultconexion= ?, verificacion= 0 where telefono = ?
+        connection.query( 
+            "update usuario set ultconexion= ?, verificacion= 1 where telefono = ?", [codigo, fecha, fecha, telefono], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -1077,7 +1163,7 @@ const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
 const updateCodigoModoConductor = (telefono, fecha, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "update usuario set codigo_verificacion= ?, codigoVerTimestamp=? where telefono = ?", [codigo,  fecha, telefono], (err, rows) => {
+            "update usuario set codigo_verificacion= ?, codigoVerTimestamp=? where telefono = ?", [codigo, fecha, telefono], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -1197,26 +1283,26 @@ const actualizarCorreoModoConductor = (id, telefono, correo) => {
 };
 
 const ejecutarTransicionConductor = (idUser, fecha, placas, modelo, color, idServicio, correo) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      'CALL sp_transicion_conductor(?, ?, ?, ?, ?, ?, ?)',
-      [idUser, fecha, placas, modelo, color, idServicio, correo],
-      (err, result) => {
-        if (err) {
-          console.error('Error al ejecutar el procedimiento:', err);
-          return reject(new Error('Error en la transición de conductor'));
-        }
-        resolve(result);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        connection.query(
+            'CALL sp_transicion_conductor(?, ?, ?, ?, ?, ?, ?)',
+            [idUser, fecha, placas, modelo, color, idServicio, correo],
+            (err, result) => {
+                if (err) {
+                    console.error('Error al ejecutar el procedimiento:', err);
+                    return reject(new Error('Error en la transición de conductor'));
+                }
+                resolve(result);
+            }
+        );
+    });
 };
 
 
 const insertEnvioSMS = (numero, fecha) => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            `INSERT INTO sms_envios (numero,enviado_en) VALUES (?, ?)`,  [numero,fecha], (err, rows) => {
+            `INSERT INTO sms_envios (numero,enviado_en) VALUES (?, ?)`, [numero, fecha], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
                     return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -1227,19 +1313,20 @@ const insertEnvioSMS = (numero, fecha) => { //getByEmail
 };
 
 const puedeEnviarSMS = (numero) => {
-  return new Promise((resolve, reject) => {
-    const sql = `
+    return new Promise((resolve, reject) => {
+        const sql = `
       SELECT COUNT(*) AS total 
       FROM sms_envios 
       WHERE numero = ? 
       AND enviado_en >= NOW() - INTERVAL 1 DAY
     `;
-    connection.query(sql, [numero], (err, rows) => {
-      if (err) return reject(err);
-      resolve(rows[0].total < 10); // máximo 3 envíos por día
+        connection.query(sql, [numero], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows[0].total < 10); // máximo 3 envíos por día
+        });
     });
-  });
 };
+
 
 module.exports = {
     insertEnvioSMS,
@@ -1317,6 +1404,10 @@ module.exports = {
     insertVehiculoModo,
     insertTransicion,
     updateRolTransicion,
-    ejecutarTransicionConductor ,
-    updateCodigoModoConductor
+    ejecutarTransicionConductor,
+    updateCodigoModoConductor,
+    getLoginIdModo,
+    getVehiculo,
+    verificarServicioExiste,
+    getVehiculoModo
 }

@@ -230,7 +230,7 @@ usuarioRouter.post('/login', async (req, res) => {
                         codigo: existingUser.codigo
                     },
                         process.env.JWT_SECRET, {
-                        expiresIn: '5h'
+                        expiresIn: '9h'
                     }
                     );
                     return res.status(200).send({
@@ -1367,7 +1367,7 @@ usuarioRouter.get('/servicios', async (req, res) => {
 
 
 usuarioRouter.put('/update-rol', async (req, res) => {
-    const { idUser, rol, idService } = req.body;
+    const {telefono, idUser, rol, idService } = req.body;
 
     if (!idUser || !rol || !idService) {
         return res.status(400).json({
@@ -1385,10 +1385,41 @@ usuarioRouter.put('/update-rol', async (req, res) => {
             });
         }
 
-        return res.status(200).send({
-            success: true,
-            msg: 'Actualizado Correctamente',
-        });
+
+            const existingUser = await userController.getLoginTelefono(telefono);
+
+            if (existingUser === undefined) {
+                res.json('Error, Teléfono no registrados.')
+            } else {
+                var _user = {
+                    estado: existingUser.estado, marker: existingUser.marker,
+                    foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
+                    rol: existingUser.rol, nombre: existingUser.nombre,
+                    apellido: existingUser.apellido, correo: existingUser.correo,
+                    telefono: existingUser.telefono,
+                    verificacion: 1,
+                    codigo: existingUser.codigo
+                }
+                const token = jwt.sign({
+                    estado: existingUser.estado, marker: existingUser.marker,
+                    foto: existingUser.foto, idUser: existingUser.idUser,
+                    idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
+                    apellido: existingUser.apellido, correo: existingUser.correo,
+                    telefono: existingUser.telefono,
+                    verificacion: 1,
+                    codigo: existingUser.codigo
+                },
+                    process.env.JWT_SECRET
+                );
+
+                return res.status(200).send({
+                    message: 'Logged in!',
+                    token,
+                    success: true,
+                    user: _user
+                });
+            }
+
 
     } catch (error) {
         return res.status(500).json({
