@@ -1284,9 +1284,15 @@ const actualizarCorreoModoConductor = (id, telefono, correo) => {
 
 const ejecutarTransicionConductor = (idUser, fecha, placas, modelo, color, idServicio, correo) => {
     return new Promise((resolve, reject) => {
+
+          const idUserNum = Number(idUser);
+
+        if (isNaN(idUserNum)) {
+            return reject(new Error('El idUser no es un número válido'));
+        }
         connection.query(
             'CALL sp_transicion_conductor(?, ?, ?, ?, ?, ?, ?)',
-            [idUser, fecha, placas, modelo, color, idServicio, correo],
+            [idUserNum, fecha, placas, modelo, color, idServicio, correo],
             (err, result) => {
                 if (err) {
                     console.error('Error al ejecutar el procedimiento:', err);
