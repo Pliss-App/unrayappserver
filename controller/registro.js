@@ -6,7 +6,7 @@ const isController = require('../models/registro');
 const OneSignal = require('../models/onesignalModel')
 const isAdmin = require('../models/administracion/usuarios')
 const userController = require('../models/usuario');
-
+const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
 const generateTemporaryPassword = () => {
