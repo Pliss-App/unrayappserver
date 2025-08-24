@@ -325,7 +325,7 @@ isRouter.post('/login-modo-conductor', async (req, res) => {
                         rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion,
+                        verificacion: 1,
                         codigo: existingUser.codigo
                     }
                     const token = jwt.sign({
@@ -334,7 +334,7 @@ isRouter.post('/login-modo-conductor', async (req, res) => {
                         idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
                         apellido: existingUser.apellido, correo: existingUser.correo,
                         telefono: existingUser.telefono,
-                        verificacion: existingUser.verificacion,
+                        verificacion: 1,
                         codigo: existingUser.codigo
                     },
                         process.env.JWT_SECRET
