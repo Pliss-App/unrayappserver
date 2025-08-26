@@ -1204,7 +1204,7 @@ const updateNombreApellido = (id, telefono, nombre, apellido) => { //getByEmail
 const getServices = () => { //getByEmail
     return new Promise((resolve, reject) => {
         connection.query(
-            "SELECT * FROM servicios WHERE id != 5 and estado =1 ", (err, rows) => {
+            "SELECT * FROM servicios WHERE id <> 5 and estado =1;", (err, rows) => {
                 if (err) reject(err)
                 resolve(rows)
             });
