@@ -250,7 +250,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 1 and u.estado = 1
+WHERE u.estado_eliminacion = 1 and u.activacion = 1 
   AND ur.idservice != 5  and u.estado_usuario= 'libre'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -288,7 +288,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 1 and u.estado = 1
+WHERE u.estado_eliminacion = 1 and u.activacion = 1
   AND ur.idservice != 5 and u.estado_usuario= 'ocupado'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
