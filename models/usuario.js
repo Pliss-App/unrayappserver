@@ -364,7 +364,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE (LOWER(u.correo) = LOWER(?)OR u.telefono = ?) and u.estado_eliminacion = 1`, [_valor, _valor], (err, rows) => {
+WHERE (LOWER(u.correo) = LOWER(?)OR u.telefono = ?) and u.estado_eliminacion = 0`, [_valor, _valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -409,7 +409,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE u.telefono = ? and u.estado_eliminacion = 1`, [telefono], (err, rows) => {
+WHERE u.telefono = ? and u.estado_eliminacion = 0`, [telefono], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -455,7 +455,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE u.id = ? and u.telefono = ? and u.estado_eliminacion = 1`, [id, telefono], (err, rows) => {
+WHERE u.id = ? and u.telefono = ? and u.estado_eliminacion = 0`, [id, telefono], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -501,7 +501,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE u.id= ? and u.estado_eliminacion = 1`, [_valor], (err, rows) => {
+WHERE u.id= ? and u.estado_eliminacion = 0`, [_valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -546,7 +546,7 @@ INNER JOIN roles r
     ON ur.idrol = r.id 
 LEFT JOIN servicios s 
     ON ur.idservice = s.id  
-WHERE u.telefono= ? and u.estado_eliminacion = 1`, [_valor], (err, rows) => {
+WHERE u.telefono= ? and u.estado_eliminacion = 0`, [_valor], (err, rows) => {
             if (err) {
                 console.error('Error getting record:', err); // Registro del error en el servidor
                 return reject(new Error('Error getting record')); // Rechazo con un mensaje de error personalizado
@@ -1123,7 +1123,7 @@ const getUserRol = (uid) => { //getByEmail
 const eliminarCuenta = (idUser) => {
     return new Promise((resolve, reject) => {
         connection.query(
-            `UPDATE usuario SET correo = CONCAT('deleted_', ? , '@email.com'), telefono = NULL, estado_eliminacion= 0 WHERE id = ?`, [idUser, idUser], (err, rows) => {
+            `UPDATE usuario SET correo = CONCAT('deleted_', ? , '@email.com'), telefono = NULL, estado_eliminacion= 1 WHERE id = ?`, [idUser, idUser], (err, rows) => {
                 if (err) {
                     console.error('Error en la consulta a la base de datos:', err); // Registro del error en el servidor
                     return reject(new Error('Error al eliminar cuenta')); // Rechazo con un mensaje de error personalizado

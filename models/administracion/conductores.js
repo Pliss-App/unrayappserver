@@ -136,7 +136,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 
+WHERE u.estado_eliminacion = 0
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -175,7 +175,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 1
+WHERE u.estado_eliminacion = 0 and u.activacion = 1
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -212,7 +212,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 0
+WHERE u.estado_eliminacion = 0 and u.activacion = 0
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -250,7 +250,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 1 
+WHERE u.estado_eliminacion = 0 and u.activacion = 1 
   AND ur.idservice != 5  and u.estado_usuario= 'libre'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -288,7 +288,7 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 1 and u.activacion = 1
+WHERE u.estado_eliminacion = 0 and u.activacion = 1
   AND ur.idservice != 5 and u.estado_usuario= 'ocupado'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
@@ -431,7 +431,7 @@ LEFT JOIN
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 inner join location l
 on u.id = l.iduser
-WHERE u.estado_eliminacion = 1 and activacion= 1
+WHERE u.estado_eliminacion = 0 and activacion= 1
   AND ur.idservice != 5
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;

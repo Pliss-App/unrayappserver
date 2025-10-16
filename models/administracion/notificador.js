@@ -15,7 +15,7 @@ const getUsuarios = () => {
                             on u.id = ur.iduser
                             inner join servicios s
                             on ur.idservice = s.id
-                            WHERE u.estado_eliminacion!= 0;`,
+                            WHERE u.estado_eliminacion!= 1;`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)

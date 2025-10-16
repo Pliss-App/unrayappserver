@@ -38,7 +38,7 @@ const getUsuariosActivos = () => {
         connection.query(`SELECT * FROM usuario u
 INNER JOIN usuario_rol ur
 on u.id = ur.iduser
-where u.estado = 1 and u.estado_eliminacion = 1
+where u.estado = 1 and u.estado_eliminacion = 0
 and ur.idservice= 5`, (err, result) => {
             if (err) reject(err)
             resolve(result)
@@ -119,7 +119,7 @@ const getComunity = () => {
 
 const getPerfilUsuario = (id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`select * from usuario where id = ? and estado_eliminacion = 1 ;`, [id]
+        connection.query(`select * from usuario where id = ? and estado_eliminacion = 0;`, [id]
             , (err, result) => {
                 if (err) reject(err)
                 resolve(result)

@@ -372,7 +372,7 @@ isRouter.post('/login-modo-user-conductor', async (req, res) => {
 
     try {
         const vehiculos = await userController.getVehiculoModo(idUser, idservicio);
-
+ //-- 
         if (vehiculos.length > 0) {
             const servicioExiste = await userController.verificarServicioExiste(vehiculos[0].idservicio);
 

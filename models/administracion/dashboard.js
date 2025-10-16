@@ -15,7 +15,7 @@ const totalUsuarios = () => {
         connection.query(`select count(1) as total from usuario u 
                             inner join usuario_rol ur
                             on u.id = ur.iduser
-                            where ur.idrol= 1 and u.estado_eliminacion not in (0);`,
+                            where ur.idrol= 1 and u.estado_eliminacion not in (1);`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)
@@ -28,7 +28,7 @@ const totalConductores = () => {
         connection.query(`select count(1) as total from usuario u 
                             inner join usuario_rol ur
                             on u.id = ur.iduser
-                            where ur.idrol= 2 and u.estado_eliminacion not in (0) and u.activacion = 1;`,
+                            where ur.idrol= 2 and u.estado_eliminacion not in (1) and u.activacion = 1;`,
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)

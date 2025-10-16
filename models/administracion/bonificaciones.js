@@ -76,7 +76,7 @@ const filtrarRangoFechaTiempoUsuarios = (fech_ini, fech_final, codigo = null) =>
       FROM usuario u
       INNER JOIN usuario_rol ur ON u.id = ur.idUser
       INNER JOIN tiempoUsoDiario td ON u.id = td.idUser
-      WHERE u.estado_eliminacion = 1
+      WHERE u.estado_eliminacion = 0
         AND ur.idrol = 2
         AND (
           (? IS NULL OR ? = '') 
