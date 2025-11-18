@@ -6,7 +6,7 @@ const BUCKET = process.env.BUCKET;
 
 
 const serviceAccount = JSON.parse(
-  process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+  process.env.FIREBASE_KEY
 );
 
 serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
