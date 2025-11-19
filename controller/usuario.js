@@ -1004,6 +1004,57 @@ usuarioRouter.get('/notificaciones/:id', async (req, res) => {
     }
 })
 
+
+usuarioRouter.get('/notificaciones_page/:id', async (req, res) => {
+    try {
+        const idUser = req.params.id;
+
+        // Parametros paginación
+        const page = parseInt(req.query.page) || 1;
+        const offset = parseInt(req.query.offset) || 15; // tamaño de página
+        const startAt = (page - 1) * offset;
+
+        // Ejecutar consultas en paralelo
+        const [lista, total] = await Promise.all([
+            OneSignal.getNotificacionesUserPage(idUser, startAt, offset),
+            OneSignal.countNotificacionesUser(idUser)
+        ]);
+
+        // NOTA: lista puede estar vacía, pero NO es error
+        if (!total) {
+            return res.status(200).send({
+                success: true,
+                msg: "No existen notificaciones",
+                total: 0,
+                page,
+                offset,
+                hasMore: false,
+                result: []
+            });
+        }
+
+        const hasMore = (page * offset) < total;
+
+        return res.status(200).send({
+            success: true,
+            msg: "SUCCESSFULLY",
+            total,
+            page,
+            offset,
+            hasMore,
+            result: lista
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            error: 'Internal Server Error'
+        });
+    }
+});
+
+
 usuarioRouter.put('/update-notificaciones', async (req, res) => {
     try {
         const { id, idVista, fecha } = req.body;

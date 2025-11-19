@@ -1,16 +1,19 @@
 require('dotenv').config();
 const path = require('path');
-//const serviceAccount = require(path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS));
+
+/*COMENTAR CUANDO SE ENVIEN CAMBIOS */
+const serviceAccount = require(path.resolve(process.env.GOOGLE_APPLICATION_CREDENTIALS));
 const admin = require("firebase-admin");
 const BUCKET = process.env.BUCKET;
 
 
+/* DESCOMENTAR CUANDO SE ENVIEN CAMBIOS
 const serviceAccount = JSON.parse(
   process.env.FIREBASE_KEY
 );
 
 serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
-
+*/
 
 admin.initializeApp({
     credential: admin.credential.cert(serviceAccount),

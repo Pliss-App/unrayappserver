@@ -170,6 +170,7 @@ const getTokenId = (id) => {
     });
 }
 
+
 const getNotificacionesUser = (id) => {
     return new Promise((resolve, reject) => {
         connection.query(`SELECT * FROM notificaciones WHERE idUser = ? ORDER BY fecha_envio desc`, [id], (err, result) => {
@@ -177,7 +178,38 @@ const getNotificacionesUser = (id) => {
             resolve(result)
         })
     });
-}
+} 
+
+const getNotificacionesUserPage = (id, page = 1, offset = 20) => {
+    return new Promise((resolve, reject) => {
+
+        const inicio = (page - 1) * offset;
+
+        const sql = `
+            SELECT * 
+            FROM notificaciones 
+            WHERE idUser = ? 
+            ORDER BY fecha_envio DESC
+            LIMIT ? OFFSET ?
+        `;
+
+        connection.query(sql, [id, offset, inicio], (err, result) => {
+            if (err) reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const countNotificacionesUser = (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT COUNT(*) AS total FROM notificaciones WHERE idUser = ?`;
+
+        connection.query(sql, [id], (err, result) => {
+            if (err) reject(err);
+            resolve(result[0].total);
+        });
+    });
+};
 
 const getNotificacionesUserNoLeidas = (id) => {
     return new Promise((resolve, reject) => {
@@ -227,4 +259,4 @@ const sendNotificationBotones = async (userId, sonido, title, message, fecha, id
 
 }
 
-module.exports = { getNotificacionesUserNoLeidas, sendNotificationBotones, sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas, updateNotificacionesUser, getNotificacionesUser };
+module.exports = { getNotificacionesUserNoLeidas,getNotificacionesUserPage, countNotificacionesUser, sendNotificationBotones, sendNotification, sendNotificationAdmin, updateOnesignalToken, getTokenId, sendNotificationPruebas, updateNotificacionesUser, getNotificacionesUser };
