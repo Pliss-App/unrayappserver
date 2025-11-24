@@ -914,13 +914,13 @@ isRouter.put('/update-estado-viaje', async (req, res) => {
 
 // Endpoint para enviar un mensaje desde el frontend
 isRouter.post("/send-notification", async (req, res) => {
-    const { userId, sonido, title, message, fecha, idUser, tipo } = req.body;
+    const { userId, sonido, title, message, fecha, idUser, tipo, categoria } = req.body;
     if (!userId || !message) {
         return res.status(400).json({ error: 'Faltan parámetros: userId y message' });
     }
 
     try {
-        const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser, tipo);
+        const result = await OneSignal.sendNotification(userId, sonido, title, message, fecha, idUser, tipo, categoria);
         if (result.id === undefined || result.id == '') {
             return res.status(200).json({
                 success: false,

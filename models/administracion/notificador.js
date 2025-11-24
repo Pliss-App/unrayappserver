@@ -82,7 +82,7 @@ const actualizarEstadoDocumentacion = (id, estado) => {
 
 const getNotificaciones = (rol) => {
     return new Promise((resolve, reject) => {
-        connection.query(`    SELECT * FROM notificaciones_recurrentes  WHERE rol = ? AND estado = 'activo'`, [rol],
+        connection.query(`SELECT * FROM notificaciones_recurrentes  WHERE rol = ? AND estado = 'activo'`, [rol],
             (err, result) => {
                 if (err) reject(err)
                 resolve(result)

@@ -1011,8 +1011,8 @@ usuarioRouter.get('/notificaciones_page/:id', async (req, res) => {
         const idUser = req.params.id;
 
         // Parametros paginación
-        const page = parseInt(req.query.page) || 1;
-        const offset = parseInt(req.query.offset) || 15; // tamaño de página
+        const page = Math.max(parseInt(req.query.page) || 1, 1);
+        const offset = Math.max(parseInt(req.query.offset) || 15, 1);
         const startAt = (page - 1) * offset;
 
         // Ejecutar consultas en paralelo
