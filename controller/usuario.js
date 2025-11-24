@@ -9,9 +9,10 @@ const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const { sendSMS, enviarSMSBrevo } = require('../utils/sendSMS');
 const usuarioRouter = express.Router();
-const OneSignal = require('../models/onesignalModel')
+const OneSignal = require('../models/onesignalModel');
 const userController = require('../models/usuario');
-const condController = require('../models/conductor')
+const condController = require('../models/conductor');
+const cobro = require('../models/cobro');
 
 const connection = require('../config/conexion');
 const { enviarCorreoRegistroUsuario } = require('../utils/emailService')
@@ -150,7 +151,7 @@ usuarioRouter.post('/registro', async (req, res) => {
         try {
             await sendSMS(`${codigoPais}${telefono}`, message, 'UnRay');
 
-           // await enviarSMSBrevo(`${codigoPais}${telefono}`, codigoVer);
+            // await enviarSMSBrevo(`${codigoPais}${telefono}`, codigoVer);
         } catch (smsError) {
             console.error('Error al enviar SMS:', smsError);
             return res.status(200).json({
@@ -1185,7 +1186,7 @@ usuarioRouter.put('/update-codigo-verificacion', async (req, res) => {
 
             try {
                 await sendSMS(`502${telefono}`, message, 'UnRay');
-              //  await enviarSMSBrevo(`502${telefono}`, codigo);
+                //  await enviarSMSBrevo(`502${telefono}`, codigo);
                 return res.status(200).send({
                     success: true,
                     msg: 'Código enviado satisfactoriamente.',
@@ -1418,7 +1419,7 @@ usuarioRouter.get('/servicios', async (req, res) => {
 
 
 usuarioRouter.put('/update-rol', async (req, res) => {
-    const {telefono, idUser, rol, idService } = req.body;
+    const { telefono, idUser, rol, idService } = req.body;
 
     if (!idUser || !rol || !idService) {
         return res.status(400).json({
@@ -1437,39 +1438,39 @@ usuarioRouter.put('/update-rol', async (req, res) => {
         }
 
 
-            const existingUser = await userController.getLoginTelefono(telefono);
+        const existingUser = await userController.getLoginTelefono(telefono);
 
-            if (existingUser === undefined) {
-                res.json('Error, Teléfono no registrados.')
-            } else {
-                var _user = {
-                    estado: existingUser.estado, marker: existingUser.marker,
-                    foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
-                    rol: existingUser.rol, nombre: existingUser.nombre,
-                    apellido: existingUser.apellido, correo: existingUser.correo,
-                    telefono: existingUser.telefono,
-                    verificacion: 1,
-                    codigo: existingUser.codigo
-                }
-                const token = jwt.sign({
-                    estado: existingUser.estado, marker: existingUser.marker,
-                    foto: existingUser.foto, idUser: existingUser.idUser,
-                    idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
-                    apellido: existingUser.apellido, correo: existingUser.correo,
-                    telefono: existingUser.telefono,
-                    verificacion: 1,
-                    codigo: existingUser.codigo
-                },
-                    process.env.JWT_SECRET
-                );
-
-                return res.status(200).send({
-                    message: 'Logged in!',
-                    token,
-                    success: true,
-                    user: _user
-                });
+        if (existingUser === undefined) {
+            res.json('Error, Teléfono no registrados.')
+        } else {
+            var _user = {
+                estado: existingUser.estado, marker: existingUser.marker,
+                foto: existingUser.foto, idUser: existingUser.idUser, idrol: existingUser.idRol,
+                rol: existingUser.rol, nombre: existingUser.nombre,
+                apellido: existingUser.apellido, correo: existingUser.correo,
+                telefono: existingUser.telefono,
+                verificacion: 1,
+                codigo: existingUser.codigo
             }
+            const token = jwt.sign({
+                estado: existingUser.estado, marker: existingUser.marker,
+                foto: existingUser.foto, idUser: existingUser.idUser,
+                idrol: existingUser.idRol, rol: existingUser.rol, nombre: existingUser.nombre,
+                apellido: existingUser.apellido, correo: existingUser.correo,
+                telefono: existingUser.telefono,
+                verificacion: 1,
+                codigo: existingUser.codigo
+            },
+                process.env.JWT_SECRET
+            );
+
+            return res.status(200).send({
+                message: 'Logged in!',
+                token,
+                success: true,
+                user: _user
+            });
+        }
 
 
     } catch (error) {
@@ -1604,5 +1605,34 @@ usuarioRouter.post('/tiempouso', async (req, res) => {
         res.status(500).json({ success: false, message: 'Error del servidor' });
     }
 });
+
+usuarioRouter.get('/coste-trafico/:trafficFactor', async (req, res) => {
+    try {
+        const trafficFactor = req.params.trafficFactor;
+
+        const result = await cobro.additionalCoste(trafficFactor); // tu función de promesa
+
+        if (!result) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontraron registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Registro encontrado',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor',
+        });
+    }
+});
+
 
 module.exports = usuarioRouter;

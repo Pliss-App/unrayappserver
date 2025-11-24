@@ -57,7 +57,6 @@ isRouter.post('/login-register', async (req, res) => {
             try {
               //  sendSMS(`502${telefono}`, message, 'UnRay');
                 const existingUser = await userController.getLoginTelefono(telefono);
-                console.log("DATOS DEL USUARIO ", existingUser)
                 if (existingUser === undefined) {
                     res.json('Error, Teléfono no registrados.')
                 } else {

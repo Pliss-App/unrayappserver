@@ -13,6 +13,7 @@ const isBController = require('../../models/administracion/boletasBilletera');
 const isNotController = require('../../models/administracion/notificador');
 const isRefController = require('../../models/administracion/referidos');
 const isBonoController = require('../../models/administracion/bonificaciones')
+const cobro = require('../../models/cobro');
 
 isRouter.get('/usuarios/activos', async (req, res) => {
     try {
@@ -1209,17 +1210,53 @@ isRouter.get('/conductores/seguimientoCoordenadas', async (req, res) => {
     }
 })
 
+isRouter.post('/porcentajes/app', async (req, res) => {
+    try {
+        const { porApp, porCond, min, max } = req.body;
+
+        // Validación más lógica: si falta alguno de los campos requeridos
+        if (porApp == null || porCond == null || min == null || max == null) {
+            return res.status(400).json({
+                success: false,
+                message: "Faltan datos obligatorios: porApp, porCond, min, max"
+            });
+        }
+
+        const results = await isCController.insertPorcentajes(min, max, porApp, porCond);
+
+        if (!results || results.affectedRows === 0) {
+            return res.status(500).json({
+                success: false,
+                message: 'No se pudo insertar el registro. Intenta más tarde.'
+            });
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: 'Registro insertado correctamente',
+            data: { id: results.insertId }
+        });
+
+    } catch (error) {
+        console.error("Error en POST /porcentajes/app:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error en el servidor. Intenta más tarde.'
+        });
+    }
+});
+
 
 isRouter.put('/porcentajes/app', async (req, res) => {
     try {
 
-        const { porApp, porCond, id } = req.body;
+        const { id, porApp,  porCond, min, max} = req.body;
 
-        if (!id) {
+        if (!id && !porApp &&  !porCond && !min && !max) {
             return res.status(400).json({ success: false, message: "Faltan datos en la solicitud" });
         }
 
-        const results = await isCController.updatePorcentajes(porApp, porCond, id);
+        const results = await isCController.updatePorcentajes(min, max,porApp, porCond, id);
         if (results === undefined) {
             return res.status(401).send({
                 success: false,
@@ -1473,5 +1510,88 @@ isRouter.get('/bono/rangotiempo', async (req, res) => {
         });
     }
 })
+
+
+
+
+isRouter.get('/coste-trafico', async (req, res) => {
+  try {
+
+    const result = await cobro.alladditionalCoste();
+
+    return res.status(201).send({
+      success: true,
+      msg: 'Registro creado correctamente',
+      result: result
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      msg: 'Error en el servidor',
+    });
+  }
+});
+
+
+isRouter.post('/coste-trafico', async (req, res) => {
+  try {
+    const { traffic_min, traffic_max, coste } = req.body;
+
+    if (traffic_min=== undefined || traffic_max ===undefined || coste === undefined) {
+      return res.status(400).send({
+        success: false,
+        msg: 'Faltan datos: trafficFactor o coste',
+      });
+    }
+
+    const result = await cobro.createCoste(traffic_min, traffic_max, coste);
+
+    return res.status(201).send({
+      success: true,
+      msg: 'Registro creado correctamente',
+      result: result
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      msg: 'Error en el servidor',
+    });
+  }
+});
+
+
+isRouter.put('/coste-trafico/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { traffic_min, traffic_max, coste } = req.body;
+
+    if (!id || traffic_min === undefined || traffic_max === undefined || coste === undefined) {
+      return res.status(400).send({
+        success: false,
+        msg: 'Faltan datos: id, trafficFactor o coste',
+      });
+    }
+
+    const result = await cobro.updateCoste(traffic_min, traffic_max, coste, id);
+
+    return res.status(200).send({
+      success: true,
+      msg: result.message,
+      result: result
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).send({
+      success: false,
+      msg: 'Error en el servidor',
+    });
+  }
+});
+
 
 module.exports = isRouter;

@@ -113,7 +113,7 @@ const getConductorVehiculoId=(id) =>{
 // LIBNI CAMBIA PORFA ESTO LUEGO  PARA QUE SOLO VENA LOS CONDUTORES ACTIVOS PORFA
 const getActivos = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id, u.codigo,
+        connection.query(`SELECT u.id, u.estado, u.codigo,
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
@@ -137,7 +137,7 @@ LEFT JOIN
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 WHERE u.estado_eliminacion = 0
-  AND ur.idservice != 5
+  AND ur.idservice != 5 and u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
 
@@ -151,7 +151,7 @@ GROUP BY
 
 const getConductoresActivados = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id, u.codigo,
+        connection.query(`SELECT u.id, u.estado, u.codigo,
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
@@ -189,7 +189,7 @@ GROUP BY
 
 const getConductoresNoActivados = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id, u.codigo,
+        connection.query(`SELECT u.id, u.estado, u.codigo,
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
@@ -226,7 +226,7 @@ GROUP BY
 
 const getConductoresEnLinea = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id, u.codigo,
+        connection.query(`SELECT u.id, u.estado, u.codigo,
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
@@ -251,7 +251,7 @@ LEFT JOIN
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
 WHERE u.estado_eliminacion = 0 and u.activacion = 1 
-  AND ur.idservice != 5  and u.estado_usuario= 'libre'
+  AND ur.idservice != 5 and u.estado = 1 and u.estado_usuario= 'libre'
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
 
@@ -265,7 +265,7 @@ GROUP BY
 
 const getConductoresFueradeLinea = () => {
     return new Promise((resolve, reject) => {
-        connection.query(`SELECT u.id, u.codigo,
+        connection.query(`SELECT u.id, u.estado, u.codigo,
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_usuario,
   u.telefono, 
   u.correo, 
@@ -288,8 +288,8 @@ INNER JOIN
 LEFT JOIN 
   documentacion d ON u.id = d.iduser
   LEFT JOIN  usuario_location ul ON u.id = ul.idUser
-WHERE u.estado_eliminacion = 0 and u.activacion = 1
-  AND ur.idservice != 5 and u.estado_usuario= 'ocupado'
+WHERE u.estado_eliminacion = 0 and u.activacion = 1 and u.estado= 0
+  AND ur.idservice != 5 and  (u.estado_usuario= 'ocupado' or u.estado_usuario= 'libre' )
 GROUP BY 
   u.id, ur.idrol, ur.idservice, s.nombre;
 
@@ -453,17 +453,33 @@ const getPorcentajes = () => {
 }
 
 
-const updatePorcentajes = (app, cond, id) => {
+const updatePorcentajes = (min, max,app, cond, id) => {
     return new Promise((resolve, reject) => {
-        connection.query(`update porapps set porApp = ?, porCond= ? where id = ?`, [app, cond, id], (err, result) => {
+        connection.query(`update porapps set viaje_minimo= ?, viaje_maximo=?, porApp = ?, porCond= ? where id = ?`, [min, max, app, cond, id], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
     });
 }
 
+const insertPorcentajes = (min, max, app, cond) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `INSERT INTO porapps (viaje_minimo, viaje_maximo, porApp, porCond)
+             VALUES (?, ?, ?, ?)`,
+            [min, max, app, cond],
+            (err, result) => {
+                if (err) reject(err);
+                resolve(result);
+            }
+        );
+    });
+}
+
+
 
 module.exports = {
+  insertPorcentajes,
     getActivos,
     getServicios,
     //getConductorId,

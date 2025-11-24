@@ -718,52 +718,52 @@ isRouter.post("/send/mensajes", async (req, res) => {
 });
 
 isRouter.post("/get/mensajesNoLeidos", async (req, res) => {
-  try {
-    const { idViaje, emisor_id, receptor_id } = req.body;
-    // Validación de campos requeridos
-    if (!idViaje || !emisor_id || !receptor_id) {
-      return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+    try {
+        const { idViaje, emisor_id, receptor_id } = req.body;
+        // Validación de campos requeridos
+        if (!idViaje || !emisor_id || !receptor_id) {
+            return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+        }
+
+        const hayNoLeidos = await isController.obtMessageNoLeidos(idViaje, emisor_id, receptor_id);
+
+        return res.status(200).json({
+            success: true,
+            result: hayNoLeidos  // true o false
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
     }
-
-    const hayNoLeidos = await isController.obtMessageNoLeidos(idViaje, emisor_id, receptor_id);
-
-    return res.status(200).json({
-      success: true,
-      result: hayNoLeidos  // true o false
-    });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor'
-    });
-  }
 });
 
 
 isRouter.post("/updateMensajesNoLeidos", async (req, res) => {
-  try {
-    const { idViaje,  receptor_id } = req.body;
-    // Validación de campos requeridos
-    if (!idViaje || !receptor_id) {
-      return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+    try {
+        const { idViaje, receptor_id } = req.body;
+        // Validación de campos requeridos
+        if (!idViaje || !receptor_id) {
+            return res.status(400).json({ success: false, error: 'Todos los campos son obligatorios' });
+        }
+
+        const hayNoLeidos = await isController.updateMessageNoLeidos(idViaje, receptor_id);
+
+        return res.status(200).json({
+            success: true,
+            result: hayNoLeidos  // true o false
+        });
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({
+            success: false,
+            error: 'Error interno del servidor'
+        });
     }
-
-    const hayNoLeidos = await isController.updateMessageNoLeidos(idViaje, receptor_id);
-
-    return res.status(200).json({
-      success: true,
-      result: hayNoLeidos  // true o false
-    });
-
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({
-      success: false,
-      error: 'Error interno del servidor'
-    });
-  }
 });
 
 
@@ -1143,14 +1143,64 @@ isRouter.post("/calificar", async (req, res) => {
     }
 })
 */
+
+isRouter.put('/finalizar-viaje-prueba', async (req, res) => {
+    const io = getIO();
+
+    try {
+        const { idDriver } = req.body;
+
+        console.log("DATOS ", idDriver);
+        if (!idDriver) {
+            return res.status(400).json({ success: false, message: 'Faltan parámetros' });
+        }
+
+        // total viajes
+        const totalViajes = await isController.getTotalViajesDriver(idDriver);
+        if (!totalViajes) {
+            return res.status(200).json({
+                success: false,
+                message: 'Sin Registro'
+            });
+        }
+
+        console.log(" otal DATOS ", totalViajes.total);
+        const cobroResult = await cobro.cobroApp(totalViajes.total);
+        if (!cobroResult) {
+            return res.status(200).json({
+                success: false,
+                message: 'Error al obtener porcentaje de cobro'
+            });
+        }
+
+        const porcentaje = cobroResult.porApp / 100;
+        return res.status(200).json({
+            success: true,
+            message: 'Viaje finalizado y débito realizado con éxito',
+            result: cobroResult,
+            porcen: porcentaje
+        });
+
+    } catch (error) {
+        console.error("Error en finalizar viaje:", error);
+        return res.status(500).json({
+            success: false,
+            message: 'Error en el servidor'
+        });
+    }
+});
+
+
 isRouter.put('/finalizar-viaje', async (req, res) => {
     const io = getIO();
+
     try {
         const { idViaje, idUser, idUserViaje, idDriver, costo, fecha, hora } = req.body;
 
         if (!idViaje || !idUser || !costo) {
             return res.status(400).json({ success: false, message: 'Faltan parámetros' });
         }
+
         // Finalizar viaje
         const result = await isController.finalizarViaje(idViaje);
         if (!result) {
@@ -1159,13 +1209,24 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
                 message: 'Sin Registro'
             });
         }
+
         // CREAMOS LAS CALIFICACIONES 
         await isController.guardarCali_previa(idDriver, idViaje);
         await isController.guardarCali_previa(idUserViaje, idViaje);
         await userController.deleteMensaje(idViaje);
 
-        // Obtener porcentaje de cobro de la app
-        const cobroResult = await cobro.cobroApp();
+        // Obtener porcentaje de cobro de la app *************************
+
+        // total viajes
+        const totalViajes = await isController.getTotalViajesDriver(idDriver);
+        if (!totalViajes) {
+            return res.status(200).json({
+                success: false,
+                message: 'Sin Registro'
+            });
+        }
+
+        const cobroResult = await cobro.cobroApp(totalViajes.total);
         if (!cobroResult) {
             return res.status(200).json({
                 success: false,
@@ -1227,8 +1288,6 @@ isRouter.put('/finalizar-viaje', async (req, res) => {
             });
 
         }
-
-
 
     } catch (error) {
         console.error("Error en finalizar viaje:", error);
@@ -1345,5 +1404,8 @@ isRouter.put('/update-estado-solicitud-id', async (req, res) => {
         });
     }
 })
+
+
+
 
 module.exports = isRouter;

@@ -224,7 +224,11 @@ const conductores = (idService, saldo) => {
        ON r.id = ur.idrol
        INNER JOIN location l
        ON u.id = l.iduser
-       WHERE b.saldo > ? and u.activacion = 1 and u.estado = 1 and u.estado_usuario = 'libre' AND ur.idservice = ? `, [saldo, idService], (err, result) => {
+       WHERE b.saldo > ? 
+       and u.activacion = 1 
+       and u.estado = 1 
+       and u.estado_usuario = 'libre' 
+       and ur.idservice = ? `, [saldo, idService], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -404,6 +408,17 @@ const finalizarViaje = (id) => {
         connection.query(`UPDATE solicitudes SET estado='Finalizado',  estado_viaje = 'Finalizado' where id= ?`, [id], (err, result) => {
             if (err) reject(err)
             resolve(result)
+        })
+    });
+}
+
+
+const getTotalViajesDriver = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(`SELECT total_viajes as total FROM usuario
+                            WHERE id = ?`, [id], (err, result) => {
+            if (err) reject(err)
+            resolve(result[0])
         })
     });
 }
@@ -637,5 +652,6 @@ module.exports = {
     buscarConductorViaje,
     conductoreslist,
     obtMessageNoLeidos,
-    updateMessageNoLeidos
+    updateMessageNoLeidos,
+    getTotalViajesDriver
 }
