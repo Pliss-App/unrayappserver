@@ -3,12 +3,12 @@ const bcrypt = require('bcrypt');
 
 
 
-const createTravel=(id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) =>{
+const createTravel = (id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) => {
     return new Promise((resolve, reject) => {
 
         //id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel
-       //INSERT INTO travel( id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) VALUES (${connection.escape(id_user_driver)}, ${connection.escape(id_user_passenger)}, ${connection.escape(id_service)}, ${connection.escape(descripcion)}, ${connection.escape(ayudante)}, ${connection.escape(tipo_vehiculo)}, ${connection.escape(address_initial)}, ${connection.escape(address_final)}, ${connection.escape(lat_initial)}, ${connection.escape(lng_initial)}, ${connection.escape(lat_final)}, ${connection.escape(lng_final)}, ${connection.escape(date_init)}, ${connection.escape(date_final)}, ${connection.escape(distance)}, ${connection.escape(total)}, ${connection.escape(status)}, ${connection.escape(status_travel)})
-       
+        //INSERT INTO travel( id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) VALUES (${connection.escape(id_user_driver)}, ${connection.escape(id_user_passenger)}, ${connection.escape(id_service)}, ${connection.escape(descripcion)}, ${connection.escape(ayudante)}, ${connection.escape(tipo_vehiculo)}, ${connection.escape(address_initial)}, ${connection.escape(address_final)}, ${connection.escape(lat_initial)}, ${connection.escape(lng_initial)}, ${connection.escape(lat_final)}, ${connection.escape(lng_final)}, ${connection.escape(date_init)}, ${connection.escape(date_final)}, ${connection.escape(distance)}, ${connection.escape(total)}, ${connection.escape(status)}, ${connection.escape(status_travel)})
+
         connection.query(`INSERT INTO travel( id_user_driver, id_user_passenger, id_service, descripcion, ayudante, tipo_vehiculo, address_initial, address_final, lat_initial, lng_initial, lat_final, lng_final, date_init, date_final, distance, total, status, status_travel) VALUES (${connection.escape(id_user_driver)}, ${connection.escape(id_user_passenger)}, ${connection.escape(id_service)}, ${connection.escape(descripcion)}, ${connection.escape(ayudante)}, ${connection.escape(tipo_vehiculo)}, ${connection.escape(address_initial)}, ${connection.escape(address_final)}, ${connection.escape(lat_initial)}, ${connection.escape(lng_initial)}, ${connection.escape(lat_final)}, ${connection.escape(lng_final)}, ${connection.escape(date_init)}, ${connection.escape(date_final)}, ${connection.escape(distance)}, ${connection.escape(total)}, ${connection.escape(status)}, ${connection.escape(status_travel)})`, (err, result) => {
             if (err) reject(err)
             resolve(result)
@@ -16,9 +16,9 @@ const createTravel=(id_user_driver, id_user_passenger, id_service, descripcion, 
     });
 }
 
-const createTravelDetail=(data) =>{
+const createTravelDetail = (data) => {
     return new Promise((resolve, reject) => {
-        connection.query(`INSERT INTO travel_detail SET ? `,[data], (err, result) => {
+        connection.query(`INSERT INTO travel_detail SET ? `, [data], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
@@ -79,11 +79,66 @@ const updateSharedLocationUser = (id, isShared) => { //getByEmail
 
 
 
+const createIsSharing = (idUser,
+    idDriver,
+    idViaje,
+    isSharing,
+    fecha) => {
+    return new Promise((resolve, reject) => {
+
+        connection.query(`INSERT INTO sharedLocation(idUser,
+                            idDriver,
+                            idViaje ,
+                            isSharing,
+                            fecha) 
+                        VALUES (${connection.escape(idUser)}, 
+                        ${connection.escape(idDriver)}, 
+                        ${connection.escape(idViaje)}, 
+                        ${connection.escape(isSharing)}, 
+                        ${connection.escape(fecha)})`,
+                        (err, result) => {
+            if (err) reject(err)
+            resolve(result)
+        })
+    });
+}
+
+const getUserIsSharingUbication = (id, idViaje) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `SELECT * FROM sharedLocation WHERE idUser=? AND idViaje=?`,
+            [id, idViaje],
+            (err, rows) => {
+                if (err) return reject(err);
+
+                if (!rows || rows.length === 0) {
+                    return resolve(null); // o false
+                }
+
+                resolve(rows[0]);
+            }
+        );
+    });
+};
+
+const updateUserIsSharingUbication = (id, idViaje, isSharing) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `update sharedLocation set isSharing= ?  WHERE idUser=? and idViaje= ? `, [isSharing, id, idViaje], (err, rows) => {
+                if (err) reject(err)
+                resolve(rows)
+            });
+    });
+};
+
 module.exports = {
     createTravel,
     createTravelDetail,
     obtenerLocationUser,
     updateLocationUser,
     updateSharedLocationUser,
-    obtenerLocationUserIsSharing
+    obtenerLocationUserIsSharing,
+    createIsSharing,
+    getUserIsSharingUbication,
+    updateUserIsSharingUbication
 }

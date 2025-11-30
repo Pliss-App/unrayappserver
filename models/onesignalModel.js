@@ -62,7 +62,7 @@ const sendNotification = async (userId, sonido, title, message, fecha, idUser, t
 
     const insertQuery = `INSERT INTO notificaciones (idNoti, idUser,  titulo,  mensaje, data, estado, fecha_envio,plataforma, token_dispositivo, tipo_noti) 
                     VALUES 
-                    (?,?,?,?, ?,?,?,?, ?, ?);`;
+                    (?,?,?,?,?,?,?,?,?,?);`;
 
     try {
         const headers = {
@@ -189,7 +189,7 @@ const getNotificacionesUserPage = (id, page = 1, offset = 20) => {
     const sql = `
       SELECT * 
       FROM notificaciones 
-      WHERE idUser = ?  and tipo_noti != 'chat'
+      WHERE idUser = ? AND (tipo_noti <> 'chat' OR tipo_noti IS NULL)
       ORDER BY fecha_envio DESC
       LIMIT ? OFFSET ?
     `;

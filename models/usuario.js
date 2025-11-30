@@ -823,16 +823,16 @@ const updateRolTransicion = (idUser, idservice) => {
 
 
 const verificarServicioExiste = (idservice) => {
-  return new Promise((resolve, reject) => {
-    connection.query(
-      'SELECT id FROM servicios WHERE id = ?',
-      [idservice],
-      (err, rows) => {
-        if (err) return reject(err);
-        resolve(rows.length > 0);
-      }
-    );
-  });
+    return new Promise((resolve, reject) => {
+        connection.query(
+            'SELECT id FROM servicios WHERE id = ?',
+            [idservice],
+            (err, rows) => {
+                if (err) return reject(err);
+                resolve(rows.length > 0);
+            }
+        );
+    });
 };
 
 
@@ -1147,7 +1147,7 @@ const deleteMensaje = (id) => { //getByEmail
 const updateCodigoVerificacion = (telefono, fecha, codigo) => { //getByEmail
     return new Promise((resolve, reject) => {
         //anterio = > update usuario set codigo_verificacion= ?, codigoVerTimestamp=?,  ultconexion= ?, verificacion= 0 where telefono = ?
-        connection.query( 
+        connection.query(
             "update usuario set ultconexion= ?, verificacion= 1 where telefono = ?", [codigo, fecha, fecha, telefono], (err, rows) => {
                 if (err) {
                     console.error('Error getting record:', err); // Registro del error en el servidor
@@ -1285,7 +1285,7 @@ const actualizarCorreoModoConductor = (id, telefono, correo) => {
 const ejecutarTransicionConductor = (idUser, fecha, placas, modelo, color, idServicio, correo) => {
     return new Promise((resolve, reject) => {
 
-          const idUserNum = Number(idUser);
+        const idUserNum = Number(idUser);
 
         if (isNaN(idUserNum)) {
             return reject(new Error('El idUser no es un número válido'));
@@ -1333,6 +1333,19 @@ const puedeEnviarSMS = (numero) => {
     });
 };
 
+
+const getComentarios = (id) => {
+    return new Promise((resolve, reject) => {
+        const sql = `SELECT u.nombre, u.apellido, u.foto, c.* FROM calificaciones  c
+                        inner join usuario u
+                        on c.evaluador_id = u.id
+                        where evaluado_id = ?  `;
+        connection.query(sql, [id], (err, rows) => {
+            if (err) return reject(err);
+            resolve(rows); // máximo 3 envíos por día
+        });
+    });
+};
 
 module.exports = {
     insertEnvioSMS,
@@ -1415,5 +1428,6 @@ module.exports = {
     getLoginIdModo,
     getVehiculo,
     verificarServicioExiste,
-    getVehiculoModo
+    getVehiculoModo,
+     getComentarios
 }

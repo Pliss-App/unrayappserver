@@ -130,11 +130,95 @@ const actualizarEstadoDocumentacion = (id, estado) => {
     });
 }
 
+/* */
+
+const getBoletas = (estado, iduser) => {
+    return new Promise((resolve, reject) => {
+
+        let sql = `
+            SELECT *
+            FROM transaccion_billetera
+            WHERE 1 = 1
+        `;
+
+        const params = [];
+
+        if (estado) {
+            sql += " AND estado = ? ";
+            params.push(estado);
+        }
+
+        if (iduser) {
+            sql += " AND iduser = ? ";
+            params.push(iduser);
+        }
+
+        sql += " ORDER BY fecha_carga DESC";
+
+        connection.query(sql, params, (err, result) => {
+            if (err) reject(err);
+            resolve(result);
+        });
+    });
+};
+
+const getBoletaById = (id) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            "SELECT * FROM transaccion_billetera WHERE id = ?",
+            [id],
+            (err, result) => {
+                if (err) reject(err);
+                resolve(result[0]);
+            }
+        );
+    });
+};
+
+const actualizarEstado = (id, estado, comentario) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `
+                UPDATE transaccion_billetera
+                SET estado = ?, comentario = ?
+                WHERE id = ?
+            `,
+            [estado, comentario, id],
+            (err, result) => {
+                if (err) reject(err);
+                resolve({ success: true, affected: result.affectedRows });
+            }
+        );
+    });
+};
+
+const acreditarSaldo = (iduser, monto) => {
+    return new Promise((resolve, reject) => {
+        connection.query(
+            `
+                UPDATE billetera
+                SET saldo = saldo + ?
+                WHERE iduser = ?
+            `,
+            [monto, iduser],
+            (err, result) => {
+                if (err) reject(err);
+                resolve(result);
+            }
+        );
+    });
+};
+
+
 module.exports = {
     getActivos,
     getBoleta,
     getFecha,
     getBoletaId,
     updateBoletaId,
-    getTotal
+    getTotal,
+    getBoletas,
+    getBoletaById,
+    actualizarEstado,
+    acreditarSaldo
 }

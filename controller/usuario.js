@@ -1014,6 +1014,7 @@ usuarioRouter.get('/notificaciones_page/:id', async (req, res) => {
         const page = Math.max(parseInt(req.query.page) || 1, 1);
         const offset = Math.max(parseInt(req.query.offset) || 15, 1);
         const startAt = (page - 1) * offset;
+        console.log("ENTOR API NOTI : ", idUser, " ", page, " - ", offset, " - ", startAt)
 
         // Ejecutar consultas en paralelo
         const [lista, total] = await Promise.all([
@@ -1621,6 +1622,35 @@ usuarioRouter.get('/coste-trafico/:trafficFactor', async (req, res) => {
             return res.status(200).send({
                 success: true,
                 msg: 'Registro encontrado',
+                result: result
+            });
+        }
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send({
+            success: false,
+            msg: 'Error en el servidor',
+        });
+    }
+});
+
+
+usuarioRouter.get('/comentarios/:id', async (req, res) => {
+    try {
+
+
+        const result = await userController.getComentarios(req.params.id); // tu función de promesa
+
+        if (!result) {
+            return res.status(200).send({
+                success: false,
+                msg: 'No se encontraron registros',
+            });
+        } else {
+            return res.status(200).send({
+                success: true,
+                msg: 'Registros encontrados',
                 result: result
             });
         }

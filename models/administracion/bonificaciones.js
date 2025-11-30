@@ -16,8 +16,8 @@ const filtrarRangoFechaViajes = (fech_ini, fech_final, codigo = null) => {
                 COUNT(s.id) AS totalViajes
             FROM usuario u
             INNER JOIN solicitudes s ON u.id = s.idConductor
-            WHERE /*s.estado = 'Finalizado'
-              AND*/ s.fecha_hora BETWEEN ? AND ?
+            WHERE s.estado = 'Finalizado'
+              AND s.fecha_hora BETWEEN ? AND ?
               AND (? IS NULL OR u.codigo = ?)
             GROUP BY u.id;
         `;

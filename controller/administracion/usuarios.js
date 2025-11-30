@@ -643,21 +643,10 @@ isRouter.get('/boletas/total', async (req, res) => {
 })
 
 
-isRouter.get('/boletas/listar/:item', async (req, res) => {
+isRouter.get('/boletas/listar', async (req, res) => {
 
     try {
-        const item = req.params.item;
-        var valor = null
-
-        if (item == 'validacion') {
-            valor = 'Validación'
-        } else if (item == 'aprobado') {
-            valor = 'Aprobado'
-        } else {
-            valor = 'Rechazado'
-        }
-
-        const result = await isBController.getActivos(valor);
+        const result = await isBController.getActivos();
         if (result === undefined) {
             return res.status(200).send({
                 success: false,

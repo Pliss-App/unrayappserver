@@ -11,6 +11,7 @@ const soliRouter = require('../controller/solicitud');
 const dashboardRouter = require('../controller/administracion/dashboard');
 const notiRouter = require('../controller/administracion/notificador');
 const cuentaRouter = require('../controller/registro');
+const billetera  =  require('../controller/administracion/billetera')
 //const comercioRouter = require('../controller/comercio');
 const locationRouter = require('../controller/location')
 const firebRouter = require('../controller/firebase')
@@ -43,6 +44,8 @@ apiRouter.use('/auth', firebRouter);
 apiRouter.use('/sms', brevoRouter);
 apiRouter.use('/admin', adminRouter);
 apiRouter.use('/publicidad', publicidad);
+
+apiRouter.use('/admin/billetera', billetera);
 
 apiRouter.use('/afiliacion', afiRouter);
 
