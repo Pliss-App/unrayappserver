@@ -23,9 +23,9 @@ const metodopago = () => { //getByEmail
 };
 
 
-const recargarBilletera = (id_user, boleta, monto, url) => {
+const recargarBilletera = (id_user, boleta, monto, url, tipo) => {
     return new Promise((resolve, reject) => {
-        connection.query(`CALL recargar_billetera(?, ?, ?, ?, NOW());`, [id_user, boleta, monto, url], (err, result) => {
+        connection.query(`CALL recargar_billetera(?, ?, ?, ?, ?, NOW());`, [id_user, boleta, monto, url, tipo], (err, result) => {
             if (err) reject(err)
             resolve(result)
         })
