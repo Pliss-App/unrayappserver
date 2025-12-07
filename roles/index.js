@@ -18,7 +18,8 @@ const firebRouter = require('../controller/firebase')
 const brevoRouter = require('../controller/brevo')
 const servicesRouter = require('../controller/services');
 const solicitudes = require('../controller/procesarsolicitud')
-const publicidad = require('../controller/administracion/publicidad')
+const publicidad = require('../controller/administracion/publicidad');
+const finanzas = require('../controller/administracion/finanzas')
 
 // ####################################admin
 const adminRouter = require('../controller/administracion/usuarios');
@@ -52,6 +53,7 @@ apiRouter.use('/afiliacion', afiRouter);
 
 apiRouter.use('/validateimage', validateImage);
 
+apiRouter.use('/admin/finanzas', finanzas);
 apiRouter.use('/dashboard', dashboardRouter );
 apiRouter.use('/noti',notiRouter );
 
